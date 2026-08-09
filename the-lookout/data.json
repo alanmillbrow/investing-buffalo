@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-08-09T12:30:30.341Z",
+  "savedAt": "2026-08-09T13:41:40.098Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -559,27 +559,27 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 64942,
+      "price": 65261.19,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 307,
-      "vsAth": -48.540261171922616,
-      "change1mo": 1.2161145305954997,
-      "change12mo": -44.237725099764084,
-      "change3yr": 120.4730825051136,
-      "change5yr": 42.45349545625315
+      "vsAth": -48.28733650011493,
+      "change1mo": 1.7135918426127,
+      "change12mo": -43.96365345852411,
+      "change3yr": 121.55670794327085,
+      "change5yr": 43.15365453996912
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4342.29639,
+      "price": 4342.29641,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 192,
-      "vsAth": -22.42061728577779,
-      "change1mo": 5.412818100096294,
-      "change12mo": 28.117037930912403,
-      "change3yr": 127.10034573698982,
-      "change5yr": 151.1870273011886
+      "vsAth": -22.42061692845819,
+      "change1mo": 5.412818585612739,
+      "change12mo": 28.117038521001252,
+      "change3yr": 127.1003467829817,
+      "change5yr": 151.18702845812032
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
