@@ -813,7 +813,16 @@ select#frequency:focus {
 }
 .dot-contrib { background: var(--contrib); }
 .dot-interest { background: var(--interest); }
-.dot-multiple { background: var(--multiple); }
+/* Minimum assets / target pot are drawn on the chart as a dashed reference
+   line, not a solid trend line — match that in the legend so the swatch
+   actually looks like what's on the chart. */
+.dot-multiple {
+  width: 14px;
+  height: 0;
+  border-radius: 0;
+  background: none;
+  border-top: 2px dashed var(--multiple);
+}
 
 .chart-header, .table-header, .youtube-embed-header {
   display: flex;
