@@ -84,6 +84,14 @@ html, body {
      with no CSS rule actually asking for that. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Reserve the vertical scrollbar's width permanently, whether or not one
+     is actually being drawn. Without this, macOS swaps between an overlay
+     scrollbar (trackpad — floats over content, no layout width) and a
+     classic one (mouse, or "Show scroll bars: Always") that does reserve
+     width — shrinking the content area and shifting a centred layout
+     sideways every time it switches. A no-op in browsers that don't
+     support the property (Safari added support in 18.2).*/
+  scrollbar-gutter: stable;
 }
 
 body {
