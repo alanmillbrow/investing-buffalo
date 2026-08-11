@@ -70,6 +70,10 @@
 
   const fmtNumber = (n) => new Intl.NumberFormat('en-US').format(Math.round(n));
   const fmtCurrency = (n) => CURRENCY_SYMBOLS[currentCurrency] + fmtNumber(n);
+  // Same as fmtCurrency, but for values that are meaningfully negative (the
+  // yearly table's lifestyle expenses column) — puts the minus before the
+  // currency symbol (-£X) rather than fmtCurrency's default (£-X)
+  const fmtSignedCurrency = (n) => (n < 0 ? '-' : '') + fmtCurrency(Math.abs(n));
 
   function parseNumber(str) {
     const cleaned = String(str).replace(/[^0-9.\-]/g, '');
@@ -503,7 +507,7 @@
       tr.innerHTML = `
         <td>${fmtDur(row.year)}</td>
         <td>${fmtCurrency(row.annualIncome)}</td>
-        <td>${fmtCurrency(-row.annualExpenses || 0)}</td>
+        <td>${fmtSignedCurrency(-row.annualExpenses || 0)}</td>
         <td>${fmtCurrency(row.interest)}</td>
         <td>${fmtCurrency(row.balance)}</td>
       `;
