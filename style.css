@@ -1343,6 +1343,13 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--text-secondary);
   margin: 0;
 }
+/* Scoped to this one card rather than .story-p generally — elsewhere
+   .story-p's siblings already get breathing room from a flex gap on
+   their wrapper (e.g. .story-text-group), so a general rule here would
+   double up on top of that. */
+.happiness-card .story-p + .story-p {
+  margin-top: 12px;
+}
 .story-p a {
   color: var(--interest);
   text-decoration: underline;
