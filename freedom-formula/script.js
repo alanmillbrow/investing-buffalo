@@ -446,7 +446,9 @@
         // plus this final partial stretch of the year it ends in.
         const partialMonths = runwayMonths - totalMonths;
         const endContributed = contributed + netFlowTail * partialMonths;
-        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: minAssets - endContributed, annualExpenses: tailExpenses * 12 });
+        // Expenses actually incurred during this final, partial stretch —
+        // not the full annual rate, since only part of the year elapsed
+        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: minAssets - endContributed, annualExpenses: tailExpenses * partialMonths });
       } else {
         // An arbitrary (slider-chosen) cutoff — simulate the remaining
         // whole months to stay consistent with the monthly-compounding
@@ -456,7 +458,7 @@
           balance = balance * (1 + monthlyRate) + netFlowTail;
           contributed += netFlowTail;
         }
-        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: balance - contributed, annualExpenses: tailExpenses * 12 });
+        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: balance - contributed, annualExpenses: tailExpenses * extraMonths });
       }
     }
 
@@ -531,7 +533,9 @@
     const { width, height } = setupCanvasSize();
     chartCtx.clearRect(0, 0, width, height);
 
-    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0, annualExpenses: expenses * 12 }, ...yearly];
+    // Year 0 is the starting instant — no time has passed, so no expenses
+    // have actually been incurred yet
+    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0, annualExpenses: 0 }, ...yearly];
     renderTable(points);
 
     const padding = { top: 16, right: 24, bottom: 28, left: 64 };
