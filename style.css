@@ -690,6 +690,13 @@ select#frequency:focus {
 .ledger-row span:last-child {
   font-weight: 400;
   font-variant-numeric: tabular-nums;
+  /* The right alignment normally comes from justify-content: space-between
+     pushing a single-line, content-sized box to the row's right edge — but
+     once text is long enough to wrap (e.g. free-form prose rather than a
+     short currency figure), the box stretches to fill the remaining width
+     and, with no text-align of its own, the wrapped lines default to the
+     left. Setting it explicitly keeps wrapped text right-aligned too. */
+  text-align: right;
 }
 
 .ledger-row.cols-3 {
