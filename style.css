@@ -278,6 +278,15 @@ body {
 }
 .tool-box:hover { background: var(--accent-soft); }
 
+/* A single standalone tool-box outside the homepage's .tools-row grid
+   (e.g. the starter-sheet page's link back home) — full narrow-layout
+   width like its sibling .card elements (no max-width, unlike a
+   .tools-row item), and pulled up closer to the signup box above it
+   than the default 48px narrow-layout gap. */
+.tool-box-single {
+  margin-top: -32px;
+}
+
 .card.tool-box-featured {
   background: var(--card-border);
   color: var(--card-bg-solid);
@@ -1042,7 +1051,13 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--interest);
   text-decoration: underline;
 }
-
+/* Matches the fixed 20px gap above rm-quote/rm-lede (their own margin,
+   not the narrow-layout gap) — otherwise the signup box below sits at
+   the full 40-48px narrow-layout gap, visibly further away than the
+   equivalent gap above. */
+.rm-intro + .newsletter-signup {
+  margin-top: -20px;
+}
 /* Four Stages of Financial Health */
 /* 2x2 quadrant, reading order top-left, top-right, bottom-left,
    bottom-right — all four cards the same size. */
@@ -1163,6 +1178,12 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--text-secondary);
   margin: 0;
 }
+/* Same darker-not-bold emphasis as the sankey card's strong text — used
+   for the M/O/B initials so they stand out as spelling the acronym. */
+.rf-p strong {
+  color: var(--text-primary);
+  font-weight: 400;
+}
 .rf-income-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1187,15 +1208,14 @@ tbody tr:hover { background: var(--accent-soft); }
 }
 
 /* Freedom Flow (Sankey) */
+/* Reads as body copy rather than a caption, so it's sized like the page's
+   main text rather than the smaller note size used elsewhere — was
+   previously sized via a sibling selector matching it as the second of
+   two .section-note lines, until the shorter tagline above it was
+   removed leaving this the only one. */
 .sankey-card > .section-note {
-  font-size: 0.98rem;
-  font-style: normal;
-}
-/* The explainer line (the second, longer note) reads as body copy rather
-   than a caption, so size it like the page's main text instead of the
-   smaller note size used for the tagline above it. */
-.sankey-card > .section-note + .section-note {
   font-size: 1.1rem;
+  font-style: normal;
 }
 .sankey-card > .section-note strong {
   color: var(--text-primary);
