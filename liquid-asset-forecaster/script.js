@@ -369,15 +369,27 @@
   function renderTable(yearly, principal) {
     tableBody.innerHTML = '';
     const rows = [{ year: 0, contributed: principal, interest: 0, balance: principal }, ...yearly];
+    // contributed/interest on each row are running totals since year 0 (the
+    // chart needs them cumulative for its stacked area) — the table instead
+    // shows just that year's contribution and growth, so diff against the
+    // previous row's cumulative total. Year 0's own "since 0" total is the
+    // opening principal itself, which the diff produces for free since
+    // prevContributed/prevInterest start at 0.
+    let prevContributed = 0;
+    let prevInterest = 0;
     for (const row of rows) {
+      const yearlyContribution = row.contributed - prevContributed;
+      const yearlyInterest = row.interest - prevInterest;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${row.year}</td>
-        <td>${fmtCurrency(row.contributed)}</td>
-        <td>${fmtCurrency(row.interest)}</td>
+        <td>${fmtCurrency(yearlyContribution)}</td>
+        <td>${fmtCurrency(yearlyInterest)}</td>
         <td>${fmtCurrency(row.balance)}</td>
       `;
       tableBody.appendChild(tr);
+      prevContributed = row.contributed;
+      prevInterest = row.interest;
     }
   }
 
