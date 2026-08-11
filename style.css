@@ -708,6 +708,23 @@ select#frequency:focus {
   position: relative;
   overflow-x: auto;
 }
+/* The native horizontal scrollbar (shown here and on .table-wrap whenever
+   content overflows) rendered flush against the card's own bottom
+   border, visually stacking into one thicker-looking band. scroll-hint.js
+   already gives these a custom "more to scroll" chevron, making the
+   native scrollbar redundant as well as the thing causing the visual
+   glitch — hidden here rather than just on this one table, since
+   .table-wrap has the identical border + overflow-x: auto pattern and
+   would show the same artifact under the same conditions. */
+.ledger-table-scroll,
+.table-wrap {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ledger-table-scroll::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar {
+  display: none;
+}
 .ledger-row.cols-5 {
   display: grid;
   /* Rule's own values ("3% rule" etc) are short and left-aligned, so an
