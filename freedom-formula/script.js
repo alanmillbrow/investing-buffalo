@@ -417,6 +417,12 @@
     const wholeYears = Math.floor(cutoffYears);
     let balance = assets;
     let contributed = assets;
+    // Tracks balance/contributed as of the previous row, so each row's
+    // "interest" can hold just that year's investment return (balance
+    // "contributed" themselves stay cumulative — the chart's stacked area
+    // needs the running totals)
+    let prevBalance = assets;
+    let prevContributed = assets;
     const totalMonths = wholeYears * 12;
     const yearly = [];
     for (let m = 1; m <= totalMonths; m++) {
@@ -428,7 +434,10 @@
       balance = balance * (1 + monthlyRate) + netFlow;
       contributed += netFlow;
       if (m % 12 === 0) {
-        yearly.push({ year: m / 12, contributed, balance, interest: balance - contributed, annualExpenses: currentExpenses * 12 });
+        const yearlyReturn = (balance - prevBalance) - (contributed - prevContributed);
+        yearly.push({ year: m / 12, contributed, balance, interest: yearlyReturn, annualExpenses: currentExpenses * 12, annualIncome: income * 12 });
+        prevBalance = balance;
+        prevContributed = contributed;
       }
     }
 
@@ -446,9 +455,10 @@
         // plus this final partial stretch of the year it ends in.
         const partialMonths = runwayMonths - totalMonths;
         const endContributed = contributed + netFlowTail * partialMonths;
-        // Expenses actually incurred during this final, partial stretch —
-        // not the full annual rate, since only part of the year elapsed
-        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: minAssets - endContributed, annualExpenses: tailExpenses * partialMonths });
+        const yearlyReturn = (minAssets - prevBalance) - (endContributed - prevContributed);
+        // Income and expenses actually incurred during this final, partial
+        // stretch — not the full annual rate, since only part of the year elapsed
+        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: yearlyReturn, annualExpenses: tailExpenses * partialMonths, annualIncome: income * partialMonths });
       } else {
         // An arbitrary (slider-chosen) cutoff — simulate the remaining
         // whole months to stay consistent with the monthly-compounding
@@ -458,7 +468,8 @@
           balance = balance * (1 + monthlyRate) + netFlowTail;
           contributed += netFlowTail;
         }
-        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: balance - contributed, annualExpenses: tailExpenses * extraMonths });
+        const yearlyReturn = (balance - prevBalance) - (contributed - prevContributed);
+        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: yearlyReturn, annualExpenses: tailExpenses * extraMonths, annualIncome: income * extraMonths });
       }
     }
 
@@ -486,10 +497,13 @@
     tableBody.innerHTML = '';
     for (const row of points) {
       const tr = document.createElement('tr');
+      // Lifestyle expenses shown as a minus figure, and investment return is
+      // now this year's alone (not cumulative) — so previous year's balance
+      // plus these three columns equals this row's balance
       tr.innerHTML = `
         <td>${fmtDur(row.year)}</td>
-        <td>${fmtCurrency(row.annualExpenses)}</td>
-        <td>${fmtCurrency(row.contributed)}</td>
+        <td>${fmtCurrency(row.annualIncome)}</td>
+        <td>${fmtCurrency(-row.annualExpenses || 0)}</td>
         <td>${fmtCurrency(row.interest)}</td>
         <td>${fmtCurrency(row.balance)}</td>
       `;
@@ -533,9 +547,9 @@
     const { width, height } = setupCanvasSize();
     chartCtx.clearRect(0, 0, width, height);
 
-    // Year 0 is the starting instant — no time has passed, so no expenses
-    // have actually been incurred yet
-    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0, annualExpenses: 0 }, ...yearly];
+    // Year 0 is the starting instant — no time has passed, so no income or
+    // expenses have actually been incurred yet, and no return has accrued
+    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0, annualExpenses: 0, annualIncome: 0 }, ...yearly];
     renderTable(points);
 
     const padding = { top: 16, right: 24, bottom: 28, left: 64 };
@@ -688,9 +702,9 @@
     chartTooltip.innerHTML = `
       <strong>Year ${fmtDur(point.year)}</strong><br>
       Balance: ${fmtCurrency(point.balance)}<br>
-      Contributions: ${fmtCurrency(point.contributed)}<br>
-      Investment return: ${fmtCurrency(point.interest)}<br>
-      Annual expenses: ${fmtCurrency(point.annualExpenses)}
+      Leveraged income: ${fmtCurrency(point.annualIncome)}<br>
+      Lifestyle expenses: ${fmtCurrency(point.annualExpenses)}<br>
+      Investment return: ${fmtCurrency(point.interest)}
     `;
   });
 
