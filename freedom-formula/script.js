@@ -7,6 +7,8 @@
   const incomeRange = $('incomeRange');
   const expensesInput = $('expenses');
   const expensesRange = $('expensesRange');
+  const expenseGrowthInput = $('expenseGrowth');
+  const expenseGrowthRange = $('expenseGrowthRange');
   const assetsInput = $('assets');
   const assetsRange = $('assetsRange');
   const returnRateInput = $('returnRate');
@@ -139,6 +141,7 @@
 
   bindTextAndRange(incomeInput, incomeRange, { isCurrency: true });
   bindTextAndRange(expensesInput, expensesRange, { isCurrency: true });
+  bindTextAndRange(expenseGrowthInput, expenseGrowthRange, {});
   bindTextAndRange(assetsInput, assetsRange, { isCurrency: true, onChange: syncMinAssetsCeiling });
   bindTextAndRange(returnRateInput, returnRateRange, {});
   bindTextAndRange(minAssetsInput, minAssetsRange, { isCurrency: true });
@@ -176,6 +179,7 @@
 
     setField('income', incomeInput, incomeRange, true);
     setField('expenses', expensesInput, expensesRange, true);
+    setField('expenseGrowth', expenseGrowthInput, expenseGrowthRange, false);
     setField('assets', assetsInput, assetsRange, true);
     // Refresh the minAssets ceiling before applying its own URL value,
     // since it depends on the (possibly just-updated) assets value
@@ -195,6 +199,7 @@
     const params = new URLSearchParams();
     params.set('income', Math.round(parseNumber(incomeInput.value)));
     params.set('expenses', Math.round(parseNumber(expensesInput.value)));
+    params.set('expenseGrowth', parseNumber(expenseGrowthInput.value));
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('rate', parseNumber(returnRateInput.value));
     params.set('minAssets', Math.round(parseNumber(minAssetsInput.value)));
@@ -292,17 +297,51 @@
     });
   });
 
-  // Months until the balance reaches minAssets, or null if it never does
-  function computeRunwayMonths(assets, shortfall, monthlyRate, minAssets) {
-    if (shortfall <= 0) return null; // income covers expenses — runway never ends
-    if (monthlyRate <= 0) {
-      return (assets - minAssets) / shortfall;
+  // Months until the balance reaches minAssets, or null if it never does.
+  // Expenses grow (or shrink) by annualExpenseGrowth once per 12 months, so
+  // this walks year by year rather than using a single closed-form solve —
+  // within any one year expenses are flat, so each year reuses the same
+  // exact perpetuity/log formula as before, just re-anchored to that year's
+  // starting balance and that year's (possibly grown) shortfall. Searched up
+  // to a 500-year horizon, which is effectively "never" for any realistic
+  // input — real infinite cases (e.g. annualExpenseGrowth <= 0 and income
+  // already covers expenses) resolve almost immediately since the balance
+  // only ever grows.
+  function computeRunwayMonths(assets, income, expenses, monthlyRate, minAssets, annualExpenseGrowth) {
+    const MAX_YEARS = 500;
+    let balance = assets;
+    let elapsedMonths = 0;
+    for (let year = 0; year < MAX_YEARS; year++) {
+      const expensesThisYear = expenses * Math.pow(1 + annualExpenseGrowth, year);
+      const shortfall = expensesThisYear - income;
+      const netFlow = income - expensesThisYear;
+
+      if (shortfall > 0) {
+        if (monthlyRate <= 0) {
+          const monthsToDeplete = (balance - minAssets) / shortfall;
+          if (monthsToDeplete <= 12) return elapsedMonths + Math.max(0, monthsToDeplete);
+        } else {
+          const x = (balance * monthlyRate) / shortfall;
+          if (x < 1) {
+            // Perpetuity balance level where growth exactly offsets this year's shortfall
+            const perpetuityLevel = shortfall / monthlyRate;
+            const monthsToDeplete = Math.log((perpetuityLevel - minAssets) / (perpetuityLevel - balance)) / Math.log(1 + monthlyRate);
+            if (monthsToDeplete <= 12) return elapsedMonths + Math.max(0, monthsToDeplete);
+          }
+        }
+      }
+      // Doesn't deplete within this year — roll the balance forward a full
+      // year of monthly compounding plus net flow, then move to the next
+      // (possibly more, or less, expensive) year
+      if (monthlyRate > 0) {
+        const growth = Math.pow(1 + monthlyRate, 12);
+        balance = balance * growth + netFlow * ((growth - 1) / monthlyRate);
+      } else {
+        balance += netFlow * 12;
+      }
+      elapsedMonths += 12;
     }
-    const x = (assets * monthlyRate) / shortfall;
-    if (x >= 1) return null; // investment growth outpaces the shortfall — runway never ends
-    // Perpetuity balance level where growth exactly offsets the shortfall
-    const perpetuityLevel = shortfall / monthlyRate;
-    return Math.log((perpetuityLevel - minAssets) / (perpetuityLevel - assets)) / Math.log(1 + monthlyRate);
+    return null; // never depletes within any realistic horizon
   }
 
   function render() {
@@ -310,15 +349,15 @@
     const expenses = parseNumber(expensesInput.value);
     const assets = parseNumber(assetsInput.value);
     const minAssets = Math.min(parseNumber(minAssetsInput.value), assets);
-    const shortfall = expenses - income;
     const monthlyRate = parseNumber(returnRateInput.value) / 100 / 12;
+    const expenseGrowth = parseNumber(expenseGrowthInput.value) / 100;
 
     posIncome.textContent = fmtCurrency(income);
     posExpenses.textContent = fmtCurrency(expenses);
     posCoverage.textContent = expenses > 0 ? Math.round((income / expenses) * 100) + '%' : '—';
-    posShortfall.textContent = fmtCurrency(Math.max(0, shortfall));
+    posShortfall.textContent = fmtCurrency(Math.max(0, expenses - income));
 
-    const months = computeRunwayMonths(assets, shortfall, monthlyRate, minAssets);
+    const months = computeRunwayMonths(assets, income, expenses, monthlyRate, minAssets, expenseGrowth);
 
     if (months === null) {
       runwayValue.textContent = "You’re free";
@@ -358,7 +397,7 @@
     updateSliderFill(chartYearsRange);
     chartYearsValue.textContent = fmtDur(effectiveYears) + ' yrs';
 
-    drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, months, effectiveYears);
+    drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, months, effectiveYears, expenseGrowth);
     scheduleUrlUpdate();
   }
 
@@ -367,8 +406,7 @@
   // runway). displayYears is the years-shown slider's current value — the
   // natural range (runway end, or 50 years when it never runs out) unless
   // the user has manually pulled the slider down below that
-  function calculateChartSeries(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears) {
-    const netFlow = income - expenses;
+  function calculateChartSeries(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth) {
     const isInfinite = runwayMonths === null;
     // The 50-year cap only applies when the money never runs out — a
     // finite runway is always shown in full, however long it takes
@@ -382,32 +420,43 @@
     const totalMonths = wholeYears * 12;
     const yearly = [];
     for (let m = 1; m <= totalMonths; m++) {
+      // Expenses step up (or down) once per 12 months by expenseGrowth,
+      // held flat within the year
+      const yearIndex = Math.floor((m - 1) / 12);
+      const currentExpenses = expenses * Math.pow(1 + expenseGrowth, yearIndex);
+      const netFlow = income - currentExpenses;
       balance = balance * (1 + monthlyRate) + netFlow;
       contributed += netFlow;
       if (m % 12 === 0) {
-        yearly.push({ year: m / 12, contributed, balance, interest: balance - contributed });
+        yearly.push({ year: m / 12, contributed, balance, interest: balance - contributed, annualExpenses: currentExpenses * 12 });
       }
     }
 
     const fractionalYears = cutoffYears - wholeYears;
     if (fractionalYears > 1e-9) {
+      // The partially-completed year in progress — netFlow within it is
+      // constant, so a single tail expense figure covers both branches below
+      const tailExpenses = expenses * Math.pow(1 + expenseGrowth, wholeYears);
+      const netFlowTail = income - tailExpenses;
       if (atNaturalEnd) {
         // Cut the line off at the exact moment the runway ends, rather
         // than rounding up to the next whole year. At that instant the
-        // balance is exactly minAssets by definition, so this is a
-        // closed-form point — no need to simulate a partial month.
-        const endContributed = assets + netFlow * runwayMonths;
-        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: minAssets - endContributed });
+        // balance is exactly minAssets by definition; contributed is the
+        // running total through the last whole year (already tracked)
+        // plus this final partial stretch of the year it ends in.
+        const partialMonths = runwayMonths - totalMonths;
+        const endContributed = contributed + netFlowTail * partialMonths;
+        yearly.push({ year: cutoffYears, contributed: endContributed, balance: minAssets, interest: minAssets - endContributed, annualExpenses: tailExpenses * 12 });
       } else {
         // An arbitrary (slider-chosen) cutoff — simulate the remaining
         // whole months to stay consistent with the monthly-compounding
         // model used everywhere else, rather than interpolating
         const extraMonths = Math.max(1, Math.round(fractionalYears * 12));
         for (let i = 0; i < extraMonths; i++) {
-          balance = balance * (1 + monthlyRate) + netFlow;
-          contributed += netFlow;
+          balance = balance * (1 + monthlyRate) + netFlowTail;
+          contributed += netFlowTail;
         }
-        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: balance - contributed });
+        yearly.push({ year: wholeYears + extraMonths / 12, contributed, balance, interest: balance - contributed, annualExpenses: tailExpenses * 12 });
       }
     }
 
@@ -437,6 +486,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${fmtDur(row.year)}</td>
+        <td>${fmtCurrency(row.annualExpenses)}</td>
         <td>${fmtCurrency(row.contributed)}</td>
         <td>${fmtCurrency(row.interest)}</td>
         <td>${fmtCurrency(row.balance)}</td>
@@ -474,14 +524,14 @@
   let lastChartGeometry = null;
   let lastChartParams = null;
 
-  function drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears) {
-    lastChartParams = { assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears };
+  function drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth) {
+    lastChartParams = { assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth };
 
-    const yearly = calculateChartSeries(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears);
+    const yearly = calculateChartSeries(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth);
     const { width, height } = setupCanvasSize();
     chartCtx.clearRect(0, 0, width, height);
 
-    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0 }, ...yearly];
+    const points = [{ year: 0, contributed: assets, balance: assets, interest: 0, annualExpenses: expenses * 12 }, ...yearly];
     renderTable(points);
 
     const padding = { top: 16, right: 24, bottom: 28, left: 64 };
@@ -635,7 +685,8 @@
       <strong>Year ${fmtDur(point.year)}</strong><br>
       Balance: ${fmtCurrency(point.balance)}<br>
       Contributions: ${fmtCurrency(point.contributed)}<br>
-      Investment return: ${fmtCurrency(point.interest)}
+      Investment return: ${fmtCurrency(point.interest)}<br>
+      Annual expenses: ${fmtCurrency(point.annualExpenses)}
     `;
   });
 
@@ -645,8 +696,8 @@
 
   window.addEventListener('resize', () => {
     if (lastChartParams) {
-      const { assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears } = lastChartParams;
-      drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears);
+      const { assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth } = lastChartParams;
+      drawFreedomChart(assets, income, expenses, monthlyRate, minAssets, runwayMonths, displayYears, expenseGrowth);
     }
   });
 

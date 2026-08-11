@@ -93,6 +93,16 @@
       </div>
 
       <div class="field">
+        <label for="expenseGrowth">Expected annual change in lifestyle expenses</label>
+        <span class="field-hint">Positive if you expect costs to rise, negative if you expect them to fall</span>
+        <div class="input-suffix">
+          <input type="text" inputmode="decimal" id="expenseGrowth" value="3.5">
+          <span>%</span>
+        </div>
+        <input type="range" id="expenseGrowthRange" min="-5" max="10" step="0.1" value="3.5" class="slider">
+      </div>
+
+      <div class="field">
         <label for="assets">Total liquid assets</label>
         <div class="input-prefix">
           <span id="assetsSymbol">£</span>
@@ -185,7 +195,7 @@
             <span class="formula-word">Years</span>
           </div>
         </div>
-        <p class="formula-rule">Your runway is how long your <strong>liquid assets</strong> can cover the gap between your <strong>lifestyle expenses</strong> and your <strong>leveraged income</strong>, before dropping to your <strong>minimum liquid assets</strong>. This assumes the unused balance keeps earning your <strong>investment return</strong> along the way. When income covers your lifestyle, or your return alone outpaces the gap, the runway never ends and you&rsquo;re free</p>
+        <p class="formula-rule">Your runway is how long your <strong>liquid assets</strong> can cover the gap between your <strong>lifestyle expenses</strong> and your <strong>leveraged income</strong>, before dropping to your <strong>minimum liquid assets</strong>. This assumes the unused balance keeps earning your <strong>investment return</strong>, and your lifestyle expenses change each year by your <strong>expected annual change</strong>, along the way. When income keeps covering your lifestyle, or your return keeps outpacing the gap, the runway never ends and you&rsquo;re free</p>
       </div>
 
       <div class="card chart-card">
@@ -218,6 +228,7 @@
             <thead>
               <tr>
                 <th>Year</th>
+                <th>Annual expenses</th>
                 <th>Contributions</th>
                 <th>Investment return</th>
                 <th>Balance</th>
@@ -231,7 +242,7 @@
   </main>
 
   <footer class="app-footer">
-    <p>This calculator assumes a constant rate of investment return, leveraged income and expenses, which real life does not provide.</p>
+    <p>This calculator assumes a constant rate of investment return and leveraged income, and that lifestyle expenses change at a constant annual rate, which real life does not provide.</p>
     <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
   </footer>
 </div>
