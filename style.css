@@ -1410,6 +1410,17 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold — .story-cta already sets --text-primary */
 }
+/* Same font trial again, on the Calculators page. No <strong> text here to
+   protect, so — like About Me — the colour is darkened to --text-primary
+   rather than left at the lighter --text-secondary used on Roadmap. The
+   calculator entry links/badges and step numbers are left in Shackleton,
+   same "functional UI stays as-is" rule as the Roadmap trial. */
+.page-calculators .story-p,
+.page-calculators .cal-intro-list li {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+  color: var(--text-primary);
+}
 /* Scoped to this one card rather than .story-p generally — elsewhere
    .story-p's siblings already get breathing room from a flex gap on
    their wrapper (e.g. .story-text-group), so a general rule here would
