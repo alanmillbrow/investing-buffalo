@@ -635,6 +635,17 @@ select#frequency:focus {
   font-size: 0.88rem;
   font-style: italic;
 }
+/* Font trial, applied sitewide rather than page by page — unlike every
+   other trial rule above, this box's text is identical on every page, so
+   staggering it per page would make the same component look different
+   from one page to the next. No <strong> to protect, so darkened to
+   --text-primary like the other no-conflict pages (About Me, Calculators,
+   Homepage, My Ideal Day). */
+.newsletter-signup .section-note {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+  color: var(--text-primary);
+}
 /* The -12px pulls a single note up toward its header, but stacked notes
    (e.g. a tagline followed by an explainer) need breathing room between
    them instead, or the second overlaps the first */
@@ -1385,23 +1396,26 @@ tbody tr:hover { background: var(--accent-soft); }
    reading-length paragraph, not just .rf-p, so the page doesn't end up
    with some text in the new font and some still in Shackleton. Calculator
    field labels/values and the Sankey diagram's own text are deliberately
-   left out, along with the newsletter box (shared boilerplate repeated on
-   every page). Colour is left at the existing --text-secondary rather than
-   darkened to --text-primary like About Me — .rf-p and the sankey note
-   both rely on that lighter/darker contrast to make their <strong> text
-   (the MOB initials) stand out without being bold, and Chaparral Pro's kit
-   only has Regular and Semibold loaded, so there's no heavier weight to
-   reach for instead. */
+   left out, along with the newsletter box (styled separately, sitewide,
+   below). Darkened to --text-primary to match every other trial page —
+   this does mean .rf-p's <strong> text (the MOB initials) no longer
+   stands out from the surrounding sentence, since that relied on the
+   lighter/darker contrast this removes, and Chaparral Pro's kit has no
+   heavier weight to reach for instead. Accepted trade-off: the page
+   already has a much more prominent version of the same MOB emphasis in
+   the mob-card above, so this was a redundant, minor flourish to lose. */
 .page-roadmap .rf-p,
 .page-roadmap .stage-card p,
 .page-roadmap .rf-income p,
 .page-roadmap .sankey-card .section-note {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
+  color: var(--text-primary);
 }
-/* Without this, strong text would render lighter than the Semibold body
-   text around it (font-weight: 400 from the base rule below), undoing the
-   emphasis instead of adding it. */
+/* Still needed even though strong no longer stands out on colour alone —
+   without this, strong would render lighter than the Semibold body text
+   around it (font-weight: 400 from the base rule below), which would look
+   like a mistake rather than neutral. */
 .page-roadmap .rf-p strong,
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
@@ -1428,6 +1442,13 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
+}
+/* .bio-body a hardcodes font-weight: 400 (predating this trial, to look
+   normal against the old Shackleton body) — without this override the
+   "Financial Freedom Roadmap" link would render lighter than the Semibold
+   text around it. */
+.page-home .bio-body a {
+  font-weight: 600;
 }
 /* Happiness section on My Ideal Day — no <strong> here, darkened like
    About Me. The Diary's .ledger-row timetable is left in Shackleton,
