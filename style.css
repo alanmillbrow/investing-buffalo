@@ -1381,6 +1381,35 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold, matching the body copy trial */
 }
+/* Same font trial, rolled out to the Roadmap page's body copy — every
+   reading-length paragraph, not just .rf-p, so the page doesn't end up
+   with some text in the new font and some still in Shackleton. Calculator
+   field labels/values and the Sankey diagram's own text are deliberately
+   left out, along with the newsletter box (shared boilerplate repeated on
+   every page). Colour is left at the existing --text-secondary rather than
+   darkened to --text-primary like About Me — .rf-p and the sankey note
+   both rely on that lighter/darker contrast to make their <strong> text
+   (the MOB initials) stand out without being bold, and Chaparral Pro's kit
+   only has Regular and Semibold loaded, so there's no heavier weight to
+   reach for instead. */
+.page-roadmap .rf-p,
+.page-roadmap .stage-card p,
+.page-roadmap .rf-income p,
+.page-roadmap .sankey-card .section-note {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+}
+/* Without this, strong text would render lighter than the Semibold body
+   text around it (font-weight: 400 from the base rule below), undoing the
+   emphasis instead of adding it. */
+.page-roadmap .rf-p strong,
+.page-roadmap .sankey-card .section-note strong {
+  font-weight: 600;
+}
+.page-roadmap .story-p {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold — .story-cta already sets --text-primary */
+}
 /* Scoped to this one card rather than .story-p generally — elsewhere
    .story-p's siblings already get breathing room from a flex gap on
    their wrapper (e.g. .story-text-group), so a general rule here would
