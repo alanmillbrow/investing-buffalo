@@ -643,7 +643,7 @@ select#frequency:focus {
    Homepage, My Ideal Day). */
 .newsletter-signup .section-note {
   font-family: 'chaparral-pro', Georgia, serif;
-  font-weight: 600; /* Semibold */
+  font-weight: 400; /* Regular */
   color: var(--text-primary);
   /* Bigger than the shared .section-note default (0.88rem, sized for
      small secondary captions elsewhere) — matches .header-text p's
@@ -1413,8 +1413,6 @@ tbody tr:hover { background: var(--accent-soft); }
    already has a much more prominent version of the same MOB emphasis in
    the mob-card above, so this was a redundant, minor flourish to lose. */
 .page-roadmap .rf-p,
-.page-roadmap .stage-card p,
-.page-roadmap .rf-income p,
 .page-roadmap .sankey-card .section-note {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
@@ -1427,6 +1425,16 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .rf-p strong,
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
+}
+/* The four stage cards and three income-type cards run smaller (0.92rem)
+   than the page's other body copy — Semibold at that size read as dense
+   and cramped (heavier strokes leave less room inside each letter), so
+   these use Regular instead rather than sizing them up to compensate. */
+.page-roadmap .stage-card p,
+.page-roadmap .rf-income p {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 400; /* Regular */
+  color: var(--text-primary);
 }
 .page-roadmap .story-p {
   font-family: 'chaparral-pro', Georgia, serif;
