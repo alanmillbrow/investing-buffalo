@@ -1373,9 +1373,8 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-about-me .story-p {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
-  /* The lighter font trial weights read as too light against the usual
-     --text-secondary body colour — matched to --text-primary (the CTA
-     line's colour) instead. */
+  /* Matched to --text-primary (the CTA line's colour) rather than the
+     lighter default --text-secondary. */
   color: var(--text-primary);
 }
 .page-about-me .story-caption {
