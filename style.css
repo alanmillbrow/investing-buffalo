@@ -645,6 +645,14 @@ select#frequency:focus {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
+  /* Bigger than the shared .section-note default (0.88rem, sized for
+     small secondary captions elsewhere) — matches .header-text p's
+     tagline-under-a-heading size instead, since this is a prominent
+     page-ending CTA, not a minor aside. Upright rather than italic too,
+     now that it reads closer to the rest of the site's (non-italic) body
+     copy rather than a small caption. */
+  font-size: 1.1rem;
+  font-style: normal;
 }
 /* The -12px pulls a single note up toward its header, but stacked notes
    (e.g. a tagline followed by an explainer) need breathing room between
