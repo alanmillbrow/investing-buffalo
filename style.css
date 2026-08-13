@@ -643,8 +643,8 @@ select#frequency:focus {
    Homepage, My Ideal Day). */
 .newsletter-signup .section-note {
   font-family: 'chaparral-pro', Georgia, serif;
-  font-weight: 400; /* Regular */
-  color: var(--text-primary);
+  font-weight: 600; /* Semibold — matched to Roadmap's .rf-story .rf-p */
+  color: var(--text-secondary);
   /* Bigger than the shared .section-note default (0.88rem, sized for
      small secondary captions elsewhere) — matches .header-text p's
      tagline-under-a-heading size instead, since this is a prominent
@@ -1381,7 +1381,7 @@ tbody tr:hover { background: var(--accent-soft); }
   gap: 20px;
 }
 .story-p {
-  font-size: 1.15rem;
+  font-size: 1.1rem; /* aligned with .rf-p/.formula-rule and everything matched to them */
   line-height: 1.6;
   color: var(--text-secondary);
   margin: 0;
@@ -1425,6 +1425,16 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .rf-p strong,
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
+}
+/* Reverted back to the lighter --text-secondary for the numbered-step
+   paragraphs inside .rf-story (all three steps) and the Sankey card's
+   explainer — everything above stays darkened (the intro/outro .rf-p
+   paragraphs sitting outside any card), but these read better lighter.
+   Bonus: this also restores the Sankey note's <strong> contrast, which
+   the earlier uniform darkening had flattened. */
+.page-roadmap .rf-story .rf-p,
+.page-roadmap .sankey-card .section-note {
+  color: var(--text-secondary);
 }
 /* The four stage cards and three income-type cards ran smaller (0.92rem)
    than the page's other body copy, on top of which Semibold at that size
@@ -1496,12 +1506,53 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-how-much-is-enough .chart-target-note {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
+  /* .formula-rule's base rule already sets this (1.1rem), so this line is
+     a no-op there — it's here to size up .chart-target-note (base 0.98rem)
+     to match, without touching its already-correct colour. */
+  font-size: 1.1rem;
 }
 .page-freedom-formula .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
 .page-liquid-asset-forecaster .formula-rule strong,
 .page-how-much-is-enough .chart-target-note strong {
   font-weight: 600;
+}
+/* .runway-note — the "The same runway, expressed three ways" caption
+   above .formula-rule in the "How long your money lasts" card. Matched to
+   .formula-rule's font, size, and (lighter) colour exactly, so it reads
+   as part of the same explainer rather than a separate, smaller note.
+   Own class rather than a bare .section-note selector, same collision
+   risk with the newsletter box's h2 + .section-note as .income-note. */
+.page-freedom-formula .runway-note {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-style: normal;
+}
+/* .withdrawal-note ("Estimated sustainable withdrawal...") on Liquid
+   Asset Forecaster — sized to match .formula-rule (1.1rem) and now switched
+   to the font trial too; colour stays at the existing --text-secondary
+   (unchanged). Own class for the same newsletter-box collision reason as
+   the others. */
+.page-liquid-asset-forecaster .withdrawal-note {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+  font-size: 1.1rem;
+  font-style: normal;
+}
+/* .income-note — the "Your desired income, compounded by inflation..."
+   caption above the inflation-adjusted table. Own class rather than a
+   bare .section-note selector, since the newsletter box's blurb has the
+   exact same <h2> + <p class="section-note"> structure and a general
+   selector would risk colliding with its own (differently-sized) rule.
+   No <strong> here, so darkened like the other no-conflict pages. */
+.page-how-much-is-enough .income-note {
+  font-family: 'chaparral-pro', Georgia, serif;
+  font-weight: 600; /* Semibold */
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-style: normal;
 }
 /* Scoped to this one card rather than .story-p generally — elsewhere
    .story-p's siblings already get breathing room from a flex gap on
