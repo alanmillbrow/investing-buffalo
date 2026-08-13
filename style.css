@@ -1367,6 +1367,21 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--text-secondary);
   margin: 0;
 }
+/* Font trial, rolling out page by page rather than switching the shared
+   .story-p rule everywhere at once — Freight Text Pro Medium for body
+   copy, keeping Shackleton on headings/display text for now. */
+.page-about-me .story-p {
+  font-family: 'freight-text-pro', Georgia, serif;
+  font-weight: 500; /* Medium */
+  /* The lighter font trial weights read as too light against the usual
+     --text-secondary body colour — matched to --text-primary (the CTA
+     line's colour) instead. */
+  color: var(--text-primary);
+}
+.page-about-me .story-caption {
+  font-family: 'freight-text-pro', Georgia, serif;
+  font-weight: 500; /* Medium, matching the body copy trial */
+}
 /* Scoped to this one card rather than .story-p generally — elsewhere
    .story-p's siblings already get breathing room from a flex gap on
    their wrapper (e.g. .story-text-group), so a general rule here would
