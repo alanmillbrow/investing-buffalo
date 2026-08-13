@@ -37,6 +37,13 @@
   --blob-1: transparent;
   --blob-2: transparent;
   --blob-3: transparent;
+
+  /* Body-copy font trial (Chaparral Pro, replacing Shackleton on reading
+     text — headings/labels/UI stay on Shackleton). Centralised so a
+     future site-wide size change is a one-line edit instead of hunting
+     down every rule it was matched to. */
+  --body-font: 'chaparral-pro', Georgia, serif;
+  --body-font-size: 1.1rem;
 }
 
 [data-theme="dark"] {
@@ -642,7 +649,7 @@ select#frequency:focus {
    --text-primary like the other no-conflict pages (About Me, Calculators,
    Homepage, My Ideal Day). */
 .newsletter-signup .section-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold — matched to Roadmap's .rf-story .rf-p */
   color: var(--text-secondary);
   /* Bigger than the shared .section-note default (0.88rem, sized for
@@ -651,7 +658,7 @@ select#frequency:focus {
      page-ending CTA, not a minor aside. Upright rather than italic too,
      now that it reads closer to the rest of the site's (non-italic) body
      copy rather than a small caption. */
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   font-style: normal;
 }
 /* The -12px pulls a single note up toward its header, but stacked notes
@@ -1233,7 +1240,7 @@ tbody tr:hover { background: var(--accent-soft); }
   margin: 0;
 }
 .rf-p {
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   line-height: 1.6;
   color: var(--text-secondary);
   margin: 0;
@@ -1274,7 +1281,7 @@ tbody tr:hover { background: var(--accent-soft); }
    two .section-note lines, until the shorter tagline above it was
    removed leaving this the only one. */
 .sankey-card > .section-note {
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   font-style: normal;
 }
 .sankey-card > .section-note strong {
@@ -1381,7 +1388,7 @@ tbody tr:hover { background: var(--accent-soft); }
   gap: 20px;
 }
 .story-p {
-  font-size: 1.1rem; /* aligned with .rf-p/.formula-rule and everything matched to them */
+  font-size: var(--body-font-size);
   line-height: 1.6;
   color: var(--text-secondary);
   margin: 0;
@@ -1390,14 +1397,14 @@ tbody tr:hover { background: var(--accent-soft); }
    .story-p rule everywhere at once — Chaparral Pro Semibold for body
    copy, keeping Shackleton on headings/display text for now. */
 .page-about-me .story-p {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   /* Matched to --text-primary (the CTA line's colour) rather than the
      lighter default --text-secondary. */
   color: var(--text-primary);
 }
 .page-about-me .story-caption {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold, matching the body copy trial */
 }
 /* Same font trial, rolled out to the Roadmap page's body copy — every
@@ -1405,36 +1412,41 @@ tbody tr:hover { background: var(--accent-soft); }
    with some text in the new font and some still in Shackleton. Calculator
    field labels/values and the Sankey diagram's own text are deliberately
    left out, along with the newsletter box (styled separately, sitewide,
-   below). Darkened to --text-primary to match every other trial page —
-   this does mean .rf-p's <strong> text (the MOB initials) no longer
-   stands out from the surrounding sentence, since that relied on the
-   lighter/darker contrast this removes, and Chaparral Pro's kit has no
-   heavier weight to reach for instead. Accepted trade-off: the page
-   already has a much more prominent version of the same MOB emphasis in
-   the mob-card above, so this was a redundant, minor flourish to lose. */
-.page-roadmap .rf-p,
-.page-roadmap .sankey-card .section-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+   below). .rf-p defaults to the darker --text-primary, matching every
+   other trial page; the numbered-step paragraphs inside .rf-story
+   override back to the lighter --text-secondary further down, since
+   that's the only place its <strong> emphasis (the MOB initials) lives —
+   without the contrast, strong wouldn't stand out from the sentence
+   around it, and Chaparral Pro's kit has no heavier weight to reach for
+   instead. */
+.page-roadmap .rf-p {
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
 }
-/* Still needed even though strong no longer stands out on colour alone —
-   without this, strong would render lighter than the Semibold body text
-   around it (font-weight: 400 from the base rule below), which would look
-   like a mistake rather than neutral. */
-.page-roadmap .rf-p strong,
-.page-roadmap .sankey-card .section-note strong {
+/* Still needed even though strong no longer stands out on colour alone
+   outside .rf-story — without this, strong would render lighter than the
+   Semibold body text around it (font-weight: 400 from the base rule
+   below), which would look like a mistake rather than neutral. */
+.page-roadmap .rf-p strong {
   font-weight: 600;
 }
-/* Reverted back to the lighter --text-secondary for the numbered-step
-   paragraphs inside .rf-story (all three steps) and the Sankey card's
-   explainer — everything above stays darkened (the intro/outro .rf-p
-   paragraphs sitting outside any card), but these read better lighter.
-   Bonus: this also restores the Sankey note's <strong> contrast, which
-   the earlier uniform darkening had flattened. */
-.page-roadmap .rf-story .rf-p,
-.page-roadmap .sankey-card .section-note {
+/* The numbered-step paragraphs (all three steps) read better lighter than
+   the rest of .rf-p above (the intro/outro paragraphs sitting outside any
+   card) — this also happens to restore their own <strong> contrast. */
+.page-roadmap .rf-story .rf-p {
   color: var(--text-secondary);
+}
+/* Sankey card explainer — lighter throughout, never darkened, since its
+   <strong> tags (picking out "maximising income streams" etc.) depend on
+   that contrast the same way the .rf-story paragraphs above do. */
+.page-roadmap .sankey-card .section-note {
+  font-family: var(--body-font);
+  font-weight: 600; /* Semibold */
+  color: var(--text-secondary);
+}
+.page-roadmap .sankey-card .section-note strong {
+  font-weight: 600;
 }
 /* The four stage cards and three income-type cards ran smaller (0.92rem)
    than the page's other body copy, on top of which Semibold at that size
@@ -1443,13 +1455,13 @@ tbody tr:hover { background: var(--accent-soft); }
    rather than the shared .stage-card/.rf-income p default. */
 .page-roadmap .stage-card p,
 .page-roadmap .rf-income p {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 400; /* Regular */
   color: var(--text-primary);
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
 }
 .page-roadmap .story-p {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold — .story-cta already sets --text-primary */
 }
 /* Same font trial again, on the Calculators page. No <strong> text here to
@@ -1459,7 +1471,7 @@ tbody tr:hover { background: var(--accent-soft); }
    same "functional UI stays as-is" rule as the Roadmap trial. */
 .page-calculators .story-p,
 .page-calculators .cal-intro-list li {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
 }
@@ -1467,7 +1479,7 @@ tbody tr:hover { background: var(--accent-soft); }
    About Me/Calculators. The big .bio-lede headline above it already
    hardcodes Shackleton and is left alone, same as every other heading. */
 .page-home .bio-body {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
 }
@@ -1483,7 +1495,7 @@ tbody tr:hover { background: var(--accent-soft); }
    consistent with treating structured/tabular content as UI rather than
    reading prose (same as calculator field labels). */
 .page-my-ideal-day .story-p {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
 }
@@ -1502,18 +1514,24 @@ tbody tr:hover { background: var(--accent-soft); }
    traded away for a uniformly darker page. */
 .page-freedom-formula .formula-rule,
 .page-how-much-is-enough .formula-rule,
-.page-liquid-asset-forecaster .formula-rule,
-.page-how-much-is-enough .chart-target-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+.page-liquid-asset-forecaster .formula-rule {
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
-  /* .formula-rule's base rule already sets this (1.1rem), so this line is
-     a no-op there — it's here to size up .chart-target-note (base 0.98rem)
-     to match, without touching its already-correct colour. */
-  font-size: 1.1rem;
 }
 .page-freedom-formula .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
-.page-liquid-asset-forecaster .formula-rule strong,
+.page-liquid-asset-forecaster .formula-rule strong {
+  font-weight: 600;
+}
+/* Sized up separately, since .formula-rule's base rule already matches
+   --body-font-size but .chart-target-note's own base is smaller (0.98rem)
+   — colour is untouched, the contrast is still doing real work picking
+   the computed £ figures out of the sentence. */
+.page-how-much-is-enough .chart-target-note {
+  font-family: var(--body-font);
+  font-weight: 600; /* Semibold */
+  font-size: var(--body-font-size);
+}
 .page-how-much-is-enough .chart-target-note strong {
   font-weight: 600;
 }
@@ -1524,10 +1542,10 @@ tbody tr:hover { background: var(--accent-soft); }
    Own class rather than a bare .section-note selector, same collision
    risk with the newsletter box's h2 + .section-note as .income-note. */
 .page-freedom-formula .runway-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   font-style: normal;
 }
 /* .withdrawal-note ("Estimated sustainable withdrawal...") on Liquid
@@ -1536,9 +1554,9 @@ tbody tr:hover { background: var(--accent-soft); }
    (unchanged). Own class for the same newsletter-box collision reason as
    the others. */
 .page-liquid-asset-forecaster .withdrawal-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   font-style: normal;
 }
 /* .income-note — the "Your desired income, compounded by inflation..."
@@ -1548,10 +1566,10 @@ tbody tr:hover { background: var(--accent-soft); }
    selector would risk colliding with its own (differently-sized) rule.
    No <strong> here, so darkened like the other no-conflict pages. */
 .page-how-much-is-enough .income-note {
-  font-family: 'chaparral-pro', Georgia, serif;
+  font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   font-style: normal;
 }
 /* Scoped to this one card rather than .story-p generally — elsewhere
@@ -1729,7 +1747,7 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 }
 .formula-rule {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--body-font-size);
   line-height: 1.55;
   color: var(--text-secondary);
 }
