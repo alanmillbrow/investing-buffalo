@@ -1426,15 +1426,17 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
 }
-/* The four stage cards and three income-type cards run smaller (0.92rem)
-   than the page's other body copy — Semibold at that size read as dense
-   and cramped (heavier strokes leave less room inside each letter), so
-   these use Regular instead rather than sizing them up to compensate. */
+/* The four stage cards and three income-type cards ran smaller (0.92rem)
+   than the page's other body copy, on top of which Semibold at that size
+   read as dense and cramped (heavier strokes leave less room inside each
+   letter) — so these use Regular, and are now sized to match .rf-p (1.1rem)
+   rather than the shared .stage-card/.rf-income p default. */
 .page-roadmap .stage-card p,
 .page-roadmap .rf-income p {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 400; /* Regular */
   color: var(--text-primary);
+  font-size: 1.1rem;
 }
 .page-roadmap .story-p {
   font-family: 'chaparral-pro', Georgia, serif;
@@ -1477,21 +1479,28 @@ tbody tr:hover { background: var(--accent-soft); }
 }
 /* .formula-rule is the one-sentence explainer on each of the three
    calculators (Freedom Formula, How Much Is Enough, Liquid Asset
-   Forecaster) — same lighter/darker contrast pattern as Roadmap's .rf-p,
-   so colour is left at the existing --text-secondary and only the strong
-   text's weight is fixed to match the new Semibold body (400 was already
-   being faux-bolded by the browser, since neither Shackleton nor Chaparral
-   Pro have a true bold face loaded in this kit — matching it to 600 avoids
-   compounding that with an even heavier synthetic weight). */
+   Forecaster); .chart-target-note is How Much Is Enough's dynamic results
+   sentence (the computed pot size, monthly saving, etc.) — same
+   lighter/darker contrast pattern as Roadmap's .rf-p, so colour is left at
+   the existing --text-secondary and only the strong text's weight is
+   fixed to match the new Semibold body (400 was already being faux-bolded
+   by the browser, since neither Shackleton nor Chaparral Pro have a true
+   bold face loaded in this kit — matching it to 600 avoids compounding
+   that with an even heavier synthetic weight). Here that contrast is
+   doing real work — the strong tags pick the computed £ figures out of
+   the sentence — so, unlike Roadmap's MOB initials, it's kept rather than
+   traded away for a uniformly darker page. */
 .page-freedom-formula .formula-rule,
 .page-how-much-is-enough .formula-rule,
-.page-liquid-asset-forecaster .formula-rule {
+.page-liquid-asset-forecaster .formula-rule,
+.page-how-much-is-enough .chart-target-note {
   font-family: 'chaparral-pro', Georgia, serif;
   font-weight: 600; /* Semibold */
 }
 .page-freedom-formula .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
-.page-liquid-asset-forecaster .formula-rule strong {
+.page-liquid-asset-forecaster .formula-rule strong,
+.page-how-much-is-enough .chart-target-note strong {
   font-weight: 600;
 }
 /* Scoped to this one card rather than .story-p generally — elsewhere
