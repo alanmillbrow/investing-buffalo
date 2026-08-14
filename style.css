@@ -44,6 +44,7 @@
      down every rule it was matched to. */
   --body-font: 'chaparral-pro', Georgia, serif;
   --body-font-size: 1.1rem;
+  --body-line-height: 1.5;
 }
 
 [data-theme="dark"] {
@@ -657,8 +658,12 @@ select#frequency:focus {
      tagline-under-a-heading size instead, since this is a prominent
      page-ending CTA, not a minor aside. Upright rather than italic too,
      now that it reads closer to the rest of the site's (non-italic) body
-     copy rather than a small caption. */
+     copy rather than a small caption. Line-height set explicitly too —
+     the shared .section-note default doesn't set one at all, so without
+     this it'd fall back to the browser's tighter "normal" instead of
+     matching the spacing most of the site's body text uses. */
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
   font-style: normal;
 }
 /* The -12px pulls a single note up toward its header, but stacked notes
@@ -1241,7 +1246,7 @@ tbody tr:hover { background: var(--accent-soft); }
 }
 .rf-p {
   font-size: var(--body-font-size);
-  line-height: 1.6;
+  line-height: var(--body-line-height);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -1389,7 +1394,7 @@ tbody tr:hover { background: var(--accent-soft); }
 }
 .story-p {
   font-size: var(--body-font-size);
-  line-height: 1.6;
+  line-height: var(--body-line-height);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -1444,6 +1449,7 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
+  line-height: var(--body-line-height); /* base .section-note doesn't set one */
 }
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
@@ -1531,6 +1537,7 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height); /* base rule doesn't set one */
 }
 .page-how-much-is-enough .chart-target-note strong {
   font-weight: 600;
@@ -1546,6 +1553,7 @@ tbody tr:hover { background: var(--accent-soft); }
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height); /* base .section-note doesn't set one */
   font-style: normal;
 }
 /* .withdrawal-note ("Estimated sustainable withdrawal...") on Liquid
@@ -1557,6 +1565,7 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height); /* base .section-note doesn't set one */
   font-style: normal;
 }
 /* .income-note — the "Your desired income, compounded by inflation..."
@@ -1570,6 +1579,7 @@ tbody tr:hover { background: var(--accent-soft); }
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height); /* base .section-note doesn't set one */
   font-style: normal;
 }
 /* Scoped to this one card rather than .story-p generally — elsewhere
@@ -1663,8 +1673,8 @@ tbody tr:hover { background: var(--accent-soft); }
 .cal-intro-list li {
   position: relative;
   padding-left: 24px;
-  font-size: 1.15rem;
-  line-height: 1.6;
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
   color: var(--text-secondary);
 }
 .cal-intro-list li::before {
