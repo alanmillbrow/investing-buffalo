@@ -1442,15 +1442,6 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .rf-story .rf-p {
   color: var(--text-secondary);
 }
-/* .rf-p-regular — five paragraphs across steps 1 and 3 ("While it's
-   likely...", "But growing your income...", "You take the gap...",
-   "Your investment engine...", "Do this long enough...") — matched to
-   .rf-income p's Regular weight and darker --text-primary instead of the
-   Semibold/lighter treatment the rest of .rf-story uses. */
-.page-roadmap .rf-p.rf-p-regular {
-  font-weight: 400; /* Regular */
-  color: var(--text-primary);
-}
 /* Sankey card explainer — lighter throughout, never darkened, since its
    <strong> tags (picking out "maximising income streams" etc.) depend on
    that contrast the same way the .rf-story paragraphs above do. */
@@ -1463,17 +1454,24 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .sankey-card .section-note strong {
   font-weight: 600;
 }
-/* The four stage cards and three income-type cards ran smaller (0.92rem)
-   than the page's other body copy, on top of which Semibold at that size
-   read as dense and cramped (heavier strokes leave less room inside each
-   letter) — so these use Regular, and are now sized to match .rf-p (1.1rem)
-   rather than the shared .stage-card/.rf-income p default. */
+/* "Large body of text inside a box" — the general rule this site settled
+   on: short/header text in a box stays Semibold + lighter (with any
+   <strong> words popping darker for emphasis), but a larger body of
+   reading text goes Regular + darker instead. Covers .rf-p-regular (every
+   .rf-story paragraph except the "There are three ways to generate
+   income." lead-in), the four stage-card descriptions, and the three
+   income-type card descriptions — the latter two also ran smaller
+   (0.92rem) than the page's other body copy, on top of which Semibold at
+   that size read as dense and cramped (heavier strokes leave less room
+   inside each letter), which is what led to Regular in the first place. */
+.page-roadmap .rf-p.rf-p-regular,
 .page-roadmap .stage-card p,
 .page-roadmap .rf-income p {
   font-family: var(--body-font);
   font-weight: 400; /* Regular */
   color: var(--text-primary);
   font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
 }
 .page-roadmap .story-p {
   font-family: var(--body-font);
@@ -1767,7 +1765,7 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 .formula-rule {
   margin: 0;
   font-size: var(--body-font-size);
-  line-height: 1.55;
+  line-height: var(--body-line-height);
   color: var(--text-secondary);
 }
 .formula-rule strong { color: var(--text-primary); }
