@@ -1442,6 +1442,15 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-roadmap .rf-story .rf-p {
   color: var(--text-secondary);
 }
+/* .rf-p-regular — five paragraphs across steps 1 and 3 ("While it's
+   likely...", "But growing your income...", "You take the gap...",
+   "Your investment engine...", "Do this long enough...") — matched to
+   .rf-income p's Regular weight and darker --text-primary instead of the
+   Semibold/lighter treatment the rest of .rf-story uses. */
+.page-roadmap .rf-p.rf-p-regular {
+  font-weight: 400; /* Regular */
+  color: var(--text-primary);
+}
 /* Sankey card explainer — lighter throughout, never darkened, since its
    <strong> tags (picking out "maximising income streams" etc.) depend on
    that contrast the same way the .rf-story paragraphs above do. */
