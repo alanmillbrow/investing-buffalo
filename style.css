@@ -197,6 +197,62 @@ body {
   mask-position: center;
 }
 
+/* Book-style opener — a centred emblem above the usual left-aligned
+   header, trialled on a few of the more narrative pages (About Me,
+   Roadmap, Calculators) for a more "book" feel. Purely decorative,
+   doesn't touch the header/nav below it. */
+.page-ornament {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.page-ornament-icon {
+  display: inline-block;
+  width: 44px;
+  height: 44px;
+  background-color: var(--text-primary);
+  -webkit-mask-image: url(/BuffaloImage.png);
+  mask-image: url(/BuffaloImage.png);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+/* Tailpiece — marks the end of the narrative, mirroring the opening
+   .page-ornament at a smaller scale (rather than a generic printer's
+   ornament) so the page is bookended with its own brand mark. Flanking
+   rules use ::before/::after so they sit either side of the icon as flex
+   siblings, centred as one group by the shared .page-ornament rule. */
+.page-ornament-close {
+  align-items: center;
+  gap: 16px;
+  /* Top: distance from the signoff/CTA above (targets 26px). Bottom:
+     negative to pull in the narrow-layout's 48px flex gap before the
+     newsletter box (targets 30px), since that gap is sized for spacing
+     between full sections, not a small tailpiece sitting right at the end
+     of one. On Roadmap/Calculators the tailpiece is a direct flex child
+     of .narrow-layout — About Me overrides margin-top below, since there
+     it sits nested inside .story (a different structural context) and
+     needs a different value to land on the same 26px. */
+  margin: 2px 0 -18px;
+}
+.page-about-me .page-ornament-close {
+  margin-top: 6px;
+}
+.page-ornament-close .page-ornament-icon {
+  width: 22px;
+  height: 22px;
+}
+.page-ornament-close::before,
+.page-ornament-close::after {
+  content: '';
+  width: 40px;
+  height: 2px;
+  background: var(--card-border);
+}
+
 .kicker {
   display: inline-block;
   font-size: 0.72rem;
@@ -1397,6 +1453,20 @@ tbody tr:hover { background: var(--accent-soft); }
   line-height: var(--body-line-height);
   color: var(--text-secondary);
   margin: 0;
+}
+/* Book-style opening paragraph — same trial as .page-ornament. The
+   dropped letter stays in Shackleton (the site's display face) even on
+   pages where the body copy itself has moved to Chaparral Pro, matching
+   the same "Shackleton for display, Chaparral for reading" split used
+   everywhere else. */
+.drop-cap::first-letter {
+  font-family: 'shackleton', Georgia, serif;
+  font-size: 4.4rem;
+  line-height: 0.8;
+  font-weight: 400;
+  float: left;
+  padding-right: 10px;
+  color: var(--text-primary);
 }
 /* Font trial, rolling out page by page rather than switching the shared
    .story-p rule everywhere at once — Chaparral Pro Semibold for body
