@@ -772,7 +772,14 @@ select#frequency:focus {
   font-size: 1.02rem;
   font-weight: 400;
 }
-.ledger-row:last-child { border-bottom: none; }
+/* :last-of-type rather than :last-child — scroll-hint.js appends a
+   <span class="scroll-hint"> after the final .ledger-row on scrollable
+   tables (Liquid Asset Forecaster's future-income table), which made that
+   row no longer :last-child so its border-bottom never got stripped,
+   stacking against the card's own border into a thicker-looking band.
+   :last-of-type still matches the last <div> row regardless of a <span>
+   sibling appended after it. */
+.ledger-row:last-of-type { border-bottom: none; }
 
 .ledger-row span:last-child {
   font-weight: 400;
