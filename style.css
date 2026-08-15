@@ -228,18 +228,19 @@ body {
 .page-ornament-close {
   align-items: center;
   gap: 16px;
-  /* Top: distance from the signoff/CTA above (targets 26px). Bottom:
-     negative to pull in the narrow-layout's 48px flex gap before the
-     newsletter box (targets 30px), since that gap is sized for spacing
-     between full sections, not a small tailpiece sitting right at the end
-     of one. On Roadmap/Calculators the tailpiece is a direct flex child
-     of .narrow-layout — About Me overrides margin-top below, since there
-     it sits nested inside .story (a different structural context) and
-     needs a different value to land on the same 26px. */
-  margin: 2px 0 -18px;
+  /* Headpiece's spacing reversed (28px above, 36px below) — top: distance
+     from the signoff/CTA above. Bottom: negative to pull in the
+     narrow-layout's 48px flex gap before the newsletter box, since that
+     gap is sized for spacing between full sections, not a small tailpiece
+     sitting right at the end of one. On Roadmap/Calculators the tailpiece
+     is a direct flex child of .narrow-layout — About Me overrides
+     margin-top below, since there it sits nested inside .story (a
+     different structural context) and needs a different value to land on
+     the same 28px. */
+  margin: 4px 0 -12px;
 }
 .page-about-me .page-ornament-close {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .page-ornament-close .page-ornament-icon {
   width: 22px;
