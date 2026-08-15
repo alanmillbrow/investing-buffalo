@@ -13,6 +13,7 @@
   const assetsRange = $('assetsRange');
   const returnRateInput = $('returnRate');
   const returnRateRange = $('returnRateRange');
+  const frequencySelect = $('frequency');
   const minAssetsInput = $('minAssets');
   const minAssetsRange = $('minAssetsRange');
 
@@ -148,6 +149,7 @@
   bindTextAndRange(expenseGrowthInput, expenseGrowthRange, {});
   bindTextAndRange(assetsInput, assetsRange, { isCurrency: true, onChange: syncMinAssetsCeiling });
   bindTextAndRange(returnRateInput, returnRateRange, {});
+  frequencySelect.addEventListener('change', render);
   bindTextAndRange(minAssetsInput, minAssetsRange, { isCurrency: true });
 
   // ---------- Shareable link ----------
@@ -191,6 +193,11 @@
     setField('rate', returnRateInput, returnRateRange, false);
     setField('minAssets', minAssetsInput, minAssetsRange, true);
 
+    const frequencyParam = params.get('frequency');
+    if (frequencyParam && [...frequencySelect.options].some((o) => o.value === frequencyParam)) {
+      frequencySelect.value = frequencyParam;
+    }
+
     // Not clamped here — chartYearsRange.max isn't computed yet at this
     // point in startup. render() clamps it against the real natural
     // range right after this runs.
@@ -206,6 +213,7 @@
     params.set('expenseGrowth', parseNumber(expenseGrowthInput.value));
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('rate', parseNumber(returnRateInput.value));
+    params.set('frequency', frequencySelect.value);
     params.set('minAssets', Math.round(parseNumber(minAssetsInput.value)));
     params.set('currency', currentCurrency);
     // Only include the years-shown slider once the user has actually
@@ -353,7 +361,18 @@
     const expenses = parseNumber(expensesInput.value);
     const assets = parseNumber(assetsInput.value);
     const minAssets = Math.min(parseNumber(minAssetsInput.value), assets);
-    const monthlyRate = parseNumber(returnRateInput.value) / 100 / 12;
+    // Effective monthly growth rate implied by the chosen compounding
+    // frequency — same formula as Liquid Asset Forecaster's monthlyFactor,
+    // just expressed as a rate (factor - 1) since every downstream formula
+    // here (the runway solve and the month-by-month chart series) already
+    // works in terms of a monthly rate rather than a growth factor. Only
+    // feeds the investment-return side of the calculation — the leveraged
+    // income is unaffected (already added monthly, same as before) and
+    // lifestyle expenses still step up annually via expenseGrowth below,
+    // untouched by the compounding frequency choice.
+    const annualRate = parseNumber(returnRateInput.value) / 100;
+    const compoundingPeriods = parseFloat(frequencySelect.value);
+    const monthlyRate = annualRate === 0 ? 0 : Math.pow(1 + annualRate / compoundingPeriods, compoundingPeriods / 12) - 1;
     const expenseGrowth = parseNumber(expenseGrowthInput.value) / 100;
 
     posIncome.textContent = fmtCurrency(income);

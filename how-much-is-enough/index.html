@@ -85,7 +85,17 @@
       </div>
 
       <div class="field">
-        <label for="years">Years until income starts</label>
+        <label for="leveraged">Monthly leveraged income</label>
+        <span class="field-hint">Leveraged income you expect to be generating when withdrawals start</span>
+        <div class="input-prefix">
+          <span id="leveragedSymbol">£</span>
+          <input type="text" inputmode="decimal" id="leveraged" value="0">
+        </div>
+        <input type="range" id="leveragedRange" min="0" max="20000" step="100" value="0" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="years">Years until withdrawals start</label>
         <div class="input-suffix">
           <input type="text" inputmode="numeric" id="years" value="10">
           <span>yrs</span>
@@ -121,13 +131,13 @@
       </div>
 
       <div class="field">
-        <label for="leveraged">Monthly leveraged income</label>
-        <span class="field-hint">Leveraged income you expect to be generating when withdrawals start</span>
-        <div class="input-prefix">
-          <span id="leveragedSymbol">£</span>
-          <input type="text" inputmode="decimal" id="leveraged" value="0">
-        </div>
-        <input type="range" id="leveragedRange" min="0" max="20000" step="100" value="0" class="slider">
+        <label for="frequency">Compounding frequency</label>
+        <select id="frequency">
+          <option value="365">Daily</option>
+          <option value="12" selected>Monthly</option>
+          <option value="4">Quarterly</option>
+          <option value="1">Annually</option>
+        </select>
       </div>
     </section>
 

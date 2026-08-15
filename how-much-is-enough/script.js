@@ -14,6 +14,7 @@
   const assetsRange = $('assetsRange');
   const returnRateInput = $('returnRate');
   const returnRateRange = $('returnRateRange');
+  const frequencySelect = $('frequency');
   const leveragedInput = $('leveraged');
   const leveragedRange = $('leveragedRange');
 
@@ -98,6 +99,7 @@
   bindTextAndRange(inflationInput, inflationRange, {});
   bindTextAndRange(assetsInput, assetsRange, { isCurrency: true });
   bindTextAndRange(returnRateInput, returnRateRange, {});
+  frequencySelect.addEventListener('change', render);
   bindTextAndRange(leveragedInput, leveragedRange, { isCurrency: true });
 
   currencyButtons.forEach((btn) => {
@@ -160,6 +162,11 @@
     setField('rate', returnRateInput, returnRateRange, false, false);
     setField('leveraged', leveragedInput, leveragedRange, true, false);
 
+    const frequencyParam = params.get('frequency');
+    if (frequencyParam && [...frequencySelect.options].some((o) => o.value === frequencyParam)) {
+      frequencySelect.value = frequencyParam;
+    }
+
     const chartRateParam = params.get('chartRate');
     if (chartRateParam === '3' || chartRateParam === '4' || chartRateParam === '5') {
       selectedChartRate = parseInt(chartRateParam, 10);
@@ -174,6 +181,7 @@
     params.set('inflation', parseNumber(inflationInput.value));
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('rate', parseNumber(returnRateInput.value));
+    params.set('frequency', frequencySelect.value);
     params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
     params.set('currency', currentCurrency);
     params.set('chartRate', selectedChartRate);
@@ -286,7 +294,15 @@
     reqPassiveAnnual.textContent = fmtCurrency(passiveAnnual);
     reqPassiveMonthly.textContent = fmtCurrency(passiveMonthly);
 
-    const monthlyRate = annualReturn / 12;
+    // Effective monthly growth rate implied by the chosen compounding
+    // frequency — same formula as Liquid Asset Forecaster/Freedom
+    // Formula's monthlyFactor, expressed as a rate (factor - 1) since the
+    // asset-growth and required-savings formulas below already work in
+    // terms of a monthly rate. Only feeds the investment-return side of
+    // the calculation — inflation above is untouched, still a plain
+    // annual compound over the years entered.
+    const n = parseFloat(frequencySelect.value);
+    const monthlyRate = annualReturn === 0 ? 0 : Math.pow(1 + annualReturn / n, n / 12) - 1;
     const months = years * 12;
     const futureAssets = assets * Math.pow(1 + monthlyRate, months);
 
