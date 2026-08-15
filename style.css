@@ -1275,6 +1275,14 @@ tbody tr:hover { background: var(--accent-soft); }
   flex-direction: column;
   gap: 36px;
 }
+/* This is the only spot on the page where two cards sit directly
+   back-to-back with no text between them, so the standard 48px
+   narrow-layout gap plus this card's own 30px top padding/border reads
+   as an oversized 78px of blank space. Pull it in, reusing the same
+   -24px convention used elsewhere on this page for tightening spacing. */
+.mob-card + .rf-story {
+  margin-top: -24px;
+}
 .rf-step {
   display: flex;
   flex-direction: column;
@@ -1311,6 +1319,10 @@ tbody tr:hover { background: var(--accent-soft); }
 .rf-p strong {
   color: var(--text-primary);
   font-weight: 400;
+}
+.rf-p a {
+  color: var(--interest);
+  text-decoration: underline;
 }
 .rf-income-grid {
   display: grid;
@@ -1687,6 +1699,13 @@ tbody tr:hover { background: var(--accent-soft); }
 .narrow-layout > .story-cta:first-child,
 .narrow-layout > .rf-p:first-child {
   margin-top: 0;
+}
+/* Two .rf-p paragraphs sitting back-to-back (the Roadmap's opening pair)
+   still need breathing room between them, matching the 20px gap between
+   Calculators' intro paragraphs — the -24px above brings the 48px
+   narrow-layout gap down to 0, so only -4px is needed here to land on 20. */
+.narrow-layout > .rf-p + .rf-p {
+  margin-top: -4px;
 }
 .story-photo-row {
   display: flex;
