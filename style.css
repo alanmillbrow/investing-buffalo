@@ -1193,7 +1193,10 @@ tbody tr:hover { background: var(--accent-soft); }
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin: 8px 0 28px;
+  /* No bottom margin — this grid is always the card's last child, so a
+     bottom margin here would double up with the card's own 28px bottom
+     padding, making the bottom gap noticeably wider than the sides. */
+  margin: 8px 0 0;
 }
 .stage-card {
   display: flex;
@@ -1276,12 +1279,11 @@ tbody tr:hover { background: var(--accent-soft); }
   gap: 36px;
 }
 /* This is the only spot on the page where two cards sit directly
-   back-to-back with no text between them, so the standard 48px
-   narrow-layout gap plus this card's own 30px top padding/border reads
-   as an oversized 78px of blank space. Pull it in, reusing the same
-   -24px convention used elsewhere on this page for tightening spacing. */
+   back-to-back with no text between them. Box edge to box edge (not
+   counting this card's own top padding/border before its heading), the
+   default 48px narrow-layout gap is pulled in to land on 32px. */
 .mob-card + .rf-story {
-  margin-top: -24px;
+  margin-top: -16px;
 }
 .rf-step {
   display: flex;
