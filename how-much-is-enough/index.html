@@ -76,7 +76,7 @@
 
       <div class="field">
         <label for="income">Desired monthly income</label>
-        <span class="field-hint">At today&rsquo;s purchasing power</span>
+        <span class="field-hint">The income you will need based on what things cost today</span>
         <div class="input-prefix">
           <span id="incomeSymbol">£</span>
           <input type="text" inputmode="decimal" id="income" value="3,000">
@@ -85,13 +85,13 @@
       </div>
 
       <div class="field">
-        <label for="leveraged">Monthly leveraged income</label>
-        <span class="field-hint">Leveraged income you expect to be generating when withdrawals start</span>
-        <div class="input-prefix">
-          <span id="leveragedSymbol">£</span>
-          <input type="text" inputmode="decimal" id="leveraged" value="0">
+        <label for="inflation">Expected annual inflation</label>
+        <span class="field-hint">Used to work out the income you will need based on what things will cost in the future</span>
+        <div class="input-suffix">
+          <input type="text" inputmode="decimal" id="inflation" value="3.5">
+          <span>%</span>
         </div>
-        <input type="range" id="leveragedRange" min="0" max="20000" step="100" value="0" class="slider">
+        <input type="range" id="inflationRange" min="0" max="10" step="0.1" value="3.5" class="slider">
       </div>
 
       <div class="field">
@@ -101,6 +101,16 @@
           <span>yrs</span>
         </div>
         <input type="range" id="yearsRange" min="0" max="50" step="1" value="10" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="leveraged">Expected monthly leveraged income</label>
+        <span class="field-hint">Used to offset what you will need to draw from your liquid assets</span>
+        <div class="input-prefix">
+          <span id="leveragedSymbol">£</span>
+          <input type="text" inputmode="decimal" id="leveraged" value="0">
+        </div>
+        <input type="range" id="leveragedRange" min="0" max="20000" step="100" value="0" class="slider">
       </div>
 
       <div class="field">
@@ -129,15 +139,6 @@
           <option value="4">Quarterly</option>
           <option value="1" selected>Annually</option>
         </select>
-      </div>
-
-      <div class="field">
-        <label for="inflation">Expected annual inflation</label>
-        <div class="input-suffix">
-          <input type="text" inputmode="decimal" id="inflation" value="3.5">
-          <span>%</span>
-        </div>
-        <input type="range" id="inflationRange" min="0" max="10" step="0.1" value="3.5" class="slider">
       </div>
     </section>
 
