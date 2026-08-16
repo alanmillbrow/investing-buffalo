@@ -206,16 +206,20 @@
     }
   }
 
+  // Param order deliberately mirrors the input boxes' order on the page
+  // (currency, then top to bottom) rather than being grouped by type or
+  // left in whatever order fields were added over time — chartYears isn't
+  // an input box, so it's appended at the end.
   function currentParams() {
     const params = new URLSearchParams();
-    params.set('income', Math.round(parseNumber(incomeInput.value)));
+    params.set('currency', currentCurrency);
     params.set('expenses', Math.round(parseNumber(expensesInput.value)));
     params.set('expenseGrowth', parseNumber(expenseGrowthInput.value));
+    params.set('income', Math.round(parseNumber(incomeInput.value)));
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('rate', parseNumber(returnRateInput.value));
     params.set('frequency', frequencySelect.value);
     params.set('minAssets', Math.round(parseNumber(minAssetsInput.value)));
-    params.set('currency', currentCurrency);
     // Only include the years-shown slider once the user has actually
     // moved it — otherwise it's just auto-tracking the full range anyway
     if (chartYearsOverride !== null) {

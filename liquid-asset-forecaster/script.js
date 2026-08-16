@@ -181,16 +181,19 @@
     }
   }
 
+  // Param order deliberately mirrors the input boxes' order on the page
+  // (currency, then top to bottom), rather than being grouped by type or
+  // left in whatever order fields were added over time.
   function currentParams() {
     const params = new URLSearchParams();
+    params.set('currency', currentCurrency);
     params.set('principal', Math.round(parseNumber(principalInput.value)));
     params.set('contribution', Math.round(parseNumber(contributionInput.value)));
-    params.set('rate', parseNumber(rateInput.value));
-    params.set('years', Math.round(parseNumber(yearsInput.value)));
-    params.set('inflation', parseNumber(inflationInput.value));
-    params.set('frequency', frequencySelect.value);
     params.set('timing', contributeAtStart ? 'begin' : 'end');
-    params.set('currency', currentCurrency);
+    params.set('rate', parseNumber(rateInput.value));
+    params.set('frequency', frequencySelect.value);
+    params.set('inflation', parseNumber(inflationInput.value));
+    params.set('years', Math.round(parseNumber(yearsInput.value)));
     return params;
   }
 

@@ -174,16 +174,20 @@
     }
   }
 
+  // Param order deliberately mirrors the input boxes' order on the page
+  // (currency, then top to bottom) rather than being grouped by type or
+  // left in whatever order fields were added over time — chartRate isn't
+  // an input box, so it's appended at the end.
   function currentParams() {
     const params = new URLSearchParams();
+    params.set('currency', currentCurrency);
     params.set('income', Math.round(parseNumber(incomeInput.value)));
-    params.set('years', Math.round(parseNumber(yearsInput.value)));
     params.set('inflation', parseNumber(inflationInput.value));
+    params.set('years', Math.round(parseNumber(yearsInput.value)));
+    params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('rate', parseNumber(returnRateInput.value));
     params.set('frequency', frequencySelect.value);
-    params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
-    params.set('currency', currentCurrency);
     params.set('chartRate', selectedChartRate);
     return params;
   }
