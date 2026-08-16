@@ -110,6 +110,16 @@
       </div>
 
       <div class="field">
+        <label for="frequency">Compounding frequency</label>
+        <select id="frequency">
+          <option value="365">Daily</option>
+          <option value="12">Monthly</option>
+          <option value="4">Quarterly</option>
+          <option value="1" selected>Annually</option>
+        </select>
+      </div>
+
+      <div class="field">
         <label for="years">Time horizon</label>
         <div class="input-suffix">
           <input type="text" inputmode="numeric" id="years" value="10">
@@ -125,16 +135,6 @@
           <span>%</span>
         </div>
         <input type="range" id="inflationRange" min="0" max="10" step="0.1" value="3.5" class="slider">
-      </div>
-
-      <div class="field">
-        <label for="frequency">Compounding frequency</label>
-        <select id="frequency">
-          <option value="365">Daily</option>
-          <option value="12">Monthly</option>
-          <option value="4">Quarterly</option>
-          <option value="1" selected>Annually</option>
-        </select>
       </div>
     </section>
 
