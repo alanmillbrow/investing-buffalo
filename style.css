@@ -699,6 +699,31 @@ select#frequency:focus {
   font-size: 0.88rem;
   font-style: italic;
 }
+/* A standalone warning box for pages with a calculator that produces a
+   specific personal-finance figure (as opposed to the general educational
+   framing everywhere else) — reuses the warm "free badge" accent so it
+   reads as attention-worthy without introducing a new colour to the
+   palette. */
+.disclaimer-card {
+  border-color: var(--badge-free-bg);
+  margin-bottom: 24px;
+}
+.disclaimer-card h2 {
+  color: var(--badge-free-bg);
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.disclaimer-card p {
+  margin: 0;
+  font-family: var(--body-font);
+  font-weight: 400; /* Regular — matches the Roadmap's "body text in a box" treatment */
+  color: var(--text-primary);
+  font-size: var(--body-font-size);
+  line-height: 1.6;
+}
+
 /* Font trial, applied sitewide rather than page by page — unlike every
    other trial rule above, this box's text is identical on every page, so
    staggering it per page would make the same component look different

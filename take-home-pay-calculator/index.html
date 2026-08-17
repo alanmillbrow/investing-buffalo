@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Take Home Pay Calculator</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-take-home-pay-calculator">
+
+<div class="bg-decoration"></div>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>Take Home Pay Calculator</h1>
+        <p>See how salary sacrifice, your ISA and a GIA affect your pay and your investment engine</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+
+  <section class="card newsletter-signup">
+    <h2>Get the free UK Investing Starter Sheet</h2>
+    <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
+    <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>
+  </section>
+
+  <section class="card disclaimer-card">
+    <h2>Warning &mdash; this is not financial advice</h2>
+    <p>Tax is a complicated topic and is personal to your own circumstances. This calculator is just an illustration of how you may be able to invest your income, taking into account the general tax rules and investment wrappers available. There are tax nuances not accounted for in this calculator. For example pension unused annual allowance carryover, your personal tax code, student loan repayments or other deductions. For personal tax advice please speak to a qualified financial advisor.</p>
+  </section>
+
+  <section class="card formula-card formula-summary">
+    <h2>Take Home Pay Calculator</h2>
+    <div class="formula">
+      <div class="formula-term">
+        <span class="formula-abbr">GP</span>
+        <span class="formula-word">Gross Pay</span>
+      </div>
+      <div class="formula-term">
+        <span class="formula-abbr">T&amp;NI</span>
+        <span class="formula-word">Tax &amp; National Insurance</span>
+      </div>
+      <div class="formula-term">
+        <span class="formula-abbr">IE</span>
+        <span class="formula-word">Investment Engine</span>
+      </div>
+    </div>
+    <p class="formula-rule">What&rsquo;s left in your pocket is <strong>Gross Pay</strong>, minus <strong>Tax and National Insurance</strong>, minus whatever you choose to put into your <strong>Investment Engine</strong> &mdash; your pension, ISA and GIA combined.</p>
+  </section>
+
+  <main class="layout">
+    <!-- Inputs -->
+    <section class="card inputs-card">
+      <h2>Your numbers</h2>
+
+      <div class="field">
+        <label for="salary">Annual salary</label>
+        <div class="input-prefix">
+          <span>£</span>
+          <input type="text" inputmode="decimal" id="salary" value="50,000">
+        </div>
+        <input type="range" id="salaryRange" min="0" max="500000" step="1000" value="50000" class="slider">
+      </div>
+
+      <div class="field pension-mode">
+        <label>Pension contribution method</label>
+        <span class="field-hint">Salary sacrifice reduces the salary your National Insurance is calculated on. Relief at Source does not</span>
+        <div class="segmented">
+          <button type="button" class="seg-btn active" data-mode="sacrifice">Salary sacrifice</button>
+          <button type="button" class="seg-btn" data-mode="none">Relief at Source</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pension">Pension contribution</label>
+        <span class="field-hint">Capped at your salary or your Annual Allowance, whichever is lower &mdash; £60,000, tapering down to £10,000 once your income passes £260,000</span>
+        <div class="input-prefix">
+          <span>£</span>
+          <input type="text" inputmode="decimal" id="pension" value="5,000">
+        </div>
+        <input type="range" id="pensionRange" min="0" max="50000" step="100" value="5000" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="isa">ISA contribution</label>
+        <span class="field-hint">Capped at £20,000, or whatever&rsquo;s left of your take home pay if less</span>
+        <div class="input-prefix">
+          <span>£</span>
+          <input type="text" inputmode="decimal" id="isa" value="5,000">
+        </div>
+        <input type="range" id="isaRange" min="0" max="20000" step="100" value="5000" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="gia">GIA contribution</label>
+        <span class="field-hint">Whatever you choose to invest from what&rsquo;s left, rather than keep as spendable cash</span>
+        <div class="input-prefix">
+          <span>£</span>
+          <input type="text" inputmode="decimal" id="gia" value="0">
+        </div>
+        <input type="range" id="giaRange" min="0" max="0" step="100" value="0" class="slider">
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results-col">
+      <div class="card share-card">
+        <h2>Save or share this result</h2>
+        <div class="share-actions">
+          <button id="copyLinkBtn" class="link-btn">Copy link</button>
+          <button id="shareLinkBtn" class="link-btn">Share</button>
+          <button id="bookmarkBtn" class="link-btn">Bookmark</button>
+        </div>
+        <p class="share-status" id="shareStatus"></p>
+      </div>
+
+      <div class="card summary-card">
+        <h2>Your pay</h2>
+        <div class="ledger-table">
+          <div class="ledger-row ledger-head cols-3">
+            <span></span>
+            <span>Without investing</span>
+            <span>With investing</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Gross salary</span>
+            <span id="baseGross">£0</span>
+            <span id="afterGross">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Income tax</span>
+            <span id="baseTax">£0</span>
+            <span id="afterTax">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>National Insurance</span>
+            <span id="baseNi">£0</span>
+            <span id="afterNi">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Investment engine</span>
+            <span id="baseEngine">£0</span>
+            <span id="afterEngine">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Take home pay</span>
+            <span id="baseTakeHome">£0</span>
+            <span id="afterTakeHome">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Monthly take home pay</span>
+            <span id="baseTakeHomeMonthly">£0</span>
+            <span id="afterTakeHomeMonthly">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Total tax %</span>
+            <span id="baseTaxPercent">0%</span>
+            <span id="afterTaxPercent">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card headline-card">
+        <div class="ledger-row ledger-head headline-title">
+          <span>Added to your investment engine</span>
+        </div>
+        <div class="headline-value" id="engineTotal">£0</div>
+      </div>
+
+      <div class="card">
+        <h2>National Insurance efficiency</h2>
+        <p class="formula-rule" id="niEfficiencyNote">Using salary sacrifice for a <strong>£0</strong> pension contribution saves you <strong>£0</strong> a year in National Insurance, compared to a normal payroll deduction of the same amount.</p>
+      </div>
+
+      <div class="card">
+        <h2>Where your investment engine money goes</h2>
+        <div class="ledger-table">
+          <div class="ledger-row ledger-head cols-3">
+            <span></span>
+            <span>Annual</span>
+            <span>Monthly</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Pension contribution</span>
+            <span id="allocPension">£0</span>
+            <span id="allocPensionMonthly">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>ISA contribution</span>
+            <span id="allocIsa">£0</span>
+            <span id="allocIsaMonthly">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>GIA contribution</span>
+            <span id="allocGia">£0</span>
+            <span id="allocGiaMonthly">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Investment engine total</span>
+            <span id="allocTotal">£0</span>
+            <span id="allocTotalMonthly">£0</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span>Spendable cash left over</span>
+            <span id="allocSpendable">£0</span>
+            <span id="allocSpendableMonthly">£0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>This calculator uses 2026/27 UK income tax and National Insurance rates for England, Wales and Northern Ireland (Scotland&rsquo;s income tax bands differ) and a simplified model of pension tax relief. It doesn&rsquo;t account for pension unused annual allowance carryover, your personal tax code, student loan repayments or other deductions.</p>
+    <p>Relief at Source is also simplified. Only 20% relief is added automatically, with higher and additional rate taxpayers reclaiming the rest through Self Assessment rather than seeing it reflected in take home pay straight away. This calculator shows the full relief immediately.</p>
+    <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
