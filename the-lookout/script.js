@@ -84,11 +84,11 @@ const REITS = [
 // US-listed income-focused ETFs — see the comment in
 // .github/scripts/fetch-stock-data.mjs.
 const COVERED_CALL_ETFS = [
-  { symbol: 'SPYI', name: 'NEOS S&P 500 High Income ETF' },
-  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income ETF' },
-  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure ETN' },
-  { symbol: 'SCHD', name: 'Schwab US Dividend Equity ETF' },
-  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income ETF' },
+  { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
+  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income' },
+  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure' },
+  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
+  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income' },
 ];
 
 function fmtUsd(n) {
