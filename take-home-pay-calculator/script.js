@@ -47,12 +47,6 @@
   const shareStatus = $('shareStatus');
 
   let isSacrifice = true;
-  // Only auto-fills the GIA slider to "the rest of your take home pay" once,
-  // on first load (or once per restored share link) — after that, a shrunk
-  // ceiling still clamps it down (same as pension/ISA), but a ceiling that
-  // grows back doesn't yank a value the user deliberately dialled down back
-  // up to the max.
-  let giaDefaulted = false;
 
   // ---------- Formatting helpers ----------
   // GBP only — unlike the other calculators, the thresholds this one is
@@ -225,11 +219,11 @@
       sacrificeButtons.forEach((b) => b.classList.toggle('active', b.dataset.mode === modeParam));
     }
 
-    // GIA is set after render() has had a chance to compute a real ceiling
-    // for it — done in render() itself via giaDefaulted, using this flag to
-    // skip the auto-fill-to-max behaviour when a link explicitly set it.
+    // GIA's real ceiling isn't known until render() computes it from the
+    // other fields, so just stash the requested value here — render()
+    // clamps it against the true max on the next pass, same as pension/ISA
+    // above.
     if (params.has('gia')) {
-      giaDefaulted = true; // suppress the auto-default — a link author chose this value on purpose
       const val = parseNumber(params.get('gia'));
       giaInput.value = fmtNumber(val);
       giaRange.value = val; // clamped for real once render() knows the true ceiling
@@ -342,21 +336,10 @@
 
     const giaMax = Math.max(0, takeHomeBeforeIsaGia - isa);
     giaRange.max = giaMax;
-    let gia;
-    if (!giaDefaulted) {
-      // First render only (or after a share link explicitly set gia,
-      // which pre-sets this flag in applyUrlParams) — default to "the
-      // rest", matching putting whatever's left over into the GIA.
-      gia = giaMax;
+    let gia = Math.min(parseNumber(giaInput.value), giaMax);
+    if (gia !== parseNumber(giaInput.value)) {
       giaInput.value = fmtNumber(gia);
       giaRange.value = gia;
-      giaDefaulted = true;
-    } else {
-      gia = Math.min(parseNumber(giaInput.value), giaMax);
-      if (gia !== parseNumber(giaInput.value)) {
-        giaInput.value = fmtNumber(gia);
-        giaRange.value = gia;
-      }
     }
     updateSliderFill(giaRange);
 
@@ -405,7 +388,7 @@
     const niWithoutSacrifice = computeScenario(salary, pension, false).ni;
     const niSaving = Math.max(0, niWithoutSacrifice - niWithSacrifice);
     niEfficiencyNoteEl.innerHTML = pension > 0
-      ? `Using salary sacrifice for a <strong>${fmtCurrency(pension)}</strong> pension contribution saves you <strong>${fmtCurrency(niSaving)}</strong> a year in National Insurance, compared to Relief at Source for the same amount.`
+      ? `Using salary sacrifice for a <strong>${fmtCurrency(pension)}</strong> pension contribution saves you <strong>${fmtCurrency(niSaving)}</strong> a year in National Insurance, compared to Not salary sacrifice for the same amount.`
       : `Add a pension contribution above to see how much National Insurance salary sacrifice would save you.`;
 
     scheduleUrlUpdate();

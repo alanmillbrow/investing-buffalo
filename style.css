@@ -1946,6 +1946,15 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   color: var(--text-secondary);
 }
 .formula-rule strong { color: var(--text-primary); }
+/* NI efficiency note — matched to How Much Is Enough's .income-note
+   caption (same font, colour and size). Colour and size already line up
+   via the shared .formula-rule base above; only the font-family/weight
+   trial needed applying here. The highlighted £ figures keep their
+   contrast via .formula-rule strong above, untouched. */
+.page-take-home-pay-calculator #niEfficiencyNote {
+  font-family: var(--body-font);
+  font-weight: 600; /* Semibold */
+}
 
 /* Three freedoms */
 .freedoms-title {
