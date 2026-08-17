@@ -1528,6 +1528,15 @@ tbody tr:hover { background: var(--accent-soft); }
   font-family: var(--body-font);
   font-weight: 600; /* Semibold, matching the body copy trial */
 }
+/* Same font trial, rolled out to The Lookout's new intro blurb — the one
+   piece of reading prose on an otherwise all-tables/UI page, so it gets
+   the same Chaparral treatment as About Me's story copy rather than
+   sitting in Shackleton like the surrounding tables. */
+.page-lookout .story-p {
+  font-family: var(--body-font);
+  font-weight: 600; /* Semibold */
+  color: var(--text-primary);
+}
 /* Same font trial, rolled out to the Roadmap page's body copy — every
    reading-length paragraph, not just .rf-p, so the page doesn't end up
    with some text in the new font and some still in Shackleton. Calculator

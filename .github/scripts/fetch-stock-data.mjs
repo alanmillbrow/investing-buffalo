@@ -128,10 +128,10 @@ const COMMODITIES = [
 // misleading figure. 1-month is unaffected and stays accurate.
 const COVERED_CALL_ETFS = [
   { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
-  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income' },
+  { symbol: 'GPIQ', name: 'GS S&P 500 Premium Income' },
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure', historyResetDate: '2025-12-18' },
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
-  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income' },
+  { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker

@@ -85,10 +85,10 @@ const REITS = [
 // .github/scripts/fetch-stock-data.mjs.
 const COVERED_CALL_ETFS = [
   { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
-  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income' },
+  { symbol: 'GPIQ', name: 'GS S&P 500 Premium Income' },
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure' },
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
-  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income' },
+  { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
 ];
 
 function fmtUsd(n) {
