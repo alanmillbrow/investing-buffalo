@@ -1494,6 +1494,14 @@ tbody tr:hover { background: var(--accent-soft); }
   flex-direction: column;
   gap: 20px;
 }
+/* The Lookout's intro blurb is only two short paragraphs sitting in an
+   otherwise very wide (1560px) dashboard page — About Me's full 820px
+   reading width feels loose here, so this narrows it (a tighter, more
+   deliberate-looking column rather than the widest comfortable line
+   length). */
+.page-lookout .story {
+  max-width: 660px;
+}
 .story-p {
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
