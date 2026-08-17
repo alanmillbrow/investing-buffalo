@@ -117,10 +117,19 @@ const COMMODITIES = [
 // US-listed ETFs — isIndex: true like INDICES (no per-share earnings, so no
 // P/E), but they still carry a real dividend yield, which is the whole
 // point of this table.
+// MLPI: UBS restructured/reissued this ETN around 18 Dec 2025 (confirmed via
+// public price history — flat at ~$11.28 throughout 2021-2023, then a
+// step to the ~$46-55 range starting that date, with no gradual path
+// between). Twelve Data's own /time_series still returns raw, non-split-
+// adjusted closes spanning that boundary, so any lookback window reaching
+// back before it produces a nominal jump (+387%) rather than MLPI's real
+// return (~10%) — historyResetDate tells changeOverDays to null out any
+// window whose target date falls before it, rather than show that
+// misleading figure. 1-month is unaffected and stays accurate.
 const COVERED_CALL_ETFS = [
   { symbol: 'SPYI', name: 'NEOS S&P 500 High Income ETF' },
   { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income ETF' },
-  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure ETN' },
+  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure ETN', historyResetDate: '2025-12-18' },
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity ETF' },
   { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income ETF' },
 ];
@@ -250,8 +259,14 @@ function findPriceDaysAgo(bars, days) {
 // stitching heuristic doesn't catch cleanly). Not applied to individual
 // stocks, where a >999% move over several years is rare but genuinely
 // possible.
-function changeOverDays(price, bars, days, isIndex) {
+// resetDate (see COVERED_CALL_ETFS' MLPI entry for the concrete case) skips
+// any window whose target date falls before a known real corporate action
+// (reissue/restructuring) that the API's raw closes aren't split-adjusted
+// across — unlike normalizeHistoricalScale, this isn't a data error to
+// correct, just a comparison that genuinely can't be made across the gap.
+function changeOverDays(price, bars, days, isIndex, resetDate) {
   if (price === null || !bars.length) return null;
+  if (resetDate && Date.now() - days * 86400000 < new Date(`${resetDate}T00:00:00Z`).getTime()) return null;
   const priceThen = findPriceDaysAgo(bars, days);
   if (!priceThen) return null;
   const change = ((price - priceThen) / priceThen) * 100;
@@ -318,7 +333,7 @@ function logRejections(symbol, labels, results) {
 
 // Cheap half: current price, all-time high, drawdown, and price change over
 // several lookback windows — quote + time_series only (1 credit each).
-async function loadPrice(symbol, exchange, isIndex) {
+async function loadPrice(symbol, exchange, isIndex, historyResetDate) {
   const base = 'https://api.twelvedata.com';
   const exchangeParam = exchange ? `&exchange=${exchange}` : '';
   const [quoteResult, historyResult] = await Promise.allSettled([
@@ -388,10 +403,10 @@ async function loadPrice(symbol, exchange, isIndex) {
     : null;
   const vsAth = (price !== null && athPrice) ? ((price - athPrice) / athPrice) * 100 : null;
 
-  const change1mo = changeOverDays(price, bars, 30, isIndex);
-  const change12mo = changeOverDays(price, bars, 365, isIndex);
-  const change3yr = changeOverDays(price, bars, 365 * 3, isIndex);
-  const change5yr = changeOverDays(price, bars, 365 * 5, isIndex);
+  const change1mo = changeOverDays(price, bars, 30, isIndex, historyResetDate);
+  const change12mo = changeOverDays(price, bars, 365, isIndex, historyResetDate);
+  const change3yr = changeOverDays(price, bars, 365 * 3, isIndex, historyResetDate);
+  const change5yr = changeOverDays(price, bars, 365 * 5, isIndex, historyResetDate);
 
   return { price, athPrice, athDate, daysSinceAth, vsAth, change1mo, change12mo, change3yr, change5yr };
 }
@@ -543,7 +558,7 @@ async function runPriceRefresh() {
   await Promise.all(ALL_SYMBOLS.map(async (item) => {
     let fields;
     try {
-      fields = await loadPrice(item.symbol, item.exchange, item.isIndex);
+      fields = await loadPrice(item.symbol, item.exchange, item.isIndex, item.historyResetDate);
     } catch (err) {
       console.warn(`[WARN] ${item.symbol} price refresh failed entirely: ${err.message}`);
       fields = {};
