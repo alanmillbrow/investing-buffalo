@@ -81,6 +81,16 @@ const REITS = [
   { symbol: 'SGRO', name: 'Segro' },
 ];
 
+// US-listed income-focused ETFs — see the comment in
+// .github/scripts/fetch-stock-data.mjs.
+const COVERED_CALL_ETFS = [
+  { symbol: 'SPYI', name: 'NEOS S&P 500 High Income ETF' },
+  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income ETF' },
+  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure ETN' },
+  { symbol: 'SCHD', name: 'Schwab US Dividend Equity ETF' },
+  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income ETF' },
+];
+
 function fmtUsd(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -297,6 +307,7 @@ function buildRows() {
 
   buildFtseDividendRows(FTSE_DIVIDENDS);
   buildReitRows(REITS);
+  buildCoveredCallRows(COVERED_CALL_ETFS);
 }
 
 // Broken out from buildRows so it can be called again after data loads,
@@ -343,6 +354,30 @@ function buildReitRows(order) {
   `).join('');
 }
 
+// Same pattern as buildFtseDividendRows — rebuilt in dividend-yield order
+// once data loads. No pe column (static dash) — these are ETFs, not
+// individual companies, so (like INDICES) there's no per-share earnings to
+// compute a P/E from.
+function buildCoveredCallRows(order) {
+  const tbody = document.getElementById('coveredCallTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = order.map((stock) => `
+    <tr id="coveredcall-${stock.symbol}">
+      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
+      <td data-col="ath">&hellip;</td>
+      <td data-col="price">&hellip;</td>
+      <td data-col="vsAth">&hellip;</td>
+      <td data-col="daysSinceAth">&hellip;</td>
+      <td data-col="change1mo">&hellip;</td>
+      <td data-col="change12mo">&hellip;</td>
+      <td data-col="change3yr">&hellip;</td>
+      <td data-col="change5yr">&hellip;</td>
+      <td data-col="dividendYield">&hellip;</td>
+      <td>&mdash;</td>
+    </tr>
+  `).join('');
+}
+
 async function init() {
   const status = document.getElementById('stockWatchStatus');
   buildRows();
@@ -385,6 +420,17 @@ async function init() {
     });
     buildReitRows(reitsByYieldDesc);
     REITS.forEach((stock) => renderRow(stock, data.reits?.[stock.symbol], { idPrefix: 'reit', fmt: fmtGbx }));
+
+    const coveredCallByYieldDesc = [...COVERED_CALL_ETFS].sort((a, b) => {
+      const ay = data.coveredCallEtfs?.[a.symbol]?.dividendYield;
+      const by = data.coveredCallEtfs?.[b.symbol]?.dividendYield;
+      if (ay == null && by == null) return 0;
+      if (ay == null) return 1;
+      if (by == null) return -1;
+      return by - ay;
+    });
+    buildCoveredCallRows(coveredCallByYieldDesc);
+    COVERED_CALL_ETFS.forEach((stock) => renderIndexRow(stock, data.coveredCallEtfs?.[stock.symbol], { idPrefix: 'coveredcall', fmt: fmtUsd }));
     status.textContent = `Last refreshed ${fmtRefreshedAt(new Date(data.savedAt))}`;
   } catch (err) {
     status.textContent = `Couldn't load stock data: ${err.message}`;

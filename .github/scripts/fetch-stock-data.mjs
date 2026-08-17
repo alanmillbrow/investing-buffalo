@@ -114,6 +114,17 @@ const COMMODITIES = [
   { symbol: 'XAG/USD', name: 'Silver' },
 ];
 
+// US-listed ETFs — isIndex: true like INDICES (no per-share earnings, so no
+// P/E), but they still carry a real dividend yield, which is the whole
+// point of this table.
+const COVERED_CALL_ETFS = [
+  { symbol: 'SPYI', name: 'NEOS S&P 500 High Income ETF' },
+  { symbol: 'GPIQ', name: 'Goldman Sachs S&P 500 Premium Income ETF' },
+  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure ETN' },
+  { symbol: 'SCHD', name: 'Schwab US Dividend Equity ETF' },
+  { symbol: 'IDVO', name: 'Amplify International Enhanced Dividend Income ETF' },
+];
+
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
 // tables (no per-company earnings, so no P/E) vs. individual companies.
 // `noFundamentals` (commodities/crypto only) skips the fundamentals tier
@@ -126,6 +137,7 @@ const ALL_SYMBOLS = [
   ...FTSE_DIVIDENDS.map((s) => ({ ...s, section: 'ftseDividends', isIndex: false })),
   ...REITS.map((s) => ({ ...s, section: 'reits', isIndex: false })),
   ...COMMODITIES.map((s) => ({ ...s, section: 'commodities', isIndex: true, noFundamentals: true })),
+  ...COVERED_CALL_ETFS.map((s) => ({ ...s, section: 'coveredCallEtfs', isIndex: true })),
 ];
 
 // Real per-call cost, confirmed via Twelve Data's api-credits-used response
