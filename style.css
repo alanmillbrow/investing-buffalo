@@ -1640,6 +1640,60 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-how-much-is-enough .chart-target-note strong {
   font-weight: 600;
 }
+/* UK Tax Tables — every .rf-p on this page is a substantial explanatory
+   paragraph rather than a short intro/outro line, so (per the "large body
+   of reading text" rule used elsewhere, e.g. Roadmap's .rf-p-regular)
+   it's Regular weight + the darker --text-primary throughout, rather than
+   Roadmap's Semibold-intro/Regular-story split. Tables stay in the default
+   font, consistent with treating tabular content as UI rather than
+   reading prose (same reasoning as the calculator field labels above). */
+.page-tax-tables .rf-p {
+  font-family: var(--body-font);
+  font-weight: 400; /* Regular */
+  color: var(--text-primary);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+}
+/* Income tax band table's intro sentence — plain .section-note (pulled up
+   -12px toward the h2 above, same as everywhere else it's used right
+   under a heading) would otherwise touch the table below with no gap,
+   since .table-header-note's own 18px margin-bottom isn't in play here —
+   that side-by-side layout squashed the h2 to four lines once paired with
+   a note this long, so this section uses a stacked h2-then-note layout
+   instead. Restores that missing 18px so the table still sits clear. */
+.tax-section-intro {
+  margin-bottom: 18px;
+}
+/* .mob-letter's base 76x76 square + 2.4rem was sized for the single-letter
+   M/O/B used on Roadmap — three-letter abbreviations (PEN/ISA/GIA) read
+   better in a wider rectangle than a square stretched to fit, so this
+   widens the box and drops the font size a step to match (2.4rem
+   overflowed a 76px-wide box by 2px once there were three characters). */
+.page-tax-tables .mob-letter {
+  width: 104px;
+  height: 64px;
+  font-size: 2rem;
+}
+/* The aside under the income tax table (the 60% effective-rate trap
+   between £100k-£125,140) — deliberately smaller and lighter than the
+   surrounding .rf-p paragraphs, same "secondary note" treatment as
+   .section-note elsewhere, but with its own margin (rather than
+   .section-note's -12px, which pulls up toward a heading — this instead
+   needs to sit clear of the table above it). */
+.tax-table-footnote {
+  margin: 16px 0 0;
+  font-family: var(--body-font);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+/* Comparison table's first column (row labels) needs more room than an
+   even split would give it — "Growth & dividends inside" is the longest
+   cell in the table and was wrapping awkwardly at an equal 25% share. */
+.tax-compare-table th:first-child,
+.tax-compare-table td:first-child {
+  width: 28%;
+}
 /* .runway-note — the "The same runway, expressed three ways" caption
    above .formula-rule in the "How long your money lasts" card. Matched to
    .formula-rule's font, size, and (lighter) colour exactly, so it reads
