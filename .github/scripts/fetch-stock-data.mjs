@@ -139,6 +139,7 @@ const COVERED_CALL_ETFS = [
 // US-listed dividend-focused (non-covered-call) funds — plain dividend
 // growth/quality strategies rather than an options overlay. Same isIndex
 // treatment as COVERED_CALL_ETFS below (ETFs, no per-share earnings/P/E).
+// Started with SCHD (moved from COVERED_CALL_ETFS) and NOBL.
 const US_DIVIDEND_FUNDS = [
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
   { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
