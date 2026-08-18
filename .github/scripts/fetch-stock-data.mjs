@@ -116,7 +116,8 @@ const COMMODITIES = [
 
 // US-listed ETFs — isIndex: true like INDICES (no per-share earnings, so no
 // P/E), but they still carry a real dividend yield, which is the whole
-// point of this table.
+// point of this table. Started with SPYI/GPIQ/MLPI/SCHD/IDVO; DIVO and
+// JEPI added later.
 // MLPI: UBS restructured/reissued this ETN around 18 Dec 2025 (confirmed via
 // public price history — flat at ~$11.28 throughout 2021-2023, then a
 // step to the ~$46-55 range starting that date, with no gradual path
