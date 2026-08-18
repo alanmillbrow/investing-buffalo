@@ -904,6 +904,84 @@ select#frequency:focus {
   color: var(--text-primary);
 }
 
+/* Take Home Pay Calculator's salary breakdown pie. Slice colours reuse
+   the site's existing chart palette exactly (--contrib/--interest/
+   --multiple, the same three tones the Freedom Formula's area chart
+   already uses) rather than introducing new hues that would clash with
+   the parchment/sepia palette — so Pension/ISA/GIA share that family and
+   read as one group, while Income Tax/National Insurance take the rust
+   "badge-free" accent (already used elsewhere for attention/cost) and
+   Spendable Cash takes the neutral slider-track tone. Slice order goes
+   round the pie in the same Tax&NI / Engine / Spendable grouping as the
+   legend, so the grouping reads from contiguous arcs, not just colour. */
+.pie-layout {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.pie-chart {
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+}
+.pie-chart path {
+  stroke: var(--card-bg-solid);
+  stroke-width: 2;
+}
+.pie-legend {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pie-legend-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pie-legend-group-engine {
+  border: 1px solid var(--card-border);
+  padding: 10px 12px;
+  margin: -2px 0;
+}
+.pie-legend-group-title {
+  margin: 0 0 2px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.pie-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pie-swatch {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.pie-legend-label {
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+.pie-legend-value {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.pie-swatch-tax, .slice-tax { fill: var(--badge-free-bg); background: var(--badge-free-bg); }
+.pie-swatch-ni, .slice-ni { fill: color-mix(in srgb, var(--badge-free-bg) 55%, var(--card-bg-solid)); background: color-mix(in srgb, var(--badge-free-bg) 55%, var(--card-bg-solid)); }
+.pie-swatch-pension, .slice-pension { fill: var(--contrib); background: var(--contrib); }
+.pie-swatch-isa, .slice-isa { fill: var(--interest); background: var(--interest); }
+.pie-swatch-gia, .slice-gia { fill: var(--multiple); background: var(--multiple); }
+.pie-swatch-spendable, .slice-spendable { fill: var(--track); background: var(--track); }
+
 .headline-card {
   padding: 0;
   min-width: 220px;

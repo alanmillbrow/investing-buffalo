@@ -40,6 +40,14 @@
   const allocTotalMonthlyEl = $('allocTotalMonthly');
   const allocSpendableMonthlyEl = $('allocSpendableMonthly');
 
+  const pieChartEl = $('salaryPieChart');
+  const pieTaxEl = $('pieTax');
+  const pieNiEl = $('pieNi');
+  const piePensionEl = $('piePension');
+  const pieIsaEl = $('pieIsa');
+  const pieGiaEl = $('pieGia');
+  const pieSpendableEl = $('pieSpendable');
+
   const themeToggle = $('themeToggle');
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
@@ -56,6 +64,7 @@
   const fmtNumber = (n) => new Intl.NumberFormat('en-GB').format(Math.round(n));
   const fmtCurrency = (n) => '£' + fmtNumber(n);
   const fmtPercent = (n) => (n * 100).toFixed(1) + '%';
+  const fmtCurrencyPercent = (n, total) => `${fmtCurrency(n)} (${total > 0 ? ((n / total) * 100).toFixed(1) : '0.0'}%)`;
 
   function parseNumber(str) {
     const cleaned = String(str).replace(/[^0-9.\-]/g, '');
@@ -209,7 +218,7 @@
       updateSliderFill(rangeEl);
     }
 
-    setField('salary', salaryInput, salaryRange);
+    setField('income', salaryInput, salaryRange);
     setField('pension', pensionInput, pensionRange);
     setField('isa', isaInput, isaRange);
 
@@ -232,7 +241,7 @@
 
   function currentParams() {
     const params = new URLSearchParams();
-    params.set('salary', Math.round(parseNumber(salaryInput.value)));
+    params.set('income', Math.round(parseNumber(salaryInput.value)));
     params.set('mode', isSacrifice ? 'sacrifice' : 'none');
     params.set('pension', Math.round(parseNumber(pensionInput.value)));
     params.set('isa', Math.round(parseNumber(isaInput.value)));
@@ -302,6 +311,64 @@
 
   applyUrlParams();
 
+  // ---------- Salary breakdown pie ----------
+  const PIE_LABELS = {
+    tax: 'Income tax',
+    ni: 'National Insurance',
+    pension: 'Pension',
+    isa: 'ISA',
+    gia: 'GIA',
+    spendable: 'Spendable cash',
+  };
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function polarPoint(cx, cy, r, angleDeg) {
+    // 0° = 12 o'clock, sweeping clockwise, matching how the slices are laid
+    // out below (rather than SVG's default 0° = 3 o'clock).
+    const rad = ((angleDeg - 90) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  // Standard "moveto centre, lineto edge, arc, close" wedge path — plus a
+  // fallback for the edge case a single category holds 100% of the salary,
+  // where start and end angle coincide and a normal wedge path degenerates
+  // to nothing. Two half-arcs draw a full disc in that case instead.
+  function describeSlice(cx, cy, r, startAngle, endAngle) {
+    if (endAngle - startAngle >= 359.99) {
+      const mid = startAngle + 180;
+      const p1 = polarPoint(cx, cy, r, startAngle);
+      const pMid = polarPoint(cx, cy, r, mid);
+      const p2 = polarPoint(cx, cy, r, endAngle);
+      return `M ${p1.x} ${p1.y} A ${r} ${r} 0 1 1 ${pMid.x} ${pMid.y} A ${r} ${r} 0 1 1 ${p2.x} ${p2.y} Z`;
+    }
+    const start = polarPoint(cx, cy, r, startAngle);
+    const end = polarPoint(cx, cy, r, endAngle);
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+    return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
+  }
+
+  // slices go round the pie in the same Tax&NI / Engine / Spendable order
+  // as the legend, so each group forms a contiguous arc — the grouping
+  // reads from position as well as shared colour family.
+  function drawPieChart(total, slices) {
+    pieChartEl.innerHTML = '';
+    const cx = 100, cy = 100, r = 96;
+    if (total <= 0) return;
+    let angle = 0;
+    slices.forEach(({ key, amount }) => {
+      if (amount <= 0) return;
+      const sweep = (amount / total) * 360;
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', describeSlice(cx, cy, r, angle, angle + sweep));
+      path.setAttribute('class', `slice-${key}`);
+      const title = document.createElementNS(SVG_NS, 'title');
+      title.textContent = `${PIE_LABELS[key]}: ${fmtCurrencyPercent(amount, total)}`;
+      path.appendChild(title);
+      pieChartEl.appendChild(path);
+      angle += sweep;
+    });
+  }
+
   // ---------- Render ----------
   // Ceilings cascade one way — salary bounds pension, pension (plus salary
   // sacrifice mode) bounds ISA, and ISA bounds GIA — so this recomputes
@@ -345,6 +412,21 @@
 
     const spendable = Math.max(0, takeHomeBeforeIsaGia - isa - gia);
     const engineTotal = pension + isa + gia;
+
+    drawPieChart(salary, [
+      { key: 'tax', amount: scenario.tax },
+      { key: 'ni', amount: scenario.ni },
+      { key: 'pension', amount: pension },
+      { key: 'isa', amount: isa },
+      { key: 'gia', amount: gia },
+      { key: 'spendable', amount: spendable },
+    ]);
+    pieTaxEl.textContent = fmtCurrencyPercent(scenario.tax, salary);
+    pieNiEl.textContent = fmtCurrencyPercent(scenario.ni, salary);
+    piePensionEl.textContent = fmtCurrencyPercent(pension, salary);
+    pieIsaEl.textContent = fmtCurrencyPercent(isa, salary);
+    pieGiaEl.textContent = fmtCurrencyPercent(gia, salary);
+    pieSpendableEl.textContent = fmtCurrencyPercent(spendable, salary);
 
     // Baseline: same salary and salary-sacrifice mode, but no pension/ISA/
     // GIA contributions at all — the "what if you didn't invest anything"

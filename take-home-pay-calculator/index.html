@@ -71,7 +71,7 @@
       <h2>Your numbers</h2>
 
       <div class="field">
-        <label for="salary">Annual salary</label>
+        <label for="salary">Annual income</label>
         <div class="input-prefix">
           <span>£</span>
           <input type="text" inputmode="decimal" id="salary" value="50,000">
@@ -90,7 +90,7 @@
 
       <div class="field">
         <label for="pension">Pension contribution</label>
-        <span class="field-hint">Capped at your salary or your Annual Allowance, whichever is lower &mdash; £60,000, tapering down to £10,000 once your income passes £260,000</span>
+        <span class="field-hint">Capped at your income or your Annual Allowance, whichever is lower. £60,000, tapering down to £10,000 once your income passes £260,000</span>
         <div class="input-prefix">
           <span>£</span>
           <input type="text" inputmode="decimal" id="pension" value="5,000">
@@ -140,7 +140,7 @@
             <span>With investing</span>
           </div>
           <div class="ledger-row cols-3">
-            <span>Gross salary</span>
+            <span>Gross income</span>
             <span id="baseGross">£0</span>
             <span id="afterGross">£0</span>
           </div>
@@ -173,6 +173,53 @@
             <span>Total tax %</span>
             <span id="baseTaxPercent">0%</span>
             <span id="afterTaxPercent">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card pie-card">
+        <h2>Where your income goes</h2>
+        <div class="pie-layout">
+          <svg class="pie-chart" id="salaryPieChart" viewBox="0 0 200 200" role="img" aria-label="Breakdown of gross salary into income tax, National Insurance, investment engine contributions and spendable cash"></svg>
+          <div class="pie-legend">
+            <div class="pie-legend-group">
+              <p class="pie-legend-group-title">Tax &amp; National Insurance</p>
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-tax"></span>
+                <span class="pie-legend-label">Income tax</span>
+                <span class="pie-legend-value" id="pieTax">&pound;0</span>
+              </div>
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-ni"></span>
+                <span class="pie-legend-label">National Insurance</span>
+                <span class="pie-legend-value" id="pieNi">&pound;0</span>
+              </div>
+            </div>
+            <div class="pie-legend-group pie-legend-group-engine">
+              <p class="pie-legend-group-title">Investment engine</p>
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-pension"></span>
+                <span class="pie-legend-label">Pension</span>
+                <span class="pie-legend-value" id="piePension">&pound;0</span>
+              </div>
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-isa"></span>
+                <span class="pie-legend-label">ISA</span>
+                <span class="pie-legend-value" id="pieIsa">&pound;0</span>
+              </div>
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-gia"></span>
+                <span class="pie-legend-label">GIA</span>
+                <span class="pie-legend-value" id="pieGia">&pound;0</span>
+              </div>
+            </div>
+            <div class="pie-legend-group">
+              <div class="pie-legend-row">
+                <span class="pie-swatch pie-swatch-spendable"></span>
+                <span class="pie-legend-label">Spendable cash</span>
+                <span class="pie-legend-value" id="pieSpendable">&pound;0</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
