@@ -89,6 +89,8 @@ const COVERED_CALL_ETFS = [
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure' },
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
   { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
+  { symbol: 'DIVO', name: 'Amplify Enhanced Dividend' },
+  { symbol: 'JEPI', name: 'JPM Equity Premium Income' },
 ];
 
 function fmtUsd(n) {

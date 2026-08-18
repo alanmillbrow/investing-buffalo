@@ -132,6 +132,8 @@ const COVERED_CALL_ETFS = [
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure', historyResetDate: '2025-12-18' },
   { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
   { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
+  { symbol: 'DIVO', name: 'Amplify Enhanced Dividend' },
+  { symbol: 'JEPI', name: 'JPM Equity Premium Income' },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
