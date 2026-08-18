@@ -117,7 +117,7 @@ const COMMODITIES = [
 // US-listed ETFs — isIndex: true like INDICES (no per-share earnings, so no
 // P/E), but they still carry a real dividend yield, which is the whole
 // point of this table. Started with SPYI/GPIQ/MLPI/SCHD/IDVO; DIVO and
-// JEPI added later.
+// JEPI added later, SCHD then moved out to US_DIVIDEND_FUNDS below.
 // MLPI: UBS restructured/reissued this ETN around 18 Dec 2025 (confirmed via
 // public price history — flat at ~$11.28 throughout 2021-2023, then a
 // step to the ~$46-55 range starting that date, with no gradual path
@@ -131,10 +131,17 @@ const COVERED_CALL_ETFS = [
   { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
   { symbol: 'GPIQ', name: 'GS S&P 500 Premium Income' },
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure', historyResetDate: '2025-12-18' },
-  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
   { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
   { symbol: 'DIVO', name: 'Amplify Enhanced Dividend' },
   { symbol: 'JEPI', name: 'JPM Equity Premium Income' },
+];
+
+// US-listed dividend-focused (non-covered-call) funds — plain dividend
+// growth/quality strategies rather than an options overlay. Same isIndex
+// treatment as COVERED_CALL_ETFS below (ETFs, no per-share earnings/P/E).
+const US_DIVIDEND_FUNDS = [
+  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
+  { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
@@ -150,6 +157,7 @@ const ALL_SYMBOLS = [
   ...REITS.map((s) => ({ ...s, section: 'reits', isIndex: false })),
   ...COMMODITIES.map((s) => ({ ...s, section: 'commodities', isIndex: true, noFundamentals: true })),
   ...COVERED_CALL_ETFS.map((s) => ({ ...s, section: 'coveredCallEtfs', isIndex: true })),
+  ...US_DIVIDEND_FUNDS.map((s) => ({ ...s, section: 'usDividendFunds', isIndex: true })),
 ];
 
 // Real per-call cost, confirmed via Twelve Data's api-credits-used response

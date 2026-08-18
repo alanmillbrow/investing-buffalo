@@ -87,10 +87,16 @@ const COVERED_CALL_ETFS = [
   { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
   { symbol: 'GPIQ', name: 'GS S&P 500 Premium Income' },
   { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure' },
-  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
   { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
   { symbol: 'DIVO', name: 'Amplify Enhanced Dividend' },
   { symbol: 'JEPI', name: 'JPM Equity Premium Income' },
+];
+
+// US-listed dividend-focused (non-covered-call) funds — plain dividend
+// growth/quality strategies rather than an options overlay.
+const US_DIVIDEND_FUNDS = [
+  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
+  { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
 ];
 
 function fmtUsd(n) {
@@ -310,6 +316,7 @@ function buildRows() {
   buildFtseDividendRows(FTSE_DIVIDENDS);
   buildReitRows(REITS);
   buildCoveredCallRows(COVERED_CALL_ETFS);
+  buildUsDividendRows(US_DIVIDEND_FUNDS);
 }
 
 // Broken out from buildRows so it can be called again after data loads,
@@ -380,6 +387,29 @@ function buildCoveredCallRows(order) {
   `).join('');
 }
 
+// Same pattern as buildCoveredCallRows — plain dividend funds, no
+// covered-call options overlay, but still ETFs (no per-share earnings, so
+// no P/E, same static dash).
+function buildUsDividendRows(order) {
+  const tbody = document.getElementById('usDividendTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = order.map((stock) => `
+    <tr id="usdividend-${stock.symbol}">
+      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
+      <td data-col="ath">&hellip;</td>
+      <td data-col="price">&hellip;</td>
+      <td data-col="vsAth">&hellip;</td>
+      <td data-col="daysSinceAth">&hellip;</td>
+      <td data-col="change1mo">&hellip;</td>
+      <td data-col="change12mo">&hellip;</td>
+      <td data-col="change3yr">&hellip;</td>
+      <td data-col="change5yr">&hellip;</td>
+      <td data-col="dividendYield">&hellip;</td>
+      <td>&mdash;</td>
+    </tr>
+  `).join('');
+}
+
 async function init() {
   const status = document.getElementById('stockWatchStatus');
   buildRows();
@@ -433,6 +463,17 @@ async function init() {
     });
     buildCoveredCallRows(coveredCallByYieldDesc);
     COVERED_CALL_ETFS.forEach((stock) => renderIndexRow(stock, data.coveredCallEtfs?.[stock.symbol], { idPrefix: 'coveredcall', fmt: fmtUsd }));
+
+    const usDividendByYieldDesc = [...US_DIVIDEND_FUNDS].sort((a, b) => {
+      const ay = data.usDividendFunds?.[a.symbol]?.dividendYield;
+      const by = data.usDividendFunds?.[b.symbol]?.dividendYield;
+      if (ay == null && by == null) return 0;
+      if (ay == null) return 1;
+      if (by == null) return -1;
+      return by - ay;
+    });
+    buildUsDividendRows(usDividendByYieldDesc);
+    US_DIVIDEND_FUNDS.forEach((stock) => renderIndexRow(stock, data.usDividendFunds?.[stock.symbol], { idPrefix: 'usdividend', fmt: fmtUsd }));
     status.textContent = `Last refreshed ${fmtRefreshedAt(new Date(data.savedAt))}`;
   } catch (err) {
     status.textContent = `Couldn't load stock data: ${err.message}`;
