@@ -493,6 +493,7 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
   logRejections(symbol, fetchesEarnings ? ['dividends', 'earnings'] : ['dividends'], results);
 
   let dividendYield = null;
+  let dividendPaid = null;
   if (currentPrice !== null && currentPrice > 0 && dividendResult.status === 'fulfilled') {
     // currentPrice is already normalised to pounds for indices (see
     // loadPrice) — match that here so the ratio stays in consistent units.
@@ -506,7 +507,15 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     // same LifeStrategy exception as loadPrice — see the comment there.
     const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp' && !noGbpDivisor) ? 100 : 1;
     const total = sumTrailingDividends(dividendResult.value.dividends || [], 365) / dividendDivisor;
-    if (total > 0) dividendYield = (total / currentPrice) * 100;
+    if (total > 0) {
+      dividendYield = (total / currentPrice) * 100;
+      // The raw trailing-12-month amount, alongside the computed yield —
+      // LifeStrategy's Distribution (12mo) column shows this instead of a
+      // % for its Inc share classes (a computed yield is a strange thing
+      // to show for a diversified multi-asset fund where the actual £
+      // paid out per unit is the more meaningful number).
+      dividendPaid = total;
+    }
   }
 
   let pe = null;
@@ -526,7 +535,7 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     }
   }
 
-  return { pe, dividendYield };
+  return { pe, dividendYield, dividendPaid };
 }
 
 // Reads data.json straight from origin/main's latest commit via git, not

@@ -227,6 +227,28 @@ function renderIndexRow(index, result, { idPrefix = 'idx', fmt = fmtUsd } = {}) 
   row.querySelector('[data-col="dividendYield"]').textContent = fmtYield(r.dividendYield);
 }
 
+// Own render function rather than reusing renderIndexRow — this table's
+// "Distribution (12mo)" column shows the raw £ amount paid out
+// (dividendPaid) instead of a computed yield %. A yield figure is a
+// strange thing to show for a diversified multi-asset fund; Acc share
+// classes never distribute at all (income reinvested into the NAV), so
+// they correctly fall through to the shared em-dash either way.
+function renderLifestrategyRow(stock, result) {
+  const row = document.getElementById(`lifestrategy-${stock.symbol}`);
+  if (!row) return;
+  const r = result || {};
+
+  row.querySelector('[data-col="ath"]').textContent = fmtGbp(r.athPrice);
+  row.querySelector('[data-col="price"]').textContent = fmtGbp(r.price);
+  row.querySelector('[data-col="vsAth"]').textContent = fmtDrawdown(r.vsAth);
+  row.querySelector('[data-col="daysSinceAth"]').textContent = fmtDays(r.daysSinceAth);
+  row.querySelector('[data-col="change1mo"]').textContent = fmtPercent(r.change1mo);
+  row.querySelector('[data-col="change12mo"]').textContent = fmtPercent(r.change12mo);
+  row.querySelector('[data-col="change3yr"]').textContent = fmtPercent(r.change3yr);
+  row.querySelector('[data-col="change5yr"]').textContent = fmtPercent(r.change5yr);
+  row.querySelector('[data-col="dividendYield"]').textContent = r.dividendPaid != null ? fmtGbp(r.dividendPaid) : '—';
+}
+
 // No dividendYield/pe columns to fill in — both are static dashes in the
 // row template (see buildRows), since neither concept applies here.
 function renderCommodityRow(commodity, result) {
@@ -525,7 +547,7 @@ async function init() {
       return by - ay;
     });
     buildLifestrategyRows(lifestrategyByYieldDesc);
-    LIFESTRATEGY_FUNDS.forEach((stock) => renderIndexRow(stock, data.lifestrategyFunds?.[stock.symbol], { idPrefix: 'lifestrategy', fmt: fmtGbp }));
+    LIFESTRATEGY_FUNDS.forEach((stock) => renderLifestrategyRow(stock, data.lifestrategyFunds?.[stock.symbol]));
     status.textContent = `Last refreshed ${fmtRefreshedAt(new Date(data.savedAt))}`;
   } catch (err) {
     status.textContent = `Couldn't load stock data: ${err.message}`;
