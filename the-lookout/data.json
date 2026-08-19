@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-08-19T20:48:38.913Z",
+  "savedAt": "2026-08-19T21:01:33.602Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -875,7 +875,7 @@
       "change3yr": 22.238719213360973,
       "change5yr": 4.35742946199889,
       "pe": null,
-      "dividendYield": null,
+      "dividendYield": 2.249147690540061,
       "dividendPaid": 0.00041226
     },
     "0P0000TKZH": {
@@ -890,7 +890,7 @@
       "change3yr": 11.38295730316671,
       "change5yr": -9.522575882711262,
       "pe": null,
-      "dividendYield": null,
+      "dividendYield": 3.1373973177950947,
       "dividendPaid": 0.00043956
     },
     "0P0000TKZK": {
@@ -920,7 +920,7 @@
       "change3yr": 34.14406866244204,
       "change5yr": 20.207965562811175,
       "pe": null,
-      "dividendYield": null,
+      "dividendYield": 1.9299696603011816,
       "dividendPaid": 0.00045856
     },
     "0P0000TKZM": {
@@ -950,7 +950,7 @@
       "change3yr": 57.900616109476886,
       "change5yr": 55.85020064436921,
       "pe": null,
-      "dividendYield": null,
+      "dividendYield": 1.6767100699279514,
       "dividendPaid": 0.00063426
     },
     "0P0000TKZO": {
@@ -980,7 +980,7 @@
       "change3yr": 46.228910428831576,
       "change5yr": 37.630436744916366,
       "pe": null,
-      "dividendYield": null,
+      "dividendYield": 1.691449679116171,
       "dividendPaid": 0.00051231
     }
   }
