@@ -151,7 +151,11 @@ const US_DIVIDEND_FUNDS = [
 // than the Bloomberg-style ticker people actually recognise (VGLS20A) —
 // displaySymbol overrides what's shown in the UI without changing what's
 // fetched. isIndex: true like INDICES_GBP (GBp-quoted, no per-unit
-// earnings/P/E), same currency-divisor treatment applies.
+// earnings/P/E), same currency-divisor treatment applies. Confirmed
+// working via a live refresh: price/ATH/change figures come back fine;
+// dividendYield comes back null for this Accumulation share class, since
+// income is reinvested into the NAV rather than paid out as a discrete
+// dividend — expected, not a bug.
 const LIFESTRATEGY_FUNDS = [
   { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity', exchange: 'LSE', displaySymbol: 'VGLS20A' },
 ];
