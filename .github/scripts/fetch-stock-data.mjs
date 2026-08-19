@@ -145,6 +145,17 @@ const US_DIVIDEND_FUNDS = [
   { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
 ];
 
+// Vanguard LifeStrategy funds — OEIC/mutual funds (priced once daily via
+// NAV, not continuously traded), unlike everything else on this page.
+// Twelve Data covers them, but under its own internal fund code rather
+// than the Bloomberg-style ticker people actually recognise (VGLS20A) —
+// displaySymbol overrides what's shown in the UI without changing what's
+// fetched. isIndex: true like INDICES_GBP (GBp-quoted, no per-unit
+// earnings/P/E), same currency-divisor treatment applies.
+const LIFESTRATEGY_FUNDS = [
+  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity', exchange: 'LSE', displaySymbol: 'VGLS20A' },
+];
+
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
 // tables (no per-company earnings, so no P/E) vs. individual companies.
 // `noFundamentals` (commodities/crypto only) skips the fundamentals tier
@@ -159,6 +170,7 @@ const ALL_SYMBOLS = [
   ...COMMODITIES.map((s) => ({ ...s, section: 'commodities', isIndex: true, noFundamentals: true })),
   ...COVERED_CALL_ETFS.map((s) => ({ ...s, section: 'coveredCallEtfs', isIndex: true })),
   ...US_DIVIDEND_FUNDS.map((s) => ({ ...s, section: 'usDividendFunds', isIndex: true })),
+  ...LIFESTRATEGY_FUNDS.map((s) => ({ ...s, section: 'lifestrategyFunds', isIndex: true })),
 ];
 
 // Real per-call cost, confirmed via Twelve Data's api-credits-used response

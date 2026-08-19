@@ -99,6 +99,14 @@ const US_DIVIDEND_FUNDS = [
   { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
 ];
 
+// Vanguard LifeStrategy funds — see the comment in
+// .github/scripts/fetch-stock-data.mjs. displaySymbol is the ticker
+// people actually recognise (VGLS20A) — symbol itself is Twelve Data's
+// own internal fund code, used for the data lookup and row id.
+const LIFESTRATEGY_FUNDS = [
+  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity', displaySymbol: 'VGLS20A' },
+];
+
 function fmtUsd(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -317,6 +325,7 @@ function buildRows() {
   buildReitRows(REITS);
   buildCoveredCallRows(COVERED_CALL_ETFS);
   buildUsDividendRows(US_DIVIDEND_FUNDS);
+  buildLifestrategyRows(LIFESTRATEGY_FUNDS);
 }
 
 // Broken out from buildRows so it can be called again after data loads,
@@ -410,6 +419,29 @@ function buildUsDividendRows(order) {
   `).join('');
 }
 
+// Same pattern as buildUsDividendRows, but the parenthetical shows
+// displaySymbol (the ticker people recognise) rather than the raw
+// Twelve Data fund code used for the row id / data lookup.
+function buildLifestrategyRows(order) {
+  const tbody = document.getElementById('lifestrategyTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = order.map((stock) => `
+    <tr id="lifestrategy-${stock.symbol}">
+      <td>${stock.name} <span class="section-note">(${stock.displaySymbol || stock.symbol})</span></td>
+      <td data-col="ath">&hellip;</td>
+      <td data-col="price">&hellip;</td>
+      <td data-col="vsAth">&hellip;</td>
+      <td data-col="daysSinceAth">&hellip;</td>
+      <td data-col="change1mo">&hellip;</td>
+      <td data-col="change12mo">&hellip;</td>
+      <td data-col="change3yr">&hellip;</td>
+      <td data-col="change5yr">&hellip;</td>
+      <td data-col="dividendYield">&hellip;</td>
+      <td>&mdash;</td>
+    </tr>
+  `).join('');
+}
+
 async function init() {
   const status = document.getElementById('stockWatchStatus');
   buildRows();
@@ -474,6 +506,17 @@ async function init() {
     });
     buildUsDividendRows(usDividendByYieldDesc);
     US_DIVIDEND_FUNDS.forEach((stock) => renderIndexRow(stock, data.usDividendFunds?.[stock.symbol], { idPrefix: 'usdividend', fmt: fmtUsd }));
+
+    const lifestrategyByYieldDesc = [...LIFESTRATEGY_FUNDS].sort((a, b) => {
+      const ay = data.lifestrategyFunds?.[a.symbol]?.dividendYield;
+      const by = data.lifestrategyFunds?.[b.symbol]?.dividendYield;
+      if (ay == null && by == null) return 0;
+      if (ay == null) return 1;
+      if (by == null) return -1;
+      return by - ay;
+    });
+    buildLifestrategyRows(lifestrategyByYieldDesc);
+    LIFESTRATEGY_FUNDS.forEach((stock) => renderIndexRow(stock, data.lifestrategyFunds?.[stock.symbol], { idPrefix: 'lifestrategy', fmt: fmtGbp }));
     status.textContent = `Last refreshed ${fmtRefreshedAt(new Date(data.savedAt))}`;
   } catch (err) {
     status.textContent = `Couldn't load stock data: ${err.message}`;
