@@ -159,11 +159,14 @@ const US_DIVIDEND_FUNDS = [
 // dividendYield came back null for VGLS20A (Acc), expected — income is
 // reinvested into the NAV, not paid out as a discrete dividend. Inc share
 // classes should carry a real one instead.
-// The 100% Equity Inc entry's internal code (TKZP) is unverified beyond
-// following the exact same sequential-code pattern as every other Acc/Inc
-// pair below (Acc always one letter before its Inc counterpart) — Twelve
-// Data's own search metadata oddly tags it Canada/TSX rather than
-// LSE/UK, worth double-checking once real data comes back.
+// The 100% Equity Inc entry's internal code (TKZP) is filed in Twelve
+// Data's own catalog under exchange TSX/Canada rather than LSE/UK like
+// every other entry here (confirmed still a real Vanguard UK product —
+// the fund itself just seems to be indexed oddly on Twelve Data's end) —
+// confirmed live: passing exchange: 'LSE' for it returned no data at all
+// while the other nine all resolved fine, so this one omits exchange
+// entirely instead, relying on its already-globally-unique internal code
+// rather than exchange disambiguation.
 const LIFESTRATEGY_FUNDS = [
   { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true },
   { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
@@ -174,7 +177,7 @@ const LIFESTRATEGY_FUNDS = [
   { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS80A', noGbpDivisor: true },
   { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true },
   { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGL100A', noGbpDivisor: true },
-  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGL100I', noGbpDivisor: true },
+  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Inc)', displaySymbol: 'VGL100I', noGbpDivisor: true },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
