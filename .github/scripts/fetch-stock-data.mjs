@@ -155,15 +155,13 @@ const US_DIVIDEND_FUNDS = [
 // tracks — these funds' raw quote is already pound-scale despite Twelve
 // Data tagging currency GBp, confirmed live (VGLS20A's true price is
 // ~£181, not the ~£1.81 the normal ETF GBp/100 divisor produced). This
-// only applies to loadPrice, though — /dividends is still genuinely
-// pence-scale for these same funds, so loadFundamentals's dividendDivisor
-// deliberately ignores noGbpDivisor. See the divisor comments in
-// loadPrice/loadFundamentals for the full story on each.
-// dividendYield/dividendPaid came back null for VGLS20A (Acc), expected —
-// income is reinvested into the NAV, not paid out as a discrete dividend.
-// Inc share classes carry a real amount instead (shown in the frontend's
-// Distribution (12mo) column as dividendPaid, not a computed yield %).
-// The 100% Equity Inc entry's internal code (TKZP) is filed in Twelve
+// only applies to loadPrice, though — see the divisor comment in
+// loadFundamentals; dividend yield for these funds is still being
+// debugged (currently coming back implausibly low for the Dist share
+// classes regardless of divisor).
+// dividendYield came back null for VGLS20A (Acc), expected — income is
+// reinvested into the NAV, not paid out as a discrete dividend.
+// The 100% Equity Dist entry's internal code (TKZP) is filed in Twelve
 // Data's own catalog under exchange TSX/Canada rather than LSE/UK like
 // every other entry here (confirmed still a real Vanguard UK product —
 // the fund itself just seems to be indexed oddly on Twelve Data's end) —
@@ -175,15 +173,15 @@ const US_DIVIDEND_FUNDS = [
 // consistently higher than its Inc sibling, as expected).
 const LIFESTRATEGY_FUNDS = [
   { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true },
-  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
+  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
   { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS40A', noGbpDivisor: true },
-  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS40I', noGbpDivisor: true },
+  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS40I', noGbpDivisor: true },
   { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS60A', noGbpDivisor: true },
-  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS60I', noGbpDivisor: true },
+  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS60I', noGbpDivisor: true },
   { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS80A', noGbpDivisor: true },
-  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true },
+  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true },
   { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGL100A', noGbpDivisor: true },
-  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Inc)', displaySymbol: 'VGL100I', noGbpDivisor: true },
+  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Dist)', displaySymbol: 'VGL100I', noGbpDivisor: true },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
@@ -497,7 +495,6 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
   logRejections(symbol, fetchesEarnings ? ['dividends', 'earnings'] : ['dividends'], results);
 
   let dividendYield = null;
-  let dividendPaid = null;
   if (currentPrice !== null && currentPrice > 0 && dividendResult.status === 'fulfilled') {
     // currentPrice is already normalised to pounds for indices (see
     // loadPrice) — match that here so the ratio stays in consistent units.
@@ -508,25 +505,20 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     // every FTSE_DIVIDENDS yield except the stale LAND entry came back
     // ~100x too low (e.g. LGEN 0.069% instead of 6.9%) after this was
     // first added without the isIndex check.
-    // noGbpDivisor does NOT apply here, unlike in loadPrice — confirmed
-    // live on the LifeStrategy Inc funds: Twelve Data's /quote is
-    // pound-scale for these funds (hence noGbpDivisor there), but its
-    // /dividends is still genuinely pence-scale, same as every other GBp
-    // instrument. Skipping the divisor here produced a ~100x-too-low
-    // "yield" (e.g. VGLS20I at 0.03% instead of a plausible ~3%) — the two
-    // endpoints just don't share the same scale convention for these
-    // funds.
+    // noGbpDivisor's effect on this divisor is still unresolved — neither
+    // /100 nor skipping it produces a plausible yield for the LifeStrategy
+    // Dist funds (real-world VGLS20I yields ~2.75%; both attempts came
+    // back under 0.05%), so something beyond just pence/pounds scaling is
+    // off. TEMPORARY: logging the raw payload to diagnose from the
+    // workflow's own output rather than guessing further — remove once
+    // resolved.
+    if (noGbpDivisor) {
+      console.log(`[DEBUG ${symbol}] raw dividends:`, JSON.stringify(dividendResult.value.dividends));
+      console.log(`[DEBUG ${symbol}] currentPrice:`, currentPrice, 'meta:', JSON.stringify(dividendResult.value.meta));
+    }
     const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp') ? 100 : 1;
     const total = sumTrailingDividends(dividendResult.value.dividends || [], 365) / dividendDivisor;
-    if (total > 0) {
-      dividendYield = (total / currentPrice) * 100;
-      // The raw trailing-12-month amount, alongside the computed yield —
-      // LifeStrategy's Distribution (12mo) column shows this instead of a
-      // % for its Inc share classes (a computed yield is a strange thing
-      // to show for a diversified multi-asset fund where the actual £
-      // paid out per unit is the more meaningful number).
-      dividendPaid = total;
-    }
+    if (total > 0) dividendYield = (total / currentPrice) * 100;
   }
 
   let pe = null;
@@ -546,7 +538,7 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     }
   }
 
-  return { pe, dividendYield, dividendPaid };
+  return { pe, dividendYield };
 }
 
 // Reads data.json straight from origin/main's latest commit via git, not
