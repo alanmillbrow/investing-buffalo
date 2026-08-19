@@ -155,16 +155,13 @@ const US_DIVIDEND_FUNDS = [
 // tracks — these funds' raw quote is already pound-scale despite Twelve
 // Data tagging currency GBp, confirmed live (VGLS20A's true price is
 // ~£181, not the ~£1.81 the normal ETF GBp/100 divisor produced). This
-// only applies to loadPrice — see loadFundamentals's divisor comment.
-// unreliableDividends: true skips the /dividends call for all ten funds
-// (saves a credit each too) — Acc share classes never distribute at all
-// (confirmed live: empty array every time), and Dist share classes came
-// back with exactly one entry each, all dated identically 2026-04-01,
-// with amounts that don't correspond to any sensible scale against the
-// real ~2.75% published yield even as a single payment — looks like
-// unreliable/placeholder data for this fund code format rather than
-// something a divisor fix could resolve. Dividend Yield correctly shows
-// an em-dash for the whole table as a result.
+// same flag also drives a *separate*, opposite-direction correction on
+// the dividend side — see loadFundamentals's dividendMultiplier comment.
+// Dist share classes pay once a year (all on the same date each year,
+// same as any single fund family's schedule — confirmed against
+// Vanguard's own official distribution history, not a data quality
+// issue); Acc share classes never distribute at all (income reinvested
+// into the NAV), so they correctly show £0/no yield year-round.
 // The 100% Equity Dist entry's internal code (TKZP) is filed in Twelve
 // Data's own catalog under exchange TSX/Canada rather than LSE/UK like
 // every other entry here (confirmed still a real Vanguard UK product —
@@ -176,16 +173,16 @@ const US_DIVIDEND_FUNDS = [
 // resolving with correctly-scaled, sensible prices (each tier's Acc price
 // consistently higher than its Inc sibling, as expected).
 const LIFESTRATEGY_FUNDS = [
-  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS40A', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS40I', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS60A', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS60I', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS80A', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGL100A', noGbpDivisor: true, unreliableDividends: true },
-  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Dist)', displaySymbol: 'VGL100I', noGbpDivisor: true, unreliableDividends: true },
+  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true },
+  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
+  { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS40A', noGbpDivisor: true },
+  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS40I', noGbpDivisor: true },
+  { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS60A', noGbpDivisor: true },
+  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS60I', noGbpDivisor: true },
+  { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS80A', noGbpDivisor: true },
+  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Dist)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true },
+  { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGL100A', noGbpDivisor: true },
+  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Dist)', displaySymbol: 'VGL100I', noGbpDivisor: true },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
@@ -477,20 +474,10 @@ async function loadPrice(symbol, exchange, isIndex, historyResetDate, noGbpDivis
 // (20 credits each). Needs the current price (read from the existing
 // data.json by the caller) rather than re-fetching quote, to avoid paying
 // for a third call.
-async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDivisor, unreliableDividends) {
+async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDivisor) {
   const base = 'https://api.twelvedata.com';
   const exchangeParam = exchange ? `&exchange=${exchange}` : '';
-  // unreliableDividends (LifeStrategy funds) skips this call entirely —
-  // confirmed live, Twelve Data's /dividends for these returns exactly one
-  // entry per fund, all dated identically 2026-04-01, with amounts that
-  // don't correspond to any sensible scale against the real ~2.75%
-  // published yield even accounting for it being a single payment rather
-  // than a full year's worth — looks like unreliable/placeholder data for
-  // this fund code format rather than a fixable scaling issue, so it's
-  // not worth spending a credit on.
-  const calls = unreliableDividends
-    ? [Promise.reject(new Error('skipped: unreliable dividend data for this fund'))]
-    : [rateLimitedFetchJson(`${base}/dividends?symbol=${symbol}${exchangeParam}&range=1Y&apikey=${API_KEY}`, 'dividends')];
+  const calls = [rateLimitedFetchJson(`${base}/dividends?symbol=${symbol}${exchangeParam}&range=1Y&apikey=${API_KEY}`, 'dividends')];
   // Indices are ETFs, not companies — there's no per-share earnings to
   // compute a P/E from, so skip that (expensive) call entirely for them.
   // LSE companies are skipped too: Twelve Data's /earnings for UK companies
@@ -506,9 +493,7 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
   }
   const results = await Promise.allSettled(calls);
   const [dividendResult, earningsResult] = results;
-  if (!unreliableDividends) {
-    logRejections(symbol, fetchesEarnings ? ['dividends', 'earnings'] : ['dividends'], results);
-  }
+  logRejections(symbol, fetchesEarnings ? ['dividends', 'earnings'] : ['dividends'], results);
 
   let dividendYield = null;
   if (currentPrice !== null && currentPrice > 0 && dividendResult.status === 'fulfilled') {
@@ -521,11 +506,20 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     // every FTSE_DIVIDENDS yield except the stale LAND entry came back
     // ~100x too low (e.g. LGEN 0.069% instead of 6.9%) after this was
     // first added without the isIndex check.
-    // noGbpDivisor doesn't apply here — moot anyway for LifeStrategy funds
-    // now that unreliableDividends skips this whole branch for them (see
-    // that flag's comment above for why).
-    const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp') ? 100 : 1;
-    const total = sumTrailingDividends(dividendResult.value.dividends || [], 365) / dividendDivisor;
+    // noGbpDivisor funds (LifeStrategy) need the OPPOSITE correction here,
+    // not just "skip the divisor" — confirmed against Vanguard's own
+    // official distribution history: VGLS20I's real 2026 payout was
+    // £4.3956, but Twelve Data's raw dividend amount for that exact entry
+    // was "0.043956", 100x too *small*. So this multiplies raw amounts by
+    // 100 for these funds instead of the normal /100 divisor (which is for
+    // the opposite direction — a pence-quoted raw amount that's too big).
+    // Two distinct, unrelated 100x issues on the very same funds: price
+    // (loadPrice) needed no correction at all, dividends need x100 rather
+    // than /100 — Twelve Data just isn't internally consistent about scale
+    // for this fund code format.
+    const dividendMultiplier = noGbpDivisor ? 100 : 1;
+    const dividendDivisor = (!noGbpDivisor && isIndex && dividendResult.value.meta?.currency === 'GBp') ? 100 : 1;
+    const total = (sumTrailingDividends(dividendResult.value.dividends || [], 365) * dividendMultiplier) / dividendDivisor;
     if (total > 0) dividendYield = (total / currentPrice) * 100;
   }
 
@@ -657,7 +651,7 @@ async function runFundamentalsRefresh() {
     const currentPrice = current[item.section]?.[item.symbol]?.price ?? null;
     let fields;
     try {
-      fields = await loadFundamentals(item.symbol, item.exchange, currentPrice, item.isIndex, item.noGbpDivisor, item.unreliableDividends);
+      fields = await loadFundamentals(item.symbol, item.exchange, currentPrice, item.isIndex, item.noGbpDivisor);
     } catch (err) {
       console.warn(`[WARN] ${item.symbol} fundamentals refresh failed entirely: ${err.message}`);
       fields = {};
