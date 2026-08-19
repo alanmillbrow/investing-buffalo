@@ -154,11 +154,15 @@ const US_DIVIDEND_FUNDS = [
 // earnings/P/E). noGbpDivisor: true because — unlike every ETF this site
 // tracks — these funds' raw quote is already pound-scale despite Twelve
 // Data tagging currency GBp, confirmed live (VGLS20A's true price is
-// ~£181, not the ~£1.81 the normal ETF GBp/100 divisor produced). See the
-// divisor comments in loadPrice/loadFundamentals for the full story.
-// dividendYield came back null for VGLS20A (Acc), expected — income is
-// reinvested into the NAV, not paid out as a discrete dividend. Inc share
-// classes should carry a real one instead.
+// ~£181, not the ~£1.81 the normal ETF GBp/100 divisor produced). This
+// only applies to loadPrice, though — /dividends is still genuinely
+// pence-scale for these same funds, so loadFundamentals's dividendDivisor
+// deliberately ignores noGbpDivisor. See the divisor comments in
+// loadPrice/loadFundamentals for the full story on each.
+// dividendYield/dividendPaid came back null for VGLS20A (Acc), expected —
+// income is reinvested into the NAV, not paid out as a discrete dividend.
+// Inc share classes carry a real amount instead (shown in the frontend's
+// Distribution (12mo) column as dividendPaid, not a computed yield %).
 // The 100% Equity Inc entry's internal code (TKZP) is filed in Twelve
 // Data's own catalog under exchange TSX/Canada rather than LSE/UK like
 // every other entry here (confirmed still a real Vanguard UK product —
@@ -503,9 +507,16 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDi
     // too would create a fresh mismatch the other way — confirmed live,
     // every FTSE_DIVIDENDS yield except the stale LAND entry came back
     // ~100x too low (e.g. LGEN 0.069% instead of 6.9%) after this was
-    // first added without the isIndex check. noGbpDivisor carries the
-    // same LifeStrategy exception as loadPrice — see the comment there.
-    const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp' && !noGbpDivisor) ? 100 : 1;
+    // first added without the isIndex check.
+    // noGbpDivisor does NOT apply here, unlike in loadPrice — confirmed
+    // live on the LifeStrategy Inc funds: Twelve Data's /quote is
+    // pound-scale for these funds (hence noGbpDivisor there), but its
+    // /dividends is still genuinely pence-scale, same as every other GBp
+    // instrument. Skipping the divisor here produced a ~100x-too-low
+    // "yield" (e.g. VGLS20I at 0.03% instead of a plausible ~3%) — the two
+    // endpoints just don't share the same scale convention for these
+    // funds.
+    const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp') ? 100 : 1;
     const total = sumTrailingDividends(dividendResult.value.dividends || [], 365) / dividendDivisor;
     if (total > 0) {
       dividendYield = (total / currentPrice) * 100;
