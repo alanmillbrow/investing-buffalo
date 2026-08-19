@@ -166,7 +166,9 @@ const US_DIVIDEND_FUNDS = [
 // confirmed live: passing exchange: 'LSE' for it returned no data at all
 // while the other nine all resolved fine, so this one omits exchange
 // entirely instead, relying on its already-globally-unique internal code
-// rather than exchange disambiguation.
+// rather than exchange disambiguation. All ten funds now confirmed
+// resolving with correctly-scaled, sensible prices (each tier's Acc price
+// consistently higher than its Inc sibling, as expected).
 const LIFESTRATEGY_FUNDS = [
   { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true },
   { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
