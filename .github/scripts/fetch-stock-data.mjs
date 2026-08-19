@@ -151,13 +151,30 @@ const US_DIVIDEND_FUNDS = [
 // than the Bloomberg-style ticker people actually recognise (VGLS20A) —
 // displaySymbol overrides what's shown in the UI without changing what's
 // fetched. isIndex: true like INDICES_GBP (GBp-quoted, no per-unit
-// earnings/P/E), same currency-divisor treatment applies. Confirmed
-// working via a live refresh: price/ATH/change figures come back fine;
-// dividendYield comes back null for this Accumulation share class, since
-// income is reinvested into the NAV rather than paid out as a discrete
-// dividend — expected, not a bug.
+// earnings/P/E). noGbpDivisor: true because — unlike every ETF this site
+// tracks — these funds' raw quote is already pound-scale despite Twelve
+// Data tagging currency GBp, confirmed live (VGLS20A's true price is
+// ~£181, not the ~£1.81 the normal ETF GBp/100 divisor produced). See the
+// divisor comments in loadPrice/loadFundamentals for the full story.
+// dividendYield came back null for VGLS20A (Acc), expected — income is
+// reinvested into the NAV, not paid out as a discrete dividend. Inc share
+// classes should carry a real one instead.
+// The 100% Equity Inc entry's internal code (TKZP) is unverified beyond
+// following the exact same sequential-code pattern as every other Acc/Inc
+// pair below (Acc always one letter before its Inc counterpart) — Twelve
+// Data's own search metadata oddly tags it Canada/TSX rather than
+// LSE/UK, worth double-checking once real data comes back.
 const LIFESTRATEGY_FUNDS = [
-  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity', exchange: 'LSE', displaySymbol: 'VGLS20A' },
+  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS20A', noGbpDivisor: true },
+  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS20I', noGbpDivisor: true },
+  { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS40A', noGbpDivisor: true },
+  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS40I', noGbpDivisor: true },
+  { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS60A', noGbpDivisor: true },
+  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS60I', noGbpDivisor: true },
+  { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGLS80A', noGbpDivisor: true },
+  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGLS80I', noGbpDivisor: true },
+  { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', exchange: 'LSE', displaySymbol: 'VGL100A', noGbpDivisor: true },
+  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Inc)', exchange: 'LSE', displaySymbol: 'VGL100I', noGbpDivisor: true },
 ];
 
 // Flat registry combining every table. `isIndex` marks the ETF-tracker
@@ -361,7 +378,7 @@ function logRejections(symbol, labels, results) {
 
 // Cheap half: current price, all-time high, drawdown, and price change over
 // several lookback windows — quote + time_series only (1 credit each).
-async function loadPrice(symbol, exchange, isIndex, historyResetDate) {
+async function loadPrice(symbol, exchange, isIndex, historyResetDate, noGbpDivisor) {
   const base = 'https://api.twelvedata.com';
   const exchangeParam = exchange ? `&exchange=${exchange}` : '';
   const [quoteResult, historyResult] = await Promise.allSettled([
@@ -400,8 +417,14 @@ async function loadPrice(symbol, exchange, isIndex, historyResetDate) {
   // unconditionally by currency alone (as an earlier version of this fix
   // did) wrongly divided every one of those prices by 100 too — e.g.
   // LGEN's real 316.4p rendered as "3.2p".
+  // noGbpDivisor is a further exception to that exception: the Vanguard
+  // LifeStrategy OEIC funds also report currency GBp, but (unlike every
+  // ETF checked so far) their raw quote is already pound-scale, not
+  // pence-scale — confirmed live (VGLS20A's true price is ~£181, not the
+  // ~£1.81 the /100 divisor produced). Mutual funds evidently don't follow
+  // the same GBp-means-pence convention Twelve Data uses for ETFs.
   const currency = quoteResult.status === 'fulfilled' ? quoteResult.value.currency : null;
-  const divisor = (isIndex && currency === 'GBp') ? 100 : 1;
+  const divisor = (isIndex && currency === 'GBp' && !noGbpDivisor) ? 100 : 1;
 
   const price = rawPrice !== null ? rawPrice / divisor : null;
   const bars = divisor === 1 ? scaledBars : scaledBars.map((bar) => ({
@@ -443,7 +466,7 @@ async function loadPrice(symbol, exchange, isIndex, historyResetDate) {
 // (20 credits each). Needs the current price (read from the existing
 // data.json by the caller) rather than re-fetching quote, to avoid paying
 // for a third call.
-async function loadFundamentals(symbol, exchange, currentPrice, isIndex) {
+async function loadFundamentals(symbol, exchange, currentPrice, isIndex, noGbpDivisor) {
   const base = 'https://api.twelvedata.com';
   const exchangeParam = exchange ? `&exchange=${exchange}` : '';
   const calls = [rateLimitedFetchJson(`${base}/dividends?symbol=${symbol}${exchangeParam}&range=1Y&apikey=${API_KEY}`, 'dividends')];
@@ -474,8 +497,9 @@ async function loadFundamentals(symbol, exchange, currentPrice, isIndex) {
     // too would create a fresh mismatch the other way — confirmed live,
     // every FTSE_DIVIDENDS yield except the stale LAND entry came back
     // ~100x too low (e.g. LGEN 0.069% instead of 6.9%) after this was
-    // first added without the isIndex check.
-    const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp') ? 100 : 1;
+    // first added without the isIndex check. noGbpDivisor carries the
+    // same LifeStrategy exception as loadPrice — see the comment there.
+    const dividendDivisor = (isIndex && dividendResult.value.meta?.currency === 'GBp' && !noGbpDivisor) ? 100 : 1;
     const total = sumTrailingDividends(dividendResult.value.dividends || [], 365) / dividendDivisor;
     if (total > 0) dividendYield = (total / currentPrice) * 100;
   }
@@ -586,7 +610,7 @@ async function runPriceRefresh() {
   await Promise.all(ALL_SYMBOLS.map(async (item) => {
     let fields;
     try {
-      fields = await loadPrice(item.symbol, item.exchange, item.isIndex, item.historyResetDate);
+      fields = await loadPrice(item.symbol, item.exchange, item.isIndex, item.historyResetDate, item.noGbpDivisor);
     } catch (err) {
       console.warn(`[WARN] ${item.symbol} price refresh failed entirely: ${err.message}`);
       fields = {};
@@ -608,7 +632,7 @@ async function runFundamentalsRefresh() {
     const currentPrice = current[item.section]?.[item.symbol]?.price ?? null;
     let fields;
     try {
-      fields = await loadFundamentals(item.symbol, item.exchange, currentPrice, item.isIndex);
+      fields = await loadFundamentals(item.symbol, item.exchange, currentPrice, item.isIndex, item.noGbpDivisor);
     } catch (err) {
       console.warn(`[WARN] ${item.symbol} fundamentals refresh failed entirely: ${err.message}`);
       fields = {};

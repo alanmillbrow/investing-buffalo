@@ -104,7 +104,16 @@ const US_DIVIDEND_FUNDS = [
 // people actually recognise (VGLS20A) — symbol itself is Twelve Data's
 // own internal fund code, used for the data lookup and row id.
 const LIFESTRATEGY_FUNDS = [
-  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity', displaySymbol: 'VGLS20A' },
+  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', displaySymbol: 'VGLS20A' },
+  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Inc)', displaySymbol: 'VGLS20I' },
+  { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', displaySymbol: 'VGLS40A' },
+  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Inc)', displaySymbol: 'VGLS40I' },
+  { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', displaySymbol: 'VGLS60A' },
+  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Inc)', displaySymbol: 'VGLS60I' },
+  { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', displaySymbol: 'VGLS80A' },
+  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Inc)', displaySymbol: 'VGLS80I' },
+  { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', displaySymbol: 'VGL100A' },
+  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Inc)', displaySymbol: 'VGL100I' },
 ];
 
 function fmtUsd(n) {
