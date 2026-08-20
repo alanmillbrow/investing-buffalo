@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-08-20T22:17:55.440Z",
+  "savedAt": "2026-08-20T23:18:07.784Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -125,17 +125,17 @@
     },
     "QQQ": {
       "symbol": "QQQ",
-      "price": 710.95001,
+      "price": 710.92999,
       "athPrice": 748.65002,
       "athDate": "2026-06-03",
       "daysSinceAth": 78,
-      "vsAth": -5.035732183644371,
-      "change12mo": 25.631734383045252,
+      "vsAth": -5.038406330370507,
+      "change12mo": 25.62819665565658,
       "dividendYield": 0.4237490748111218,
       "pe": null,
-      "change1mo": 0.27928404358227343,
-      "change3yr": 95.36961515167945,
-      "change5yr": 93.33478113466998,
+      "change1mo": 0.276460228632813,
+      "change3yr": 95.36411364012403,
+      "change5yr": 93.32933692303219,
       "dividendPaid": 3.0343400000000003
     }
   },
@@ -339,17 +339,17 @@
     },
     "RKLB": {
       "symbol": "RKLB",
-      "price": 72.94,
+      "price": 72.95,
       "pe": null,
       "athPrice": 151,
       "athDate": "2026-05-27",
       "daysSinceAth": 85,
-      "vsAth": -51.695364238410605,
-      "change12mo": 79.25780289997543,
+      "vsAth": -51.688741721854306,
+      "change12mo": 79.28237896289016,
       "dividendYield": null,
-      "change1mo": 5.5266203703703605,
-      "change3yr": 1140.4761904761906,
-      "change5yr": 596.6571155682904,
+      "change1mo": 5.54108796296296,
+      "change3yr": 1140.6462585034014,
+      "change5yr": 596.7526265520535,
       "dividendPaid": null
     },
     "ASTS": {
@@ -597,39 +597,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 72566.01,
+      "price": 72946,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 318,
-      "vsAth": -42.49903109858564,
-      "change1mo": 9.029742701501995,
-      "change12mo": -36.49669855687224,
-      "change3yr": 177.74422022264918,
-      "change5yr": 48.60936299449236
+      "vsAth": -42.19792878949011,
+      "change1mo": 9.60067407735061,
+      "change12mo": -36.164165191521505,
+      "change3yr": 179.19862051615306,
+      "change5yr": 49.387552009490946
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4519.18275,
+      "price": 4531.75305,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 203,
-      "vsAth": -19.260369023828623,
-      "change1mo": 10.823287525194205,
-      "change12mo": 35.309734182066414,
-      "change3yr": 138.61214920739909,
-      "change5yr": 153.76309442387162
+      "vsAth": -19.035788288902648,
+      "change1mo": 11.131547236793162,
+      "change12mo": 35.686103991760184,
+      "change3yr": 139.27585910033974,
+      "change5yr": 154.46894731858725
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 68.12338,
+      "price": 68.38269,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 203,
-      "vsAth": -43.96720319328325,
-      "change1mo": 15.87853497471704,
-      "change12mo": 79.75929493099719,
-      "change3yr": 192.21825201072386,
-      "change5yr": 196.05988700564967
+      "vsAth": -43.75391570608062,
+      "change1mo": 16.319623818287248,
+      "change12mo": 80.44354434387945,
+      "change3yr": 193.33057372654153,
+      "change5yr": 197.1868318122555
     }
   },
   "reits": {
@@ -712,13 +712,13 @@
     },
     "GPIQ": {
       "symbol": "GPIQ",
-      "price": 56.44,
+      "price": 56.46,
       "athPrice": 59.83,
       "athDate": "2026-06-22",
       "daysSinceAth": 59,
-      "vsAth": -5.666053819154271,
-      "change1mo": -0.9650815932619832,
-      "change12mo": 12.385503783353244,
+      "vsAth": -5.6326257730235625,
+      "change1mo": -0.9299877171433605,
+      "change12mo": 12.425328554360817,
       "change3yr": null,
       "change5yr": null,
       "pe": null,
@@ -940,15 +940,15 @@
     },
     "0P0000TKZP": {
       "symbol": "0P0000TKZP",
-      "price": 376.37311,
+      "price": 374.22729,
       "athPrice": 380.90421,
       "athDate": "2026-08-13",
       "daysSinceAth": 7,
-      "vsAth": -1.1895641689021974,
-      "change1mo": 1.7581572736014646,
-      "change12mo": 19.665079804092617,
-      "change3yr": 56.795143415858604,
-      "change5yr": 55.066006641452226,
+      "vsAth": -1.7529131536771398,
+      "change1mo": 1.1780024133330438,
+      "change12mo": 18.982832016663757,
+      "change3yr": 55.90120560333895,
+      "change5yr": 54.181927174746,
       "pe": null,
       "dividendYield": 1.6767100699279514,
       "dividendPaid": 0.00063426
