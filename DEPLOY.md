@@ -56,14 +56,14 @@ https://app.netlify.com/projects/compound-interest-calculator-611/deploys
 
 ### Option B — manual CLI deploy
 ```bash
-cd "/Users/alanmillbrow/Internal/Claude Projects/Project 01"
+cd "/Users/alanmillbrow/Internal/Claude Projects/investingbuffalo"
 netlify deploy --prod --dir=.
 ```
 (Requires the Netlify CLI on your PATH and to be logged in via `netlify login`.)
 
 ## Pushing code changes to GitHub
 ```bash
-cd "/Users/alanmillbrow/Internal/Claude Projects/Project 01"
+cd "/Users/alanmillbrow/Internal/Claude Projects/investingbuffalo"
 git add -A
 git commit -m "describe the change"
 git push
