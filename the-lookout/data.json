@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-08-22T07:24:59.380Z",
+  "savedAt": "2026-08-22T08:18:58.102Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -324,32 +324,32 @@
   "spaceForce": {
     "SPCX": {
       "symbol": "SPCX",
-      "price": 136.94,
+      "price": 136.97,
       "pe": null,
       "athPrice": 225.64,
       "athDate": "2026-06-16",
       "daysSinceAth": 67,
-      "vsAth": -39.31040595639071,
+      "vsAth": -39.29711044141109,
       "change12mo": null,
       "dividendYield": null,
-      "change1mo": 15.815290933694184,
+      "change1mo": 15.840663058186744,
       "change3yr": null,
       "change5yr": null,
       "dividendPaid": null
     },
     "RKLB": {
       "symbol": "RKLB",
-      "price": 72.59,
+      "price": 72.57,
       "pe": null,
       "athPrice": 151,
       "athDate": "2026-05-27",
       "daysSinceAth": 87,
-      "vsAth": -51.92715231788079,
-      "change12mo": 63.56466876971608,
+      "vsAth": -51.940397350993386,
+      "change12mo": 63.51960342496618,
       "dividendYield": null,
-      "change1mo": 3.7148164023432044,
-      "change3yr": 1124.114671163575,
-      "change5yr": 555.736224028907,
+      "change1mo": 3.686240891555934,
+      "change3yr": 1123.777403035413,
+      "change5yr": 555.5555555555554,
       "dividendPaid": null
     },
     "ASTS": {
@@ -597,39 +597,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 77374.53,
+      "price": 77380.34,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 320,
-      "vsAth": -38.688782209583344,
-      "change1mo": 18.85676532209342,
-      "change12mo": -33.831722808350115,
-      "change3yr": 192.67614684060342,
-      "change5yr": 56.192215055308004
+      "vsAth": -38.684178392599094,
+      "change1mo": 18.865690194483868,
+      "change12mo": -33.82675427813114,
+      "change3yr": 192.69812369026107,
+      "change5yr": 56.20394342082403
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4608.24685,
+      "price": 4608.10643,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 205,
-      "vsAth": -17.669151548229774,
-      "change1mo": 13.79747908426465,
-      "change12mo": 37.01074650207231,
-      "change3yr": 140.72563786186615,
-      "change5yr": 155.27660128447664
+      "vsAth": -17.67166028921435,
+      "change1mo": 13.794011509168694,
+      "change12mo": 37.00657158487491,
+      "change3yr": 140.71830260072042,
+      "change5yr": 155.26882263426123
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 68.98945,
+      "price": 68.99138,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 205,
-      "vsAth": -43.25484387801742,
-      "change1mo": 19.657474064178828,
-      "change12mo": 77.42831057274387,
-      "change3yr": 183.73205840016453,
-      "change5yr": 191.58685545224012
+      "vsAth": -43.25325641571245,
+      "change1mo": 19.660821516940725,
+      "change12mo": 77.43327418151893,
+      "change3yr": 183.73999588731238,
+      "change5yr": 191.5950126796281
     }
   },
   "reits": {
