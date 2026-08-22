@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipping Point Game</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-game">
+
+<div class="bg-decoration"></div>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>Tipping Point Game</h1>
+        <p>Test your instinct against the maths</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+
+  <main class="narrow-layout">
+
+    <!-- Screen 1: the choice -->
+    <section class="game-screen active" id="screenChoice">
+      <div class="rm-intro">
+        <p class="rm-quote">Would you rather&hellip;</p>
+        <p class="rm-lede">Pick the one you&rsquo;d go for and I&rsquo;ll show you the maths behind it.</p>
+      </div>
+
+      <div class="game-choices">
+        <button type="button" class="card game-choice-card" id="choiceIncomeBtn">
+          <span class="game-choice-label" id="choiceIncomeLabel">£0 a month</span>
+          <span class="game-choice-sub" id="choiceIncomeSub"></span>
+        </button>
+        <span class="game-choice-or">or</span>
+        <button type="button" class="card game-choice-card" id="choiceLumpBtn">
+          <span class="game-choice-label" id="choiceLumpLabel">£0</span>
+          <span class="game-choice-sub" id="choiceLumpSub"></span>
+        </button>
+      </div>
+
+      <section class="card disclaimer-card">
+        <h2>Warning &mdash; this is just a fun illustration</h2>
+        <p>This game assumes a constant average annual return every year for the whole period, which real markets never actually provide, and it ignores tax, inflation and fees. It&rsquo;s here to make a point about compounding, not to give financial advice.</p>
+      </section>
+    </section>
+
+    <!-- Screen 2: email capture (soft gate) -->
+    <section class="game-screen" id="screenEmail">
+      <div class="rm-intro">
+        <p class="rm-quote" id="emailHeadline">Nice pick!</p>
+        <p class="rm-lede">I&rsquo;d love to keep in touch.<br>Please sign up below, or skip straight to your result.</p>
+      </div>
+
+      <section class="card newsletter-signup">
+        <h2>Get the free UK Investing Starter Sheet</h2>
+        <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
+        <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>
+      </section>
+
+      <button type="button" class="link-btn game-continue-btn" id="continueToResultBtn">See my result &rarr;</button>
+    </section>
+
+    <!-- Screen 3: the result -->
+    <section class="game-screen" id="screenResult">
+      <div class="rm-intro">
+        <p class="rm-quote" id="resultHeadline">You picked &pound;0.</p>
+        <p class="rm-lede" id="resultSub"></p>
+        <button id="playAgainBtn" class="link-btn play-again-btn">Play again</button>
+      </div>
+
+      <div class="card gauge-card">
+        <h2>The tipping point</h2>
+        <p class="section-note">The average annual return where both choices are worth exactly the same.</p>
+        <svg class="gauge" id="gaugeSvg" viewBox="0 0 240 150" role="img" aria-labelledby="gaugeValue"></svg>
+        <div class="gauge-value" id="gaugeValue">0.0%</div>
+        <div class="gauge-legend">
+          <span><i class="dot dot-aggressive"></i>Cash &amp; bonds</span>
+          <span><i class="dot dot-contrib"></i>Stock market average</span>
+          <span><i class="dot dot-interest"></i>Aggressive growth</span>
+        </div>
+        <div class="gauge-fv" id="tippingFvBlock">
+          <span class="gauge-fv-label" id="tippingFvLabel">What either choice is worth after 30 years</span>
+          <span class="gauge-fv-value" id="tippingFvValue">£0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>What that means for your pick</h2>
+        <p class="formula-rule" id="resultRule"></p>
+      </div>
+
+      <div class="card">
+        <h2>Try your own assumption</h2>
+        <p class="section-note">Adjust the average annual return below to see which option wins at that rate.</p>
+        <div class="field">
+          <label for="assumedRate">Your assumed average annual return</label>
+          <div class="input-suffix">
+            <input type="text" inputmode="decimal" id="assumedRate" value="7">
+            <span>%</span>
+          </div>
+          <input type="range" id="assumedRateRange" min="0" max="20" step="0.1" value="7" class="slider">
+        </div>
+        <div class="ledger-table" id="assumptionTable">
+          <div class="ledger-row ledger-head cols-3">
+            <span>Choice</span>
+            <span>Future value</span>
+            <span>Result</span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span id="rowIncomeLabel">Monthly income</span>
+            <span id="fvIncome">£0</span>
+            <span id="winnerIncome"></span>
+          </div>
+          <div class="ledger-row cols-3">
+            <span id="rowLumpLabel">Lump sum</span>
+            <span id="fvLump">£0</span>
+            <span id="winnerLump"></span>
+          </div>
+        </div>
+
+        <div class="bar-chart-wrap">
+          <svg class="bar-chart" id="barChartSvg" viewBox="0 0 300 190" role="img" aria-label="Bar chart comparing the future value of each choice"></svg>
+        </div>
+        <p class="bar-chart-diff" id="barChartDiff"></p>
+      </div>
+
+      <div class="card share-card">
+        <h2>Save or share this result</h2>
+        <div class="share-actions">
+          <button id="copyLinkBtn" class="link-btn">Copy link</button>
+          <button id="shareLinkBtn" class="link-btn">Share</button>
+        </div>
+        <p class="share-status" id="shareStatus"></p>
+      </div>
+
+      <section class="card newsletter-signup">
+        <h2>Get the free UK Investing Starter Sheet</h2>
+        <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
+        <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>
+      </section>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
+  </footer>
+</div>
+
+<script src="/theme.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
