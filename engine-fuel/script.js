@@ -28,6 +28,12 @@
   const afterTakeHomeMonthlyEl = $('afterTakeHomeMonthly');
   const afterTaxPercentEl = $('afterTaxPercent');
   const engineTotalEl = $('engineTotal');
+  const engineIncome3AnnualEl = $('engineIncome3Annual');
+  const engineIncome3MonthlyEl = $('engineIncome3Monthly');
+  const engineIncome4AnnualEl = $('engineIncome4Annual');
+  const engineIncome4MonthlyEl = $('engineIncome4Monthly');
+  const engineIncome5AnnualEl = $('engineIncome5Annual');
+  const engineIncome5MonthlyEl = $('engineIncome5Monthly');
   const niEfficiencyNoteEl = $('niEfficiencyNote');
   const allocPensionEl = $('allocPension');
   const allocIsaEl = $('allocIsa');
@@ -374,7 +380,7 @@
   // sacrifice mode) bounds ISA, and ISA bounds GIA — so this recomputes
   // them top to bottom on every change rather than each field trying to
   // track its own dependency separately. A value that no longer fits its
-  // new ceiling is clamped down (same pattern as e.g. Freedom Formula's
+  // new ceiling is clamped down (same pattern as e.g. Freedom Runway's
   // minimum-liquid-assets field); a ceiling that grows back never yanks a
   // value the user deliberately lowered back up.
   function render() {
@@ -450,6 +456,17 @@
     afterTaxPercentEl.textContent = salary > 0 ? fmtPercent((scenario.tax + scenario.ni) / salary) : '0%';
 
     engineTotalEl.textContent = fmtCurrency(engineTotal);
+
+    // Forever income — what this year's contribution to the investment
+    // engine could sustainably pay out every year if invested and never
+    // touched again, using the same 3%/4%/5% safe withdrawal rate rules
+    // as the other calculators (e.g. Liquid Asset Forecaster).
+    engineIncome3AnnualEl.textContent = fmtCurrency(engineTotal * 0.03);
+    engineIncome3MonthlyEl.textContent = fmtCurrency((engineTotal * 0.03) / 12);
+    engineIncome4AnnualEl.textContent = fmtCurrency(engineTotal * 0.04);
+    engineIncome4MonthlyEl.textContent = fmtCurrency((engineTotal * 0.04) / 12);
+    engineIncome5AnnualEl.textContent = fmtCurrency(engineTotal * 0.05);
+    engineIncome5MonthlyEl.textContent = fmtCurrency((engineTotal * 0.05) / 12);
 
     allocPensionEl.textContent = fmtCurrency(pension);
     allocIsaEl.textContent = fmtCurrency(isa);

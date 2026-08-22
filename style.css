@@ -904,9 +904,9 @@ select#frequency:focus {
   color: var(--text-primary);
 }
 
-/* Take Home Pay Calculator's salary breakdown pie. Slice colours reuse
+/* Engine Fuel's salary breakdown pie. Slice colours reuse
    the site's existing chart palette exactly (--contrib/--interest/
-   --multiple, the same three tones the Freedom Formula's area chart
+   --multiple, the same three tones the Freedom Runway's area chart
    already uses) rather than introducing new hues that would clash with
    the parchment/sepia palette — so Pension/ISA/GIA share that family and
    read as one group, while Income Tax/National Insurance take the rust
@@ -1183,7 +1183,7 @@ select#frequency:focus {
      otherwise let columns shrink indefinitely on narrow screens, squashing
      everything instead of scrolling. A min-width forces genuine overflow
      so .table-wrap's horizontal scroll kicks in instead, matching the
-     other data tables on the site (e.g. Freedom Formula, Liquid Asset
+     other data tables on the site (e.g. Freedom Runway, Liquid Asset
      Forecaster) which scroll rather than squash on mobile. Kept under
      .lookout-app's ~1456px content width (1560px max-width minus its 48px
      padding minus .card's 56px padding) so desktop viewports fit without
@@ -1197,7 +1197,7 @@ select#frequency:focus {
   padding-right: 10px;
 }
 
-/* Yearly breakdown tables (Freedom Formula, Liquid Asset Forecaster) —
+/* Yearly breakdown tables (Freedom Runway, Liquid Asset Forecaster) —
    default auto layout sized each column by its content, so "Investment
    return" (the longest header) ballooned wide while "Balance" stayed
    narrow. Fix the layout so all three right-hand columns are genuinely
@@ -1724,7 +1724,7 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--text-primary);
 }
 /* .formula-rule is the one-sentence explainer on each of the three
-   calculators (Freedom Formula, How Much Is Enough, Liquid Asset
+   calculators (Freedom Runway, How Much Is Enough, Liquid Asset
    Forecaster); .chart-target-note is How Much Is Enough's dynamic results
    sentence (the computed pot size, monthly saving, etc.) — same
    lighter/darker contrast pattern as Roadmap's .rf-p, so colour is left at
@@ -1736,13 +1736,13 @@ tbody tr:hover { background: var(--accent-soft); }
    doing real work — the strong tags pick the computed £ figures out of
    the sentence — so, unlike Roadmap's MOB initials, it's kept rather than
    traded away for a uniformly darker page. */
-.page-freedom-formula .formula-rule,
+.page-freedom-runway .formula-rule,
 .page-how-much-is-enough .formula-rule,
 .page-liquid-asset-forecaster .formula-rule {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
 }
-.page-freedom-formula .formula-rule strong,
+.page-freedom-runway .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
 .page-liquid-asset-forecaster .formula-rule strong {
   font-weight: 600;
@@ -1820,7 +1820,7 @@ tbody tr:hover { background: var(--accent-soft); }
    as part of the same explainer rather than a separate, smaller note.
    Own class rather than a bare .section-note selector, same collision
    risk with the newsletter box's h2 + .section-note as .income-note. */
-.page-freedom-formula .runway-note {
+.page-freedom-runway .runway-note {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
@@ -1992,7 +1992,8 @@ tbody tr:hover { background: var(--accent-soft); }
   text-align: center;
 }
 
-/* Freedom formula */
+/* Formula card (shared component — every calculator uses it, not just
+   Freedom Runway) */
 .formula-summary {
   margin-bottom: 24px;
 }
@@ -2046,7 +2047,7 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
    via the shared .formula-rule base above; only the font-family/weight
    trial needed applying here. The highlighted £ figures keep their
    contrast via .formula-rule strong above, untouched. */
-.page-take-home-pay-calculator #niEfficiencyNote {
+.page-engine-fuel #niEfficiencyNote {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
 }
