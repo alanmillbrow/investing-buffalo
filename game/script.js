@@ -729,7 +729,9 @@
     state.choice = choice;
     updateUrl();
     const labels = scenarioLabels(state.scenario);
-    emailHeadlineEl.textContent = choice === 'income' ? `Nice, you picked ${labels.incomeHeadline}.` : `Nice, you picked ${labels.lumpHeadline}.`;
+    const chosenNumber = choice === 'income' ? labels.incomeNumber : labels.lumpNumber;
+    const chosenRest = choice === 'income' ? labels.incomeRest : labels.lumpRest;
+    emailHeadlineEl.innerHTML = `Nice, you picked ${chosenNumber}<br>${chosenRest}.`;
     showScreen('email');
   }
 
