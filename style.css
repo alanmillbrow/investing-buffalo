@@ -2157,7 +2157,23 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   letter-spacing: 0.06em;
 }
 
-.game-continue-btn { display: block; text-align: center; }
+/* Resting colour matched to the Kit Subscribe button just above it
+   (#5C7A8A, set via .newsletter-signup .formkit-submit) — hover keeps
+   the standard .link-btn treatment below, only the resting state needs
+   to match. */
+.game-continue-btn {
+  display: block;
+  text-align: center;
+  background: #5C7A8A;
+  border-color: #5C7A8A;
+  color: var(--badge-free-text);
+}
+/* .link-btn:hover only touches background/color, so the border was
+   staying blue on hover instead of following the fill — match it to the
+   same colour the background changes to. */
+.game-continue-btn:hover {
+  border-color: var(--text-primary);
+}
 
 /* Gauge — a semicircular barometer built as inline SVG and redrawn by JS
    whenever the tipping-point rate changes (same "computed geometry, CSS-
@@ -2346,6 +2362,15 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
    space before "See my result" to 48px instead of the page's normal
    24px rhythm. */
 .page-game #screenEmail .newsletter-signup {
+  margin-bottom: 0;
+}
+/* Same story again where each of the other two screens' last card sits
+   right above the footer — .disclaimer-card and .newsletter-signup both
+   carry their own 24px margin-bottom (tuned for pages where more content
+   follows), stacking on top of the site's standard ~36px last-card-to-
+   footer gap instead of just being it. */
+.page-game #screenChoice .disclaimer-card,
+.page-game #screenResult .newsletter-signup {
   margin-bottom: 0;
 }
 
