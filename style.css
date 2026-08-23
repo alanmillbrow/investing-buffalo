@@ -2374,6 +2374,29 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   margin-bottom: 0;
 }
 
+/* Narrower measure for the results screen's headline + subheadline —
+   .rm-lede's own 60ch cap never actually engages inside an 820px-wide
+   .narrow-layout, so it was reading at the full page width instead of a
+   comfortable line length. Scoped to this one screen rather than the
+   shared .rm-intro/.rm-lede classes, which other pages rely on filling
+   the full width. */
+.page-game #screenResult .rm-intro {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* The personalised sentence's length varies a lot scenario to scenario
+   (different £ amounts, "a month for X years" vs "right now"), so a
+   fixed width alone wraps it unevenly as often as not — one long line
+   and one short one. text-wrap: balance re-measures per instance of
+   text and finds the break that keeps both lines close to equal, rather
+   than the browser's default greedy wrap; it only takes effect when the
+   text actually needs to wrap, and simply does nothing on a single line
+   or in browsers that don't yet support it (safe fallback either way). */
+.page-game #screenResult .rm-lede {
+  text-wrap: balance;
+}
+
 /* "Try your own assumption"'s note sits flush against the field label
    below it (both sides have a 0 margin here — the note's own -12px pull
    is meant for sitting under a heading, not leading into a form field). */
