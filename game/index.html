@@ -140,6 +140,14 @@
           <svg class="bar-chart" id="barChartSvg" viewBox="0 0 300 190" role="img" aria-label="Bar chart comparing the future value of each choice"></svg>
         </div>
         <p class="bar-chart-diff" id="barChartDiff"></p>
+
+        <div class="balance-chart-wrap">
+          <div class="balance-chart-legend" id="balanceChartLegend">
+            <span><i class="dot" id="balanceLegendIncomeDot"></i>Monthly income</span>
+            <span><i class="dot" id="balanceLegendLumpDot"></i>Lump sum</span>
+          </div>
+          <canvas id="balanceChart" height="220"></canvas>
+        </div>
       </div>
 
       <div class="card share-card">

@@ -603,16 +603,22 @@
     // question screen put each on its own line, while every other use of
     // *Headline elsewhere on the page (sentences, table rows) still wants
     // the single-line combined form.
-    const incomeValue = `${fmtCurrency(scenario.monthlyAmount)} a month`;
+    const incomeNumber = fmtCurrency(scenario.monthlyAmount);
+    const incomeValue = `${incomeNumber} a month`;
     const incomeTime = `for ${scenario.years} years`;
-    const lumpValue = fmtCurrency(scenario.lumpSum);
+    const lumpNumber = fmtCurrency(scenario.lumpSum);
+    const lumpValue = lumpNumber;
     const lumpTime = scenario.lumpSumDelayYears > 0 ? `in ${scenario.lumpSumDelayYears} years` : 'right now';
     return {
       incomeHeadline: `${incomeValue} ${incomeTime}`,
+      incomeNumber,
+      incomeRest: `a month ${incomeTime}`,
       incomeValue,
       incomeTime,
       incomeSub: `${fmtCurrency(scenario.monthlyAmount * 12 * scenario.years)} total, paid monthly`,
       lumpHeadline: `${lumpValue} ${lumpTime}`,
+      lumpNumber,
+      lumpRest: lumpTime,
       lumpValue,
       lumpTime,
       lumpSub: scenario.lumpSumDelayYears > 0 ? 'One lump sum, later' : 'One lump sum, today',
@@ -650,6 +656,10 @@
   const fvLumpEl = $('fvLump');
   const barChartSvg = $('barChartSvg');
   const barChartDiffEl = $('barChartDiff');
+  const balanceChartCanvas = $('balanceChart');
+  const balanceChartCtx = balanceChartCanvas.getContext('2d');
+  const balanceLegendIncomeDot = $('balanceLegendIncomeDot');
+  const balanceLegendLumpDot = $('balanceLegendLumpDot');
   const winnerIncomeEl = $('winnerIncome');
   const winnerLumpEl = $('winnerLump');
 
@@ -977,6 +987,161 @@
     addText(lumpX + barWidth / 2, baseline + 22, 'Lump sum', 'bar-cat-label');
   }
 
+  // ---------- Balance-over-time chart (canvas) ----------
+  // Same "computed geometry, CSS/theme-var colour" approach as the other
+  // calculators' growth charts (e.g. Freedom Runway), simplified to two
+  // independent lines rather than a stacked breakdown — there's no single
+  // "total" here, just two competing balances to compare year by year.
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function hexToRgba(color, alpha) {
+    if (color.startsWith('#')) {
+      let c = color.substring(1);
+      if (c.length === 3) c = c.split('').map((ch) => ch + ch).join('');
+      const num = parseInt(c, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    // Already an rgba()/other CSS colour (e.g. --track) — used as-is,
+    // same fallback Freedom Runway's chart takes for the same reason.
+    return color;
+  }
+
+  function compactCurrency(v) {
+    const sign = v < 0 ? '-' : '';
+    const av = Math.abs(v);
+    if (av >= 1_000_000) return sign + '£' + (av / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (av >= 1_000) return sign + '£' + (av / 1_000).toFixed(0) + 'K';
+    return sign + '£' + Math.round(av);
+  }
+
+  const BALANCE_CHART_HEIGHT = 220;
+  function setupBalanceCanvasSize() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = balanceChartCanvas.getBoundingClientRect();
+    balanceChartCanvas.style.height = BALANCE_CHART_HEIGHT + 'px';
+    balanceChartCanvas.width = rect.width * dpr;
+    balanceChartCanvas.height = BALANCE_CHART_HEIGHT * dpr;
+    balanceChartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { width: rect.width, height: BALANCE_CHART_HEIGHT };
+  }
+
+  let lastBalanceChartParams = null;
+
+  function drawBalanceChart(rate, incomeWins) {
+    lastBalanceChartParams = { rate, incomeWins };
+    const scenario = state.scenario;
+    const { width, height } = setupBalanceCanvasSize();
+    balanceChartCtx.clearRect(0, 0, width, height);
+
+    const points = [];
+    for (let y = 0; y <= scenario.years; y++) {
+      points.push({
+        year: y,
+        income: annuityFutureValue(scenario.monthlyAmount, y, rate),
+        lump: lumpSumFutureValue(scenario.lumpSum, y, scenario.lumpSumDelayYears, rate),
+      });
+    }
+
+    const padding = { top: 16, right: 16, bottom: 28, left: 64 };
+    const plotW = width - padding.left - padding.right;
+    const plotH = height - padding.top - padding.bottom;
+    const maxYear = scenario.years || 1;
+    const maxVal = Math.max(1, ...points.flatMap((p) => [p.income, p.lump]));
+
+    const xForYear = (y) => padding.left + (y / maxYear) * plotW;
+    const yForVal = (v) => padding.top + plotH - (v / maxVal) * plotH;
+
+    // Same "winner = terracotta, loser = neutral" colours as the bar
+    // chart just above, so the two visuals read as one continuous idea
+    // rather than introducing a second colour scheme.
+    const winnerColor = cssVar('--badge-free-bg');
+    const loserColor = cssVar('--track');
+    const textSecondary = cssVar('--text-secondary');
+    const gridColor = cssVar('--card-border');
+    const incomeColor = incomeWins ? winnerColor : loserColor;
+    const lumpColor = incomeWins ? loserColor : winnerColor;
+    balanceLegendIncomeDot.style.background = incomeColor;
+    balanceLegendLumpDot.style.background = lumpColor;
+
+    balanceChartCtx.font = '11px -apple-system, sans-serif';
+    balanceChartCtx.fillStyle = textSecondary;
+    balanceChartCtx.strokeStyle = gridColor;
+    balanceChartCtx.lineWidth = 1;
+    const ySteps = 4;
+    for (let i = 0; i <= ySteps; i++) {
+      const val = (maxVal / ySteps) * i;
+      const yy = yForVal(val);
+      balanceChartCtx.beginPath();
+      balanceChartCtx.moveTo(padding.left, yy);
+      balanceChartCtx.lineTo(width - padding.right, yy);
+      balanceChartCtx.stroke();
+      balanceChartCtx.textAlign = 'right';
+      balanceChartCtx.textBaseline = 'middle';
+      balanceChartCtx.fillText(compactCurrency(val), padding.left - 10, yy);
+    }
+
+    balanceChartCtx.textAlign = 'center';
+    balanceChartCtx.textBaseline = 'top';
+    const maxLabels = width < 400 ? 6 : 10;
+    const xLabelStep = Math.max(1, Math.ceil(maxYear / Math.max(1, maxLabels - 1)));
+    for (let y = 0; y <= maxYear; y += xLabelStep) {
+      balanceChartCtx.fillText('Yr ' + y, xForYear(y), height - padding.bottom + 8);
+    }
+
+    function drawArea(getVal, color) {
+      balanceChartCtx.beginPath();
+      points.forEach((p, i) => {
+        const x = xForYear(p.year);
+        const y = yForVal(Math.max(0, getVal(p)));
+        if (i === 0) balanceChartCtx.moveTo(x, y);
+        else balanceChartCtx.lineTo(x, y);
+      });
+      balanceChartCtx.lineTo(xForYear(points[points.length - 1].year), yForVal(0));
+      balanceChartCtx.lineTo(xForYear(points[0].year), yForVal(0));
+      balanceChartCtx.closePath();
+      balanceChartCtx.fillStyle = hexToRgba(color, 0.18);
+      balanceChartCtx.fill();
+    }
+
+    function drawLine(getVal, color) {
+      balanceChartCtx.beginPath();
+      points.forEach((p, i) => {
+        const x = xForYear(p.year);
+        const y = yForVal(Math.max(0, getVal(p)));
+        if (i === 0) balanceChartCtx.moveTo(x, y);
+        else balanceChartCtx.lineTo(x, y);
+      });
+      balanceChartCtx.strokeStyle = color;
+      balanceChartCtx.lineWidth = 2.25;
+      balanceChartCtx.stroke();
+    }
+
+    // Loser drawn first, winner drawn on top — keeps the terracotta line
+    // fully visible at any point the two balances happen to cross.
+    if (incomeWins) {
+      drawArea((p) => p.lump, lumpColor);
+      drawLine((p) => p.lump, lumpColor);
+      drawArea((p) => p.income, incomeColor);
+      drawLine((p) => p.income, incomeColor);
+    } else {
+      drawArea((p) => p.income, incomeColor);
+      drawLine((p) => p.income, incomeColor);
+      drawArea((p) => p.lump, lumpColor);
+      drawLine((p) => p.lump, lumpColor);
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    if (lastBalanceChartParams) {
+      drawBalanceChart(lastBalanceChartParams.rate, lastBalanceChartParams.incomeWins);
+    }
+  });
+
   function updateComparisonTable() {
     const rate = parseNumber(assumedRateInput.value) / 100;
     const scenario = state.scenario;
@@ -993,6 +1158,7 @@
     winnerLumpEl.className = incomeWins ? 'game-loser' : 'game-winner';
 
     drawBarChart(fvIncome, fvLump, incomeWins);
+    drawBalanceChart(rate, incomeWins);
     const winnerLabel = incomeWins ? 'Monthly income' : 'Lump sum';
     const diff = Math.abs(fvIncome - fvLump);
     const smaller = Math.min(fvIncome, fvLump) || 1;
@@ -1008,8 +1174,9 @@
     rowIncomeLabel.textContent = labels.incomeHeadline;
     rowLumpLabel.textContent = labels.lumpHeadline;
 
-    const chosenLabel = state.choice === 'income' ? labels.incomeHeadline : labels.lumpHeadline;
-    resultHeadlineEl.textContent = `You picked ${chosenLabel}.`;
+    const chosenNumber = state.choice === 'income' ? labels.incomeNumber : labels.lumpNumber;
+    const chosenRest = state.choice === 'income' ? labels.incomeRest : labels.lumpRest;
+    resultHeadlineEl.innerHTML = `You picked ${chosenNumber}<br>${chosenRest}.`;
 
     if (tipping === null) {
       resultSubEl.textContent = `Here's the average annual return where either choice is worth exactly the same after ${scenario.years} years.`;
@@ -1020,7 +1187,7 @@
       gaugeValueEl.textContent = fmtRate(tipping);
       drawGauge(tipping);
 
-      resultRuleEl.innerHTML = `At the tipping point, <strong>${fmtRate(tipping)}</strong> a year, both choices are worth exactly the same after ${scenario.years} years. Below that rate, <strong>${labels.incomeHeadline}</strong> comes out ahead. Above it, <strong>${labels.lumpHeadline}</strong> wins instead — because compounding on the full lump sum eventually overtakes the monthly payments.`;
+      resultRuleEl.innerHTML = `At the tipping point, <strong>${fmtRate(tipping)}</strong> a year, both choices are worth exactly the same after ${scenario.years} years. Below that rate, <strong>${labels.incomeHeadline}</strong> comes out ahead. Above it, <strong>${labels.lumpHeadline}</strong> wins instead because compounding on the full lump sum eventually overtakes the monthly payments.`;
 
       // The personalised payoff line — leads with this under the headline
       // rather than a generic "here's the tipping point" sentence, since
@@ -1052,10 +1219,13 @@
     assumedRateInput.value = startRate;
     assumedRateRange.value = startRate;
     updateSliderFill(assumedRateRange);
-    updateComparisonTable();
     updateUrl();
 
+    // Show the screen before drawing the balance chart, not after — its
+    // canvas is sized from getBoundingClientRect(), which reads 0 while
+    // the result screen (and everything inside it) is still display:none.
     showScreen('result');
+    updateComparisonTable();
   }
 
   // ---------- Share / play again ----------
