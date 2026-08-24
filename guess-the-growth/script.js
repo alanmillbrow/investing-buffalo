@@ -503,9 +503,19 @@
     ]).then(([buffalo]) => {
       const canvas = document.createElement('canvas');
       const W = 1200, H = 630;
-      canvas.width = W;
-      canvas.height = H;
+      // Downloaded/shared images get viewed at all sorts of sizes and
+      // pixel densities, unlike an on-page canvas that's only ever shown
+      // at its own CSS size — render the raster at real supersampled
+      // resolution (at least 2x, matching or exceeding the current
+      // device's own pixel ratio) so text edges stay crisp rather than
+      // soft when the PNG is viewed larger than a bare 1200x630 buffer.
+      // All draw calls below stay in the same 1200x630 logical space —
+      // ctx.scale() maps it onto the larger backing buffer transparently.
+      const scale = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
+      canvas.width = W * scale;
+      canvas.height = H * scale;
       const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
       const serif = "'shackleton', Georgia, serif";
 
       // Background + hard border, matching the site's flat kraft-card look
