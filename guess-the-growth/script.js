@@ -497,9 +497,26 @@
     const symbol = CURRENCY_SYMBOLS[reveal.currency];
     const fmt = (n) => symbol + fmtNumber(n);
 
+    // document.fonts.ready alone isn't quite enough here — it can resolve
+    // before Shackleton is actually settled for *canvas* rasterisation
+    // specifically (confirmed by testing: the exact same font/size/weight
+    // renders perfectly crisp as normal DOM text, only canvas came out
+    // rough). Explicitly loading the exact face/size/weight combination
+    // this card actually draws forces the browser to fully resolve it
+    // first, which normal .ready waiting doesn't guarantee for canvas.
+    const fontLoads = document.fonts
+      ? Promise.all([
+          document.fonts.load("700 130px 'shackleton'"),
+          document.fonts.load("700 30px 'shackleton'"),
+          document.fonts.load("600 26px 'shackleton'"),
+          document.fonts.load("400 28px 'shackleton'"),
+        ]).catch(() => {})
+      : Promise.resolve();
+
     return Promise.all([
       loadRecoloredBuffalo(CARD_COLORS.ink),
       document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+      fontLoads,
     ]).then(([buffalo]) => {
       const canvas = document.createElement('canvas');
       const W = 1200, H = 630;
