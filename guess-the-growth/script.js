@@ -517,12 +517,16 @@
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities, unlike an on-page canvas that's only ever shown
       // at its own CSS size — render the raster at real supersampled
-      // resolution (at least 2x, matching or exceeding the current
+      // resolution (at least 3x, matching or exceeding the current
       // device's own pixel ratio) so text edges stay crisp rather than
       // soft when the PNG is viewed larger than a bare 1200x630 buffer.
+      // The stroke-then-fill bold technique above adds an anti-aliased
+      // stroke edge around every glyph, which needs more headroom than
+      // plain fill text to still read as crisp rather than faintly soft
+      // — bumped from 2x to 3x for that reason.
       // All draw calls below stay in the same 1200x630 logical space —
       // ctx.scale() maps it onto the larger backing buffer transparently.
-      const scale = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
+      const scale = Math.max(3, Math.ceil(window.devicePixelRatio || 1));
       canvas.width = W * scale;
       canvas.height = H * scale;
       const ctx = canvas.getContext('2d');
