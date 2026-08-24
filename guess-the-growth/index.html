@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess the Growth</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-guess-the-growth">
+
+<div class="bg-decoration"></div>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>Guess the Growth</h1>
+        <p>Compounding always looks smaller than it is</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+
+  <main class="narrow-layout">
+
+    <!-- Screen 1: the guess -->
+    <section class="game-screen active" id="screenGuess">
+      <div class="rm-intro">
+        <p class="rm-quote">How much do you think you&rsquo;d end up with?</p>
+        <p class="rm-lede" id="scenarioText"></p>
+      </div>
+
+      <div class="card">
+        <h2>Your scenario</h2>
+        <div class="ledger-table">
+          <div class="ledger-row">
+            <span>Starting amount</span>
+            <span id="factPrincipal">£0</span>
+          </div>
+          <div class="ledger-row">
+            <span>Monthly contribution</span>
+            <span id="factMonthly">£0</span>
+          </div>
+          <div class="ledger-row">
+            <span>Time horizon</span>
+            <span id="factYears">0 years</span>
+          </div>
+          <div class="ledger-row">
+            <span>Expected annual return</span>
+            <span id="factRate">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Your guess</h2>
+        <p class="section-note">Drag the slider or type a number &mdash; how much do you think it&rsquo;ll all be worth?</p>
+        <div class="field">
+          <label for="guessInput">Final value</label>
+          <div class="input-prefix">
+            <span id="guessSymbol">£</span>
+            <input type="text" inputmode="decimal" id="guessInput" value="50,000">
+          </div>
+          <input type="range" id="guessRange" min="0" max="750000" step="1000" value="50000" class="slider">
+        </div>
+        <button type="button" class="link-btn play-again-btn" id="revealBtn">Reveal the real number &rarr;</button>
+      </div>
+
+      <button type="button" class="link-btn link-btn-block" id="tryOwnNumbersBtn">Try your own numbers</button>
+
+      <section class="card disclaimer-card">
+        <h2>Warning &mdash; this is just a fun illustration</h2>
+        <p>This game assumes a constant average annual return every year for the whole period, which real markets never actually provide. It ignores sequence of returns risk, tax and fees. Past performance isn&rsquo;t a guarantee of future returns &mdash; it&rsquo;s here to make a point about compounding, not to give financial advice.</p>
+      </section>
+    </section>
+
+    <!-- Screen 2: customise your own numbers -->
+    <section class="game-screen" id="screenCustomize">
+      <div class="rm-intro">
+        <p class="rm-quote">Make it your own</p>
+        <p class="rm-lede">Set your own numbers, then guess again.</p>
+      </div>
+
+      <section class="card inputs-card">
+        <h2>Your numbers</h2>
+
+        <div class="field">
+          <label>Currency</label>
+          <div class="segmented currency-segmented">
+            <button type="button" class="seg-btn active" data-currency="GBP">£</button>
+            <button type="button" class="seg-btn" data-currency="USD">$</button>
+            <button type="button" class="seg-btn" data-currency="EUR">&euro;</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="customPrincipal">Starting amount</label>
+          <div class="input-prefix">
+            <span id="customPrincipalSymbol">£</span>
+            <input type="text" inputmode="decimal" id="customPrincipal" value="10,000">
+          </div>
+          <input type="range" id="customPrincipalRange" min="0" max="500000" step="500" value="10000" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="customMonthly">Monthly contribution</label>
+          <div class="input-prefix">
+            <span id="customMonthlySymbol">£</span>
+            <input type="text" inputmode="decimal" id="customMonthly" value="200">
+          </div>
+          <input type="range" id="customMonthlyRange" min="0" max="10000" step="50" value="200" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="customYears">Time horizon</label>
+          <div class="input-suffix">
+            <input type="text" inputmode="decimal" id="customYears" value="30">
+            <span>years</span>
+          </div>
+          <input type="range" id="customYearsRange" min="1" max="50" step="1" value="30" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="customRate">Expected annual return</label>
+          <span class="field-hint">Capped at 15% &mdash; keep it realistic</span>
+          <div class="input-suffix">
+            <input type="text" inputmode="decimal" id="customRate" value="7">
+            <span>%</span>
+          </div>
+          <input type="range" id="customRateRange" min="0" max="15" step="0.5" value="7" class="slider">
+        </div>
+      </section>
+
+      <button type="button" class="link-btn play-again-btn" id="startCustomRoundBtn">Guess my growth &rarr;</button>
+      <button type="button" class="link-btn link-btn-block" id="backToDefaultBtn">&larr; Back to the default round</button>
+    </section>
+
+    <!-- Screen 3: the reveal -->
+    <section class="game-screen" id="screenReveal">
+      <div class="rm-intro">
+        <p class="rm-quote" id="revealHeadline">You guessed &pound;0.</p>
+        <p class="rm-lede" id="revealSub"></p>
+      </div>
+
+      <div class="card headline-card">
+        <div class="ledger-row ledger-head headline-title">
+          <span>The real number</span>
+        </div>
+        <div class="headline-value" id="actualValueDisplay">£0</div>
+      </div>
+
+      <div class="card">
+        <h2>The gap</h2>
+        <p class="formula-rule" id="gapText"></p>
+        <p class="section-note" id="lessonText">Most people dramatically underestimate compounding. The longer your money&rsquo;s invested, the more growth outpaces what instinct expects.</p>
+      </div>
+
+      <div class="card">
+        <h2>What made up the total</h2>
+        <p class="section-note">What you put in, versus what compounding added on top.</p>
+        <div class="ledger-table" id="breakdownTable">
+          <div class="ledger-row">
+            <span>You contributed</span>
+            <span id="breakdownContributed">£0</span>
+          </div>
+          <div class="ledger-row">
+            <span>Compounding added</span>
+            <span id="breakdownGrowth">£0</span>
+          </div>
+        </div>
+        <div class="bar-chart-wrap">
+          <svg class="bar-chart" id="growthBarSvg" viewBox="0 0 300 190" role="img" aria-label="Bar chart comparing what you contributed with what compounding added"></svg>
+        </div>
+      </div>
+
+      <div class="card share-card">
+        <h2>Save or share this result</h2>
+        <div class="share-actions">
+          <button id="copyLinkBtn" class="link-btn">Copy link</button>
+          <button id="shareLinkBtn" class="link-btn">Share</button>
+        </div>
+        <p class="share-status" id="shareStatus"></p>
+      </div>
+
+      <button type="button" class="link-btn play-again-btn" id="playAgainBtn">Play again</button>
+      <button type="button" class="link-btn link-btn-block" id="tryOwnNumbersBtn2">Try your own numbers</button>
+
+      <section class="card newsletter-signup">
+        <h2>Get the free UK Investing Starter Sheet</h2>
+        <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
+        <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>
+      </section>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
+  </footer>
+</div>
+
+<script src="/theme.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

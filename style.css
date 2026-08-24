@@ -1137,6 +1137,14 @@ select#frequency:focus {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .link-btn:hover { background: var(--text-primary); color: var(--bg); }
+/* A standalone .link-btn used outside a row of other buttons (e.g. a
+   "try your own numbers" link sitting on its own between cards) — full
+   width, centred text, instead of the default inline sizing that's fine
+   inside .share-actions but leaves a lopsided, off-centre button on its
+   own. Deliberately plain, unlike .tool-box-single, which also carries a
+   -32px margin tuned specifically for .narrow-layout's 48px gap — that
+   bit doesn't generalise to pages using a tighter flex gap. */
+.link-btn-block { display: block; text-align: center; }
 
 .share-actions {
   display: flex;
@@ -2402,6 +2410,23 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
    is meant for sitting under a heading, not leading into a form field). */
 .page-game .section-note + .field {
   margin-top: 16px;
+}
+
+/* Guess the Growth — same "would you rather"-style flow as the Tipping
+   Point Game (screens toggled via .game-screen.active), reusing that
+   page's shared component vocabulary (.game-screen, .bar-chart, .link-
+   btn-block, .play-again-btn) rather than duplicating it. */
+.page-guess-the-growth #lessonText {
+  margin-top: 14px;
+}
+/* Same fix as the Tipping Point Game's equivalent screens — .disclaimer-
+   card and .newsletter-signup each carry their own 24px margin-bottom
+   globally, which stacks on top of the page's 36px last-card-to-footer
+   gap instead of just being it, when either sits as the final element
+   on one of these screens. */
+.page-guess-the-growth #screenGuess .disclaimer-card,
+.page-guess-the-growth #screenReveal .newsletter-signup {
+  margin-bottom: 0;
 }
 
 @media (max-width: 900px) {
