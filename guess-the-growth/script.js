@@ -497,20 +497,14 @@
     const symbol = CURRENCY_SYMBOLS[reveal.currency];
     const fmt = (n) => symbol + fmtNumber(n);
 
-    // document.fonts.ready alone isn't quite enough here — it can resolve
-    // before Shackleton is actually settled for *canvas* rasterisation
-    // specifically (confirmed by testing: the exact same font/size/weight
-    // renders perfectly crisp as normal DOM text, only canvas came out
-    // rough). Explicitly loading the exact face/size/weight combination
-    // this card actually draws forces the browser to fully resolve it
-    // first, which normal .ready waiting doesn't guarantee for canvas.
+    // Belt-and-braces alongside the render-twice trick below — Shackleton
+    // only genuinely ships a 400 (normal) weight face (confirmed via
+    // document.fonts — 700 only ever reports as "satisfiable" via
+    // synthesis, never as a real loaded entry), and every draw call
+    // below now deliberately requests 400 only, so this only ever needs
+    // to force that one real weight to settle before drawing.
     const fontLoads = document.fonts
-      ? Promise.all([
-          document.fonts.load("700 130px 'shackleton'"),
-          document.fonts.load("700 30px 'shackleton'"),
-          document.fonts.load("600 26px 'shackleton'"),
-          document.fonts.load("400 28px 'shackleton'"),
-        ]).catch(() => {})
+      ? document.fonts.load("400 130px 'shackleton'").catch(() => {})
       : Promise.resolve();
 
     return Promise.all([
@@ -545,20 +539,37 @@
         ctx.lineWidth = 4;
         ctx.strokeRect(20, 20, W - 40, H - 40);
 
+        // Shackleton only actually ships a normal (400) weight — every
+        // font-weight 700/600 request above was asking the browser to
+        // *synthesise* bold, and Canvas2D's synthetic-bold rasteriser
+        // renders it rough at these sizes, inconsistently across
+        // browsers/OSes (confirmed via document.fonts: only 400 normal/
+        // italic are ever actually "loaded", 700 just reports as
+        // satisfiable). Building the bold look manually instead — normal
+        // weight, stroked then filled in the same colour — sidesteps
+        // synthetic bold entirely, so it can't render badly regardless
+        // of platform.
+        function boldText(text, x, y, size, color, strokeWidth) {
+          ctx.font = `400 ${size}px ${serif}`;
+          ctx.lineJoin = 'round';
+          ctx.miterLimit = 2;
+          ctx.lineWidth = strokeWidth;
+          ctx.strokeStyle = color;
+          ctx.fillStyle = color;
+          ctx.strokeText(text, x, y);
+          ctx.fillText(text, x, y);
+        }
+
         // Brand lockup, top-left
         const markSize = 64;
         ctx.drawImage(buffalo, 64, 56, markSize, markSize);
         ctx.textBaseline = 'alphabetic';
         ctx.textAlign = 'left';
-        ctx.fillStyle = CARD_COLORS.ink;
-        ctx.font = `700 30px ${serif}`;
-        ctx.fillText('Investing Buffalo', 144, 100);
+        boldText('Investing Buffalo', 144, 100, 30, CARD_COLORS.ink, 1);
 
         // Kicker, top-right
         ctx.textAlign = 'right';
-        ctx.font = `600 20px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.inkSecondary;
-        ctx.fillText('GUESS THE GROWTH', W - 64, 96);
+        boldText('GUESS THE GROWTH', W - 64, 96, 20, CARD_COLORS.inkSecondary, 0.6);
 
         // The headline stat — the gap is the whole point, so it's the
         // loudest thing on the card, same principle as the in-game reveal
@@ -567,30 +578,23 @@
         const isLow = reveal.gap > 0;
 
         ctx.textAlign = 'center';
-        ctx.font = `600 26px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.inkSecondary;
-        ctx.fillText(isClose ? "I GUESSED WITHIN 2%" : 'I GUESSED WRONG BY', W / 2, 240);
+        boldText(isClose ? "I GUESSED WITHIN 2%" : 'I GUESSED WRONG BY', W / 2, 240, 26, CARD_COLORS.inkSecondary, 0.8);
 
-        ctx.font = `700 130px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.accent;
         const headlineValue = isClose ? fmt(reveal.guess) : fmt(Math.abs(reveal.gap));
-        ctx.fillText(headlineValue, W / 2, 360);
+        boldText(headlineValue, W / 2, 360, 130, CARD_COLORS.accent, 3);
 
         if (!isClose) {
-          ctx.font = `600 32px ${serif}`;
-          ctx.fillStyle = CARD_COLORS.ink;
-          ctx.fillText(isLow ? 'too low' : 'too high', W / 2, 410);
+          boldText(isLow ? 'too low' : 'too high', W / 2, 410, 32, CARD_COLORS.ink, 1);
         }
 
-        // Supporting comparison line
+        // Supporting comparison line — genuinely regular weight, no
+        // synthesis involved, plain fillText is fine as-is
         ctx.font = `400 28px ${serif}`;
         ctx.fillStyle = CARD_COLORS.ink;
         ctx.fillText(`I guessed ${fmt(reveal.guess)} — the real answer was ${fmt(reveal.actual)}.`, W / 2, 470);
 
         // Footer CTA + disclaimer
-        ctx.font = `700 26px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.accent;
-        ctx.fillText('Try it yourself at investingbuffalo.com', W / 2, 540);
+        boldText('Try it yourself at investingbuffalo.com', W / 2, 540, 26, CARD_COLORS.accent, 0.8);
 
         ctx.font = `italic 400 17px ${serif}`;
         ctx.fillStyle = CARD_COLORS.inkTertiary;
