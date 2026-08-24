@@ -535,65 +535,92 @@
       ctx.scale(scale, scale);
       const serif = "'shackleton', Georgia, serif";
 
-      // Background + hard border, matching the site's flat kraft-card look
-      ctx.fillStyle = CARD_COLORS.bg;
-      ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = CARD_COLORS.ink;
-      ctx.lineWidth = 4;
-      ctx.strokeRect(20, 20, W - 40, H - 40);
+      function renderCard() {
+        ctx.clearRect(0, 0, W, H);
 
-      // Brand lockup, top-left
-      const markSize = 64;
-      ctx.drawImage(buffalo, 64, 56, markSize, markSize);
-      ctx.textBaseline = 'alphabetic';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = CARD_COLORS.ink;
-      ctx.font = `700 30px ${serif}`;
-      ctx.fillText('Investing Buffalo', 144, 100);
+        // Background + hard border, matching the site's flat kraft-card look
+        ctx.fillStyle = CARD_COLORS.bg;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(20, 20, W - 40, H - 40);
 
-      // Kicker, top-right
-      ctx.textAlign = 'right';
-      ctx.font = `600 20px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.inkSecondary;
-      ctx.fillText('GUESS THE GROWTH', W - 64, 96);
-
-      // The headline stat — the gap is the whole point, so it's the
-      // loudest thing on the card, same principle as the in-game reveal
-      const closeThreshold = reveal.actual * 0.02;
-      const isClose = Math.abs(reveal.gap) <= closeThreshold;
-      const isLow = reveal.gap > 0;
-
-      ctx.textAlign = 'center';
-      ctx.font = `600 26px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.inkSecondary;
-      ctx.fillText(isClose ? "I GUESSED WITHIN 2%" : 'I GUESSED WRONG BY', W / 2, 240);
-
-      ctx.font = `700 130px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.accent;
-      const headlineValue = isClose ? fmt(reveal.guess) : fmt(Math.abs(reveal.gap));
-      ctx.fillText(headlineValue, W / 2, 360);
-
-      if (!isClose) {
-        ctx.font = `600 32px ${serif}`;
+        // Brand lockup, top-left
+        const markSize = 64;
+        ctx.drawImage(buffalo, 64, 56, markSize, markSize);
+        ctx.textBaseline = 'alphabetic';
+        ctx.textAlign = 'left';
         ctx.fillStyle = CARD_COLORS.ink;
-        ctx.fillText(isLow ? 'too low' : 'too high', W / 2, 410);
+        ctx.font = `700 30px ${serif}`;
+        ctx.fillText('Investing Buffalo', 144, 100);
+
+        // Kicker, top-right
+        ctx.textAlign = 'right';
+        ctx.font = `600 20px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkSecondary;
+        ctx.fillText('GUESS THE GROWTH', W - 64, 96);
+
+        // The headline stat — the gap is the whole point, so it's the
+        // loudest thing on the card, same principle as the in-game reveal
+        const closeThreshold = reveal.actual * 0.02;
+        const isClose = Math.abs(reveal.gap) <= closeThreshold;
+        const isLow = reveal.gap > 0;
+
+        ctx.textAlign = 'center';
+        ctx.font = `600 26px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkSecondary;
+        ctx.fillText(isClose ? "I GUESSED WITHIN 2%" : 'I GUESSED WRONG BY', W / 2, 240);
+
+        ctx.font = `700 130px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.accent;
+        const headlineValue = isClose ? fmt(reveal.guess) : fmt(Math.abs(reveal.gap));
+        ctx.fillText(headlineValue, W / 2, 360);
+
+        if (!isClose) {
+          ctx.font = `600 32px ${serif}`;
+          ctx.fillStyle = CARD_COLORS.ink;
+          ctx.fillText(isLow ? 'too low' : 'too high', W / 2, 410);
+        }
+
+        // Supporting comparison line
+        ctx.font = `400 28px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.fillText(`I guessed ${fmt(reveal.guess)} — the real answer was ${fmt(reveal.actual)}.`, W / 2, 470);
+
+        // Footer CTA + disclaimer
+        ctx.font = `700 26px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.accent;
+        ctx.fillText('Try it yourself at investingbuffalo.com', W / 2, 540);
+
+        ctx.font = `italic 400 17px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkTertiary;
+        ctx.fillText('Illustrative only — not a forecast, and past performance is not a guarantee.', W / 2, 575);
       }
 
-      // Supporting comparison line
-      ctx.font = `400 28px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.ink;
-      ctx.fillText(`I guessed ${fmt(reveal.guess)} — the real answer was ${fmt(reveal.actual)}.`, W / 2, 470);
-
-      // Footer CTA + disclaimer
-      ctx.font = `700 26px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.accent;
-      ctx.fillText('Try it yourself at investingbuffalo.com', W / 2, 540);
-
-      ctx.font = `italic 400 17px ${serif}`;
-      ctx.fillStyle = CARD_COLORS.inkTertiary;
-      ctx.fillText('Illustrative only — not a forecast, and past performance is not a guarantee.', W / 2, 575);
-
-      return canvas;
+      // document.fonts.load() resolving still isn't a hard guarantee the
+      // browser's *canvas* text rasteriser has the glyphs ready (a known,
+      // narrow Chrome/Canvas2D timing gap distinct from ordinary DOM text
+      // — confirmed by this exact bug recurring intermittently even with
+      // the explicit font-load above). Rendering once as a throwaway
+      // warm-up pass, waiting a real paint cycle, then clearing and
+      // rendering again reliably lands on the far side of that gap.
+      renderCard();
+      return new Promise((resolve) => {
+        // A plain timeout races the double-rAF wait — rAF callbacks only
+        // fire while the tab is actually being composited, so a tab that
+        // loses focus/visibility right after the download click would
+        // otherwise leave this pending forever. Whichever fires first
+        // wins; render is idempotent, so a double-fire is harmless.
+        let done = false;
+        function finish() {
+          if (done) return;
+          done = true;
+          renderCard();
+          resolve(canvas);
+        }
+        requestAnimationFrame(() => requestAnimationFrame(finish));
+        setTimeout(finish, 400);
+      });
     });
   }
 
