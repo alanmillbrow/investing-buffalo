@@ -99,6 +99,8 @@
 
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
+  const downloadImageBtn = $('downloadImageBtn');
+  const shareImagePreview = $('shareImagePreview');
   const shareStatus = $('shareStatus');
 
   // ---------- State ----------
@@ -320,6 +322,13 @@
     breakdownGrowthEl.textContent = fmtCurrency(growth);
     drawGrowthBar(contributed, growth);
 
+    // Snapshot the figures behind this reveal — the share-image button
+    // reads from here rather than recomputing, so it always matches
+    // exactly what's on screen even if currency/scenario state moves on
+    // before the image is actually generated.
+    state.lastReveal = { guess, actual, gap, contributed, growth, currency: currentCurrency };
+    shareImagePreview.removeAttribute('src');
+
     showScreen('reveal');
     animateCountUp(actual);
     updateUrl();
@@ -438,6 +447,162 @@
         .then(() => setStatus('Sharing isn’t supported here — link copied instead'))
         .catch(() => window.prompt('Copy this link to share:', url));
     }
+  });
+
+  // ---------- Downloadable share-image card ----------
+  // Always rendered in the site's light/kraft palette regardless of the
+  // viewer's current theme — a shared image needs to look the same and
+  // stay recognisably "the site" wherever it lands, rather than shifting
+  // with whoever happened to have dark mode on when they generated it.
+  const CARD_COLORS = {
+    bg: '#cabb95',
+    ink: '#33291f',
+    inkSecondary: 'rgba(51, 41, 31, 0.64)',
+    inkTertiary: 'rgba(51, 41, 31, 0.44)',
+    accent: '#8c3f34',
+    accentText: '#f2e9d8',
+  };
+
+  let recoloredBuffaloPromise = null;
+
+  // The site's brand mark is a plain PNG used everywhere else purely as a
+  // CSS mask (background-color painted through its alpha shape) — canvas
+  // has no mask-image equivalent, so this reproduces the same effect via
+  // a source-in composite: draw the PNG, then flood-fill through
+  // whatever alpha shape it left behind. Works regardless of whatever
+  // colour the PNG's own pixels actually are, since only its alpha
+  // channel is used, exactly like the CSS mask.
+  function loadRecoloredBuffalo(color) {
+    if (recoloredBuffaloPromise) return recoloredBuffaloPromise;
+    recoloredBuffaloPromise = new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        const cx = c.getContext('2d');
+        cx.drawImage(img, 0, 0);
+        cx.globalCompositeOperation = 'source-in';
+        cx.fillStyle = color;
+        cx.fillRect(0, 0, c.width, c.height);
+        resolve(c);
+      };
+      img.onerror = reject;
+      img.src = '/BuffaloImage.png';
+    });
+    return recoloredBuffaloPromise;
+  }
+
+  function buildShareCardCanvas(reveal) {
+    const symbol = CURRENCY_SYMBOLS[reveal.currency];
+    const fmt = (n) => symbol + fmtNumber(n);
+
+    return Promise.all([
+      loadRecoloredBuffalo(CARD_COLORS.ink),
+      document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+    ]).then(([buffalo]) => {
+      const canvas = document.createElement('canvas');
+      const W = 1200, H = 630;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const serif = "'shackleton', Georgia, serif";
+
+      // Background + hard border, matching the site's flat kraft-card look
+      ctx.fillStyle = CARD_COLORS.bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = CARD_COLORS.ink;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(20, 20, W - 40, H - 40);
+
+      // Brand lockup, top-left
+      const markSize = 64;
+      ctx.drawImage(buffalo, 64, 56, markSize, markSize);
+      ctx.textBaseline = 'alphabetic';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = CARD_COLORS.ink;
+      ctx.font = `700 30px ${serif}`;
+      ctx.fillText('Investing Buffalo', 144, 100);
+
+      // Kicker, top-right
+      ctx.textAlign = 'right';
+      ctx.font = `600 20px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.inkSecondary;
+      ctx.fillText('GUESS THE GROWTH', W - 64, 96);
+
+      // The headline stat — the gap is the whole point, so it's the
+      // loudest thing on the card, same principle as the in-game reveal
+      const closeThreshold = reveal.actual * 0.02;
+      const isClose = Math.abs(reveal.gap) <= closeThreshold;
+      const isLow = reveal.gap > 0;
+
+      ctx.textAlign = 'center';
+      ctx.font = `600 26px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.inkSecondary;
+      ctx.fillText(isClose ? "I GUESSED WITHIN 2%" : 'I GUESSED WRONG BY', W / 2, 240);
+
+      ctx.font = `700 130px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.accent;
+      const headlineValue = isClose ? fmt(reveal.guess) : fmt(Math.abs(reveal.gap));
+      ctx.fillText(headlineValue, W / 2, 360);
+
+      if (!isClose) {
+        ctx.font = `600 32px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.fillText(isLow ? 'too low' : 'too high', W / 2, 410);
+      }
+
+      // Supporting comparison line
+      ctx.font = `400 28px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.ink;
+      ctx.fillText(`I guessed ${fmt(reveal.guess)} — the real answer was ${fmt(reveal.actual)}.`, W / 2, 470);
+
+      // Footer CTA + disclaimer
+      ctx.font = `700 26px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.accent;
+      ctx.fillText('Try it yourself at investingbuffalo.com', W / 2, 540);
+
+      ctx.font = `italic 400 17px ${serif}`;
+      ctx.fillStyle = CARD_COLORS.inkTertiary;
+      ctx.fillText('Illustrative only — not a forecast, and past performance is not a guarantee.', W / 2, 575);
+
+      return canvas;
+    });
+  }
+
+  let lastShareImageUrl = null;
+
+  downloadImageBtn.addEventListener('click', () => {
+    if (!state.lastReveal) return;
+    downloadImageBtn.disabled = true;
+    setStatus('Generating your image…', 0);
+    buildShareCardCanvas(state.lastReveal)
+      .then((canvas) => {
+        return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      })
+      .then((blob) => {
+        if (!blob) throw new Error('Could not create image');
+        // Only one of these is ever "live" at a time — release the
+        // previous round's object URL before minting a new one, rather
+        // than letting them accumulate across repeated downloads.
+        if (lastShareImageUrl) URL.revokeObjectURL(lastShareImageUrl);
+        const url = URL.createObjectURL(blob);
+        lastShareImageUrl = url;
+        shareImagePreview.src = url;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'guess-the-growth-result.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setStatus('Image downloaded');
+      })
+      .catch(() => {
+        setStatus('Could not generate the image — try again');
+      })
+      .finally(() => {
+        downloadImageBtn.disabled = false;
+      });
   });
 
   // ---------- Theme ----------

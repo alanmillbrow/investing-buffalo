@@ -1162,6 +1162,18 @@ select#frequency:focus {
 }
 .share-status:empty { margin: 0; }
 
+/* Downloadable share-image preview — hidden until a card's actually been
+   generated (the img has no src until then), so it never shows a broken-
+   image icon on first paint. */
+.share-image-preview-wrap { margin-top: 16px; }
+.share-image-preview-wrap img {
+  display: none;
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--card-border);
+}
+.share-image-preview-wrap img[src] { display: block; }
+
 .table-wrap {
   position: relative;
   border-radius: var(--radius-sm);
