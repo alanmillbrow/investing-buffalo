@@ -281,7 +281,7 @@
     let yearsSoonerForCard = null;
 
     if (leveraged <= 0) {
-      leveragedIdeaSaveEl.innerHTML = `Right now you&rsquo;re assuming <strong>${fmtCurrency(0)}</strong> in leveraged income. Drag the slider above to see how rental income, a side business or a dividend portfolio could shorten your path.`;
+      leveragedIdeaSaveEl.innerHTML = `Right now you&rsquo;re assuming <strong>${fmtCurrency(0)}</strong> in leveraged income. Drag the slider above to see how a side business could shorten your path.`;
       leveragedIdeaSoonerEl.textContent = '';
     } else if (baseMonthlyForCompare <= 0) {
       leveragedIdeaSaveEl.innerHTML = `You&rsquo;re already on track without any leveraged income, so <strong>${fmtCurrency(leveraged)}</strong> a month of leveraged income isn&rsquo;t doing any work here yet — try a bigger target income or a shorter timeframe to see its effect.`;
