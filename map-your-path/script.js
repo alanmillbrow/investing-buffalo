@@ -51,6 +51,8 @@
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
   const downloadReportBtn = $('downloadReportBtn');
+  const downloadImageBtn = $('downloadImageBtn');
+  const shareImagePreview = $('shareImagePreview');
   const shareStatus = $('shareStatus');
 
   const printReturnRateEl = $('printReturnRate');
@@ -64,6 +66,9 @@
 
   const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' };
   let currentCurrency = 'GBP';
+  // Snapshot of the last render's figures, read by the share-image card
+  // builder — see the end of render() for what it holds.
+  let lastResult = null;
 
   // ---------- Formatting helpers ----------
   const fmtNumber = (n) => new Intl.NumberFormat('en-GB').format(Math.round(n));
@@ -269,6 +274,12 @@
     const basePmt = requiredMonthlySavings(baseTarget, assets, monthlyRate, months);
     const baseMonthlyForCompare = basePmt === null || basePmt <= 0 ? 0 : basePmt;
 
+    // Hoisted out of the branches below (block-scoped there) — the
+    // share-image card needs whichever of these actually got computed,
+    // whatever combination of leveraged/on-track applies this render.
+    let monthlySavedForCard = 0;
+    let yearsSoonerForCard = null;
+
     if (leveraged <= 0) {
       leveragedIdeaSaveEl.innerHTML = `Right now you&rsquo;re assuming <strong>${fmtCurrency(0)}</strong> in leveraged income. Drag the slider above to see how rental income, a side business or a dividend portfolio could shorten your path.`;
       leveragedIdeaSoonerEl.textContent = '';
@@ -278,6 +289,7 @@
     } else {
       const reducedPmt = pmt === null || pmt <= 0 ? 0 : pmt;
       const monthlySaved = Math.max(0, baseMonthlyForCompare - reducedPmt);
+      monthlySavedForCard = monthlySaved;
       leveragedIdeaSaveEl.innerHTML = monthlySaved > 0
         ? `If you generate <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income, you&rsquo;ll only need to save <strong>${fmtCurrency(reducedPmt)}</strong> a month instead of <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> &mdash; <strong>${fmtCurrency(monthlySaved)}</strong> less, every month.`
         : `Even without any leveraged income you&rsquo;re already saving enough to reach a smaller pot &mdash; leveraged income here mainly helps you get there sooner instead. See below.`;
@@ -286,6 +298,7 @@
       const monthsSooner = Number.isFinite(monthsWithLeverageAtBasePmt) ? Math.max(0, months - monthsWithLeverageAtBasePmt) : 0;
       if (monthsSooner >= 1) {
         const yearsSooner = monthsSooner / 12;
+        yearsSoonerForCard = yearsSooner;
         const soonerText = yearsSooner >= 1
           ? `${yearsSooner.toFixed(1).replace(/\.0$/, '')} years`
           : `${Math.round(monthsSooner)} months`;
@@ -307,6 +320,25 @@
     printInflationEl.textContent = fmtPercent(inflation);
     printLeveragedEl.textContent = fmtCurrency(leveraged);
     printWithdrawalRateEl.textContent = fmtPercent(withdrawalRate);
+
+    // Snapshot of the figures behind this render — the share-image button
+    // reads from here rather than recomputing, so the image always
+    // matches exactly what's on screen even if a slider moves before the
+    // image actually gets generated.
+    lastResult = {
+      currency: currentCurrency,
+      years, currentAge, targetAge,
+      assets, futureAssets,
+      potRequired,
+      pmt: pmt === null ? (potRequired <= assets ? 0 : potRequired - futureAssets) : pmt,
+      onTrack: pmt === null ? potRequired <= futureAssets : pmt <= 0,
+      pmtIsNow: pmt === null,
+      futureMonthlyIncome, passiveMonthly, leveraged,
+      withdrawalRate,
+      monthlySaved: monthlySavedForCard,
+      yearsSooner: yearsSoonerForCard,
+    };
+    shareImagePreview.removeAttribute('src');
 
     scheduleUrlUpdate();
   }
@@ -627,6 +659,302 @@
 
   downloadReportBtn.addEventListener('click', () => {
     window.print();
+  });
+
+  // ---------- Downloadable share-image card ----------
+  // Always rendered in the site's light/kraft palette regardless of the
+  // viewer's current theme — a shared image needs to look the same and
+  // stay recognisably "the site" wherever it lands, rather than shifting
+  // with whoever happened to have dark mode on when they generated it.
+  // Same palette and technique as Guess the Growth's share card.
+  const CARD_COLORS = {
+    bg: '#cabb95',
+    ink: '#33291f',
+    inkSecondary: 'rgba(51, 41, 31, 0.64)',
+    inkTertiary: 'rgba(51, 41, 31, 0.44)',
+    accent: '#8c3f34',
+    accentText: '#f2e9d8',
+    barNeutral: 'rgba(51, 41, 31, 0.22)',
+  };
+
+  let recoloredBuffaloPromise = null;
+
+  // The site's brand mark is a plain PNG used everywhere else purely as a
+  // CSS mask (background-color painted through its alpha shape) — canvas
+  // has no mask-image equivalent, so this reproduces the same effect via
+  // a source-in composite: draw the PNG, then flood-fill through
+  // whatever alpha shape it left behind.
+  function loadRecoloredBuffalo(color) {
+    if (recoloredBuffaloPromise) return recoloredBuffaloPromise;
+    recoloredBuffaloPromise = new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        const cx = c.getContext('2d');
+        cx.drawImage(img, 0, 0);
+        cx.globalCompositeOperation = 'source-in';
+        cx.fillStyle = color;
+        cx.fillRect(0, 0, c.width, c.height);
+        resolve(c);
+      };
+      img.onerror = reject;
+      img.src = '/BuffaloImage.png';
+    });
+    return recoloredBuffaloPromise;
+  }
+
+  function buildShareCardCanvas(result) {
+    const symbol = CURRENCY_SYMBOLS[result.currency];
+    const fmt = (n) => symbol + fmtNumber(n);
+
+    // Belt-and-braces alongside the render-twice trick below — Shackleton
+    // only genuinely ships a 400 (normal) weight face, so every draw call
+    // below deliberately requests 400 only.
+    const fontLoads = document.fonts
+      ? document.fonts.load("400 130px 'shackleton'").catch(() => {})
+      : Promise.resolve();
+
+    return Promise.all([
+      loadRecoloredBuffalo(CARD_COLORS.ink),
+      document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+      fontLoads,
+    ]).then(([buffalo]) => {
+      const canvas = document.createElement('canvas');
+      const W = 1200, H = 1500;
+      // Downloaded/shared images get viewed at all sorts of sizes and
+      // pixel densities — render the raster at real supersampled
+      // resolution (at least 3x) so text edges stay crisp. All draw calls
+      // below stay in the same 1200x1500 logical space — ctx.scale() maps
+      // it onto the larger backing buffer transparently.
+      const scale = Math.max(3, Math.ceil(window.devicePixelRatio || 1));
+      canvas.width = W * scale;
+      canvas.height = H * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+      const serif = "'shackleton', Georgia, serif";
+
+      // Shackleton only actually ships a normal (400) weight — building
+      // the bold look manually (normal weight, stroked then filled in the
+      // same colour) sidesteps the rough synthetic-bold rasteriser.
+      function boldText(text, x, y, size, color, strokeWidth) {
+        ctx.font = `400 ${size}px ${serif}`;
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.strokeText(text, x, y);
+        ctx.fillText(text, x, y);
+      }
+
+      function renderCard() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Background + hard border, matching the site's flat kraft-card look
+        ctx.fillStyle = CARD_COLORS.bg;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(20, 20, W - 40, H - 40);
+
+        ctx.textBaseline = 'alphabetic';
+
+        // Brand lockup, top-left
+        const markSize = 64;
+        ctx.drawImage(buffalo, 64, 56, markSize, markSize);
+        ctx.textAlign = 'left';
+        boldText('Investing Buffalo', 144, 100, 30, CARD_COLORS.ink, 1);
+
+        // Kicker, top-right
+        ctx.textAlign = 'right';
+        boldText('MAP YOUR PATH', W - 64, 96, 20, CARD_COLORS.inkSecondary, 0.6);
+
+        // ---- Hero: the headline stat ----
+        ctx.textAlign = 'center';
+        boldText('THE POT YOU NEED', W / 2, 210, 26, CARD_COLORS.inkSecondary, 0.8);
+        boldText(fmt(result.potRequired), W / 2, 335, 116, CARD_COLORS.accent, 3);
+
+        ctx.font = `400 27px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        const heroSub = result.leveraged > 0
+          ? `to provide ${fmt(result.passiveMonthly)}/month passive income by age ${result.targetAge}`
+          : `to provide ${fmt(result.passiveMonthly)}/month by age ${result.targetAge}`;
+        ctx.fillText(heroSub, W / 2, 380, W - 200);
+
+        // ---- Bar comparison: where your assets alone get you, vs the target ----
+        boldText('WHERE YOU’RE HEADED', W / 2, 465, 22, CARD_COLORS.inkSecondary, 0.6);
+
+        // maxBarH is deliberately well short of the title-to-baseline gap
+        // (465 to 710) — the value label sits ~16-40px above the tallest
+        // bar's top edge, and needs clearance from the title above it.
+        const baseline = 710;
+        const maxBarH = 165;
+        const barW = 200;
+        const bar1X = 320, bar2X = 680;
+        const maxVal = Math.max(result.futureAssets, result.potRequired, 1);
+        const h1 = (result.futureAssets / maxVal) * maxBarH;
+        const h2 = (result.potRequired / maxVal) * maxBarH;
+
+        ctx.fillStyle = CARD_COLORS.barNeutral;
+        ctx.fillRect(bar1X, baseline - h1, barW, Math.max(h1, 2));
+        ctx.fillStyle = CARD_COLORS.accent;
+        ctx.fillRect(bar2X, baseline - h2, barW, Math.max(h2, 2));
+
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(240, baseline);
+        ctx.lineTo(960, baseline);
+        ctx.stroke();
+
+        ctx.font = `400 24px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.fillText(fmt(result.futureAssets), bar1X + barW / 2, baseline - h1 - 16);
+        boldText(fmt(result.potRequired), bar2X + barW / 2, baseline - h2 - 16, 24, CARD_COLORS.accent, 0.6);
+
+        ctx.font = `400 21px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkSecondary;
+        ctx.fillText('Your assets alone', bar1X + barW / 2, baseline + 32);
+        ctx.fillText('Pot required', bar2X + barW / 2, baseline + 32);
+
+        // ---- Stat row ----
+        const statY = 800;
+        const statBoxW = 340, statBoxH = 160;
+        const statXs = [64, W / 2 - statBoxW / 2, W - 64 - statBoxW];
+        function statBox(x, label, value) {
+          ctx.strokeStyle = CARD_COLORS.ink;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, statY, statBoxW, statBoxH);
+          ctx.textAlign = 'center';
+          ctx.font = `400 19px ${serif}`;
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          wrapText(ctx, label, x + statBoxW / 2, statY + 34, statBoxW - 32, 24);
+          boldText(value, x + statBoxW / 2, statY + statBoxH - 34, 34, CARD_COLORS.ink, 0.6);
+        }
+        const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
+        const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
+        statBox(statXs[0], savingsLabel, savingsValue);
+        statBox(statXs[1], 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
+        statBox(statXs[2], 'Years to go', String(result.years));
+
+        // ---- Leveraged income callout ----
+        const boxY = 1020, boxH = 220;
+        ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
+        ctx.fillRect(64, boxY, W - 128, boxH);
+        ctx.strokeStyle = CARD_COLORS.accent;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(64, boxY, W - 128, boxH);
+
+        ctx.textAlign = 'left';
+        boldText('LEVERAGED INCOME', 96, boxY + 46, 22, CARD_COLORS.accent, 0.6);
+
+        ctx.font = `400 25px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.textAlign = 'center';
+        let leverageLines;
+        if (result.leveraged <= 0) {
+          leverageLines = [
+            'Rental income, a side business or dividends could',
+            'shorten this path — try adding some at investingbuffalo.com.',
+          ];
+        } else if (result.monthlySaved > 0) {
+          leverageLines = [
+            `${fmt(result.leveraged)}/month in leveraged income cuts your`,
+            `monthly saving by ${fmt(result.monthlySaved)}${result.yearsSooner ? `, or gets you there ${result.yearsSooner.toFixed(1).replace(/\.0$/, '')} years sooner.` : '.'}`,
+          ];
+        } else if (result.yearsSooner) {
+          leverageLines = [
+            `${fmt(result.leveraged)}/month in leveraged income gets you`,
+            `to your pot roughly ${result.yearsSooner.toFixed(1).replace(/\.0$/, '')} years sooner.`,
+          ];
+        } else {
+          leverageLines = [
+            `Assuming ${fmt(result.leveraged)}/month in leveraged income`,
+            `toward your desired monthly income.`,
+          ];
+        }
+        leverageLines.forEach((line, i) => {
+          ctx.fillText(line, W / 2, boxY + 100 + i * 34);
+        });
+
+        // ---- Footer ----
+        ctx.textAlign = 'center';
+        boldText('Map your own path at investingbuffalo.com', W / 2, H - 90, 26, CARD_COLORS.accent, 0.8);
+        ctx.font = `italic 400 17px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkTertiary;
+        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', W / 2, H - 58);
+      }
+
+      // document.fonts.load() resolving still isn't a hard guarantee the
+      // canvas rasteriser has the glyphs ready — render once as a
+      // throwaway warm-up pass, wait a real paint cycle, then render
+      // again to reliably land on the far side of that gap.
+      renderCard();
+      return new Promise((resolve) => {
+        let done = false;
+        function finish() {
+          if (done) return;
+          done = true;
+          renderCard();
+          resolve(canvas);
+        }
+        requestAnimationFrame(() => requestAnimationFrame(finish));
+        setTimeout(finish, 400);
+      });
+    });
+  }
+
+  // Simple manual word-wrap for canvas text — fillText has no native
+  // wrapping, and the stat-box labels are long enough to occasionally
+  // need a second line at this box width.
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    const lines = [];
+    words.forEach((word) => {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    const startY = y + (lines.length > 1 ? 0 : lineHeight / 2);
+    lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+  }
+
+  let lastShareImageUrl = null;
+
+  downloadImageBtn.addEventListener('click', () => {
+    if (!lastResult) return;
+    downloadImageBtn.disabled = true;
+    setStatus('Generating your image…', 0);
+    buildShareCardCanvas(lastResult)
+      .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
+      .then((blob) => {
+        if (!blob) throw new Error('Could not create image');
+        if (lastShareImageUrl) URL.revokeObjectURL(lastShareImageUrl);
+        const url = URL.createObjectURL(blob);
+        lastShareImageUrl = url;
+        shareImagePreview.src = url;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'map-your-path-result.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setStatus('Image downloaded');
+      })
+      .catch(() => {
+        setStatus('Could not generate the image — try again');
+      })
+      .finally(() => {
+        downloadImageBtn.disabled = false;
+      });
   });
 
   // The chart's colours are baked into its pixels at whatever moment it

@@ -1154,6 +1154,21 @@ select#frequency:focus {
 }
 .share-actions .link-btn:disabled { opacity: 0.6; cursor: default; }
 
+/* A solid, filled variant for the one share action that's a genuine
+   deliverable (a branded image) rather than a plain utility (copy/share
+   a link) — same treatment as .play-again-btn's filled accent, but sized
+   to sit inline in .share-actions rather than standing alone full-width. */
+.link-btn-accent {
+  background: var(--badge-free-bg);
+  border-color: var(--badge-free-bg);
+  color: var(--badge-free-text);
+}
+.link-btn-accent:hover {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg);
+}
+
 .share-status {
   margin: 12px 0 0;
   font-size: 0.85rem;
