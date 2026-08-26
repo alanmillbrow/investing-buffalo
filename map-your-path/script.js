@@ -291,7 +291,7 @@
       const monthlySaved = Math.max(0, baseMonthlyForCompare - reducedPmt);
       monthlySavedForCard = monthlySaved;
       leveragedIdeaSaveEl.innerHTML = monthlySaved > 0
-        ? `If you generate <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income, you&rsquo;ll only need to save <strong>${fmtCurrency(reducedPmt)}</strong> a month instead of <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> &mdash; <strong>${fmtCurrency(monthlySaved)}</strong> less, every month.`
+        ? `If you generate <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income, you&rsquo;ll only need to save <strong>${fmtCurrency(reducedPmt)}</strong> a month instead of <strong>${fmtCurrency(baseMonthlyForCompare)}</strong>. That&rsquo;s <strong>${fmtCurrency(monthlySaved)}</strong> less, every month.`
         : `Even without any leveraged income you&rsquo;re already saving enough to reach a smaller pot &mdash; leveraged income here mainly helps you get there sooner instead. See below.`;
 
       const monthsWithLeverageAtBasePmt = monthsToReachTarget(potRequired, assets, baseMonthlyForCompare, monthlyRate);
