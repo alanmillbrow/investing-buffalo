@@ -1785,26 +1785,32 @@ tbody tr:hover { background: var(--accent-soft); }
    traded away for a uniformly darker page. */
 .page-freedom-runway .formula-rule,
 .page-how-much-is-enough .formula-rule,
-.page-liquid-asset-forecaster .formula-rule {
+.page-liquid-asset-forecaster .formula-rule,
+.page-map-your-path .formula-rule {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
 }
 .page-freedom-runway .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
-.page-liquid-asset-forecaster .formula-rule strong {
+.page-liquid-asset-forecaster .formula-rule strong,
+.page-map-your-path .formula-rule strong {
   font-weight: 600;
 }
 /* Sized up separately, since .formula-rule's base rule already matches
    --body-font-size but .chart-target-note's own base is smaller (0.98rem)
    — colour is untouched, the contrast is still doing real work picking
-   the computed £ figures out of the sentence. */
-.page-how-much-is-enough .chart-target-note {
+   the computed £ figures out of the sentence. Map Your Path's own
+   "Reaching your pot" sentence (#chartTarget) is the same kind of
+   dynamic results sentence, so it gets the same treatment. */
+.page-how-much-is-enough .chart-target-note,
+.page-map-your-path .chart-target-note {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   font-size: var(--body-font-size);
   line-height: var(--body-line-height); /* base rule doesn't set one */
 }
-.page-how-much-is-enough .chart-target-note strong {
+.page-how-much-is-enough .chart-target-note strong,
+.page-map-your-path .chart-target-note strong {
   font-weight: 600;
 }
 /* UK Tax Tables — every .rf-p on this page is a substantial explanatory
