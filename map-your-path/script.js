@@ -997,7 +997,7 @@
         // already happened, not as conditional on generating that income.
         let leverageText;
         if (result.leveraged <= 0) {
-          leverageText = 'A side business could shorten this path — try adding one at investingbuffalo.com.';
+          leverageText = 'A side business could shorten this path.';
         } else if (result.monthlySaved > 0) {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
             + (yearsSoonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get there roughly ${yearsSoonerText} years sooner.` : '.');
