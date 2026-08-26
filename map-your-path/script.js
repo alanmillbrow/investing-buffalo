@@ -50,7 +50,13 @@
   const themeToggle = $('themeToggle');
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
+  const downloadReportBtn = $('downloadReportBtn');
   const shareStatus = $('shareStatus');
+
+  const printReturnRateEl = $('printReturnRate');
+  const printInflationEl = $('printInflation');
+  const printLeveragedEl = $('printLeveraged');
+  const printWithdrawalRateEl = $('printWithdrawalRate');
 
   const canvas = $('chart');
   const ctx = canvas.getContext('2d');
@@ -291,6 +297,16 @@
 
     const series = calculateSavingsSeries(assets, pmtForChart, monthlyRate, months);
     drawChart(series, assets, potRequired);
+
+    // The printed report replaces the interactive assumption sliders
+    // with this plain-text summary (see .no-print/.print-only in the
+    // print stylesheet) — kept in sync here rather than duplicating the
+    // parsing logic at print time.
+    const fmtPercent = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
+    printReturnRateEl.textContent = fmtPercent(annualReturn);
+    printInflationEl.textContent = fmtPercent(inflation);
+    printLeveragedEl.textContent = fmtCurrency(leveraged);
+    printWithdrawalRateEl.textContent = fmtPercent(withdrawalRate);
 
     scheduleUrlUpdate();
   }
@@ -607,6 +623,24 @@
         .then(() => setStatus('Sharing isn’t supported here — link copied instead'))
         .catch(() => window.prompt('Copy this link to share:', url));
     }
+  });
+
+  downloadReportBtn.addEventListener('click', () => {
+    window.print();
+  });
+
+  // The chart's colours are baked into its pixels at whatever moment it
+  // was last drawn — they don't update on their own just because print
+  // styles kick in, unlike CSS-driven elements. Redraw right before
+  // printing (once the @media print rules are actually active, so
+  // cssVar() picks up the light, ink-friendly print palette instead of
+  // the current on-screen theme), then redraw again afterwards to
+  // restore whatever the visitor was actually looking at.
+  window.addEventListener('beforeprint', () => {
+    if (lastChartParams) drawChart(lastChartParams.yearly, lastChartParams.principal, lastChartParams.potRequired);
+  });
+  window.addEventListener('afterprint', () => {
+    if (lastChartParams) drawChart(lastChartParams.yearly, lastChartParams.principal, lastChartParams.potRequired);
   });
 
   // ---------- Theme ----------

@@ -29,7 +29,7 @@
         <p>A few questions. One clear path to your number.</p>
       </div>
     </div>
-    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+    <button id="themeToggle" class="theme-toggle no-print" title="Toggle theme" aria-label="Toggle light/dark theme">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
     </button>
@@ -194,7 +194,7 @@
         <p class="formula-rule" id="leveragedIdeaSooner"></p>
       </div>
 
-      <section class="card">
+      <section class="card no-print">
         <h2>Your assumptions</h2>
         <p class="section-note">Change any of these to see how your results update.</p>
 
@@ -226,18 +226,29 @@
         </div>
       </section>
 
-      <div class="card share-card">
-        <h2>Save or share this result</h2>
+      <section class="card print-only">
+        <h2>Assumptions used</h2>
+        <div class="ledger-table">
+          <div class="ledger-row"><span>Expected annual return</span><span id="printReturnRate">7%</span></div>
+          <div class="ledger-row"><span>Expected annual inflation</span><span id="printInflation">3.5%</span></div>
+          <div class="ledger-row"><span>Expected monthly leveraged income</span><span id="printLeveraged">£0</span></div>
+          <div class="ledger-row"><span>Safe withdrawal rate</span><span id="printWithdrawalRate">4%</span></div>
+        </div>
+      </section>
+
+      <div class="card share-card no-print">
+        <h2>Save or share your result</h2>
         <div class="share-actions">
           <button id="copyLinkBtn" class="link-btn">Copy link</button>
           <button id="shareLinkBtn" class="link-btn">Share</button>
+          <button id="downloadReportBtn" class="link-btn">Download report</button>
         </div>
         <p class="share-status" id="shareStatus"></p>
       </div>
 
-      <button type="button" class="link-btn link-btn-block" id="startOverBtn">&larr; Start over</button>
+      <button type="button" class="link-btn link-btn-block no-print" id="startOverBtn">&larr; Start over</button>
 
-      <section class="card newsletter-signup">
+      <section class="card newsletter-signup no-print">
         <h2>Get the free UK Investing Starter Sheet</h2>
         <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
         <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>

@@ -2558,3 +2558,50 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   .formula-term { border-right: none; border-bottom: 2px solid var(--card-border); }
   .formula-term:last-child { border-bottom: none; }
 }
+
+/* ---------- Print (Map Your Path's downloadable report) ---------- */
+/* Hidden by default; only .no-print/.print-only actually toggle inside
+   @media print below, but .print-only needs a default state too so it
+   doesn't show up on-screen. */
+.print-only { display: none; }
+
+/* Forces the light-theme palette regardless of the viewer's actual
+   toggle state — a printed report needs to read cleanly and stay ink-
+   efficient on white paper, not whatever the on-screen theme happened
+   to be. Every existing card/border/text rule already reads from these
+   custom properties, so nothing else needs its own print override. */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --card-bg: #ffffff;
+    --card-bg-solid: #ffffff;
+    --card-border: #33291f;
+    --card-highlight: rgba(51, 41, 31, 0.06);
+    --text-primary: #33291f;
+    --text-secondary: rgba(51, 41, 31, 0.64);
+    --text-tertiary: rgba(51, 41, 31, 0.44);
+    --accent-1: #33291f;
+    --accent-2: #33291f;
+    --accent-3: #6b5136;
+    --accent-soft: rgba(51, 41, 31, 0.07);
+    --badge-free-bg: #8c3f34;
+    --badge-free-text: #f2e9d8;
+    --interest: #786246;
+    --interest-soft: rgba(120, 98, 70, 0.18);
+    --contrib: #33291f;
+    --contrib-soft: rgba(51, 41, 31, 0.14);
+    --multiple: #6b5136;
+    --track: rgba(51, 41, 31, 0.25);
+  }
+
+  body { background: #fff; }
+  .bg-decoration { display: none !important; }
+  .theme-toggle { display: none !important; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  .card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
