@@ -334,9 +334,13 @@
       onTrack: pmt === null ? potRequired <= futureAssets : pmt <= 0,
       pmtIsNow: pmt === null,
       futureMonthlyIncome, passiveMonthly, leveraged,
-      withdrawalRate,
+      annualReturn, inflation, withdrawalRate,
       monthlySaved: monthlySavedForCard,
       yearsSooner: yearsSoonerForCard,
+      // Raw chart series + principal — the share-image card redraws the
+      // actual growth chart rather than a simplified stand-in, so it
+      // needs the same data drawChart() uses, not just its outputs.
+      series, principal: assets,
     };
     shareImagePreview.removeAttribute('src');
 
@@ -674,7 +678,6 @@
     inkTertiary: 'rgba(51, 41, 31, 0.44)',
     accent: '#8c3f34',
     accentText: '#f2e9d8',
-    barNeutral: 'rgba(51, 41, 31, 0.22)',
   };
 
   let recoloredBuffaloPromise = null;
@@ -722,7 +725,7 @@
       fontLoads,
     ]).then(([buffalo]) => {
       const canvas = document.createElement('canvas');
-      const W = 1200, H = 1500;
+      const W = 1200, H = 1880;
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities — render the raster at real supersampled
       // resolution (at least 3x) so text edges stay crisp. All draw calls
@@ -783,44 +786,174 @@
           : `to provide ${fmt(result.passiveMonthly)}/month by age ${result.targetAge}`;
         ctx.fillText(heroSub, W / 2, 380, W - 200);
 
-        // ---- Bar comparison: where your assets alone get you, vs the target ----
-        boldText('WHERE YOU’RE HEADED', W / 2, 465, 22, CARD_COLORS.inkSecondary, 0.6);
+        // ---- Growth chart: the same series drawChart() plots on-page ----
+        // Fixed hex values here, not cssVar() lookups — the page chart
+        // reads --contrib/--interest/--multiple live off the current
+        // theme, but this card is always the light/print palette, so
+        // these are simply that palette's values (see style.css :root).
+        const contribColor = CARD_COLORS.ink;
+        const interestColor = '#786246';
+        const targetColor = '#6b5136';
 
-        // maxBarH is deliberately well short of the title-to-baseline gap
-        // (465 to 710) — the value label sits ~16-40px above the tallest
-        // bar's top edge, and needs clearance from the title above it.
-        const baseline = 710;
-        const maxBarH = 165;
-        const barW = 200;
-        const bar1X = 320, bar2X = 680;
-        const maxVal = Math.max(result.futureAssets, result.potRequired, 1);
-        const h1 = (result.futureAssets / maxVal) * maxBarH;
-        const h2 = (result.potRequired / maxVal) * maxBarH;
+        boldText('REACHING YOUR POT', W / 2, 450, 22, CARD_COLORS.inkSecondary, 0.6);
 
-        ctx.fillStyle = CARD_COLORS.barNeutral;
-        ctx.fillRect(bar1X, baseline - h1, barW, Math.max(h1, 2));
-        ctx.fillStyle = CARD_COLORS.accent;
-        ctx.fillRect(bar2X, baseline - h2, barW, Math.max(h2, 2));
+        function legendRow(cy) {
+          const items = [
+            { color: contribColor, label: 'Savings' },
+            { color: interestColor, label: 'Investment return' },
+            { color: targetColor, label: 'Target pot', dashed: true },
+          ];
+          ctx.font = `400 18px ${serif}`;
+          const dotR = 6, gapDotText = 10, gapItems = 30;
+          const widths = items.map((it) => dotR * 2 + gapDotText + ctx.measureText(it.label).width);
+          const totalW = widths.reduce((a, b) => a + b, 0) + gapItems * (items.length - 1);
+          let cx = W / 2 - totalW / 2;
+          items.forEach((it, i) => {
+            if (it.dashed) {
+              ctx.strokeStyle = it.color;
+              ctx.lineWidth = 3;
+              ctx.setLineDash([5, 4]);
+              ctx.beginPath();
+              ctx.moveTo(cx, cy - 6);
+              ctx.lineTo(cx + dotR * 2, cy - 6);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            } else {
+              ctx.beginPath();
+              ctx.fillStyle = it.color;
+              ctx.arc(cx + dotR, cy - 6, dotR, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = CARD_COLORS.inkSecondary;
+            ctx.fillText(it.label, cx + dotR * 2 + gapDotText, cy);
+            cx += widths[i] + gapItems;
+          });
+        }
+        legendRow(484);
 
-        ctx.strokeStyle = CARD_COLORS.ink;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(240, baseline);
-        ctx.lineTo(960, baseline);
-        ctx.stroke();
+        function compactCurrencyForCard(v) {
+          if (v >= 1_000_000) return symbol + (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+          if (v >= 1_000) return symbol + (v / 1_000).toFixed(0) + 'K';
+          return symbol + Math.round(v);
+        }
 
-        ctx.font = `400 24px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.ink;
-        ctx.fillText(fmt(result.futureAssets), bar1X + barW / 2, baseline - h1 - 16);
-        boldText(fmt(result.potRequired), bar2X + barW / 2, baseline - h2 - 16, 24, CARD_COLORS.accent, 0.6);
+        function drawCardChart(cx, cy, cw, ch, series, principal, target) {
+          const points = [{ year: 0, contributed: principal, interest: 0, balance: principal }, ...series];
+          if (points.length < 2 || !Number.isFinite(target)) return;
 
-        ctx.font = `400 21px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.inkSecondary;
-        ctx.fillText('Your assets alone', bar1X + barW / 2, baseline + 32);
-        ctx.fillText('Pot required', bar2X + barW / 2, baseline + 32);
+          const padding = { top: 10, right: 20, bottom: 34, left: 92 };
+          const plotW = cw - padding.left - padding.right;
+          const plotH = ch - padding.top - padding.bottom;
+          const maxBalance = Math.max(target, ...points.map((p) => p.balance)) * 1.05;
+          const maxYear = points[points.length - 1].year || 1;
+          const xForYear = (yr) => cx + padding.left + (yr / maxYear) * plotW;
+          const yForVal = (v) => cy + padding.top + plotH - (v / maxBalance) * plotH;
+
+          ctx.font = `400 15px ${serif}`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'right';
+          const ySteps = 4;
+          for (let i = 0; i <= ySteps; i++) {
+            const val = (maxBalance / ySteps) * i;
+            const yy = yForVal(val);
+            ctx.strokeStyle = 'rgba(51, 41, 31, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(cx + padding.left, yy);
+            ctx.lineTo(cx + cw - padding.right, yy);
+            ctx.stroke();
+            ctx.fillStyle = CARD_COLORS.inkSecondary;
+            ctx.fillText(compactCurrencyForCard(val), cx + padding.left - 10, yy);
+          }
+
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'alphabetic';
+          const maxLabels = 8;
+          const xLabelStep = Math.max(1, Math.ceil(maxYear / Math.max(1, maxLabels - 1)));
+          for (let yr = 0; yr <= maxYear; yr += xLabelStep) {
+            ctx.fillText('Yr ' + yr, xForYear(yr), cy + ch - padding.bottom + 22);
+          }
+
+          function drawArea(getTop, getBottom, color) {
+            ctx.beginPath();
+            points.forEach((p, i) => {
+              const px = xForYear(p.year), py = yForVal(getTop(p));
+              if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            });
+            for (let i = points.length - 1; i >= 0; i--) {
+              const p = points[i];
+              ctx.lineTo(xForYear(p.year), yForVal(getBottom(p)));
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+          }
+          drawArea((p) => p.contributed, () => 0, 'rgba(51, 41, 31, 0.2)');
+          drawArea((p) => p.balance, (p) => p.contributed, 'rgba(120, 98, 70, 0.32)');
+
+          function drawLine(getVal, color) {
+            ctx.beginPath();
+            points.forEach((p, i) => {
+              const px = xForYear(p.year), py = yForVal(getVal(p));
+              if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            });
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+          drawLine((p) => p.contributed, contribColor);
+          drawLine((p) => p.balance, interestColor);
+
+          ctx.save();
+          ctx.setLineDash([8, 6]);
+          ctx.beginPath();
+          const targetY = yForVal(target);
+          ctx.moveTo(cx + padding.left, targetY);
+          ctx.lineTo(cx + cw - padding.right, targetY);
+          ctx.strokeStyle = targetColor;
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+        drawCardChart(64, 505, W - 128, 320, result.series, result.principal, result.potRequired);
+
+        // ---- Your pot: ledger breakdown ----
+        boldText('YOUR POT', W / 2, 890, 22, CARD_COLORS.inkSecondary, 0.6);
+
+        function drawLedgerBox(lx, ly, lw, rows) {
+          const rowH = 56;
+          ctx.strokeStyle = CARD_COLORS.ink;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(lx, ly, lw, rowH * rows.length);
+          rows.forEach((r, i) => {
+            const rowY = ly + i * rowH;
+            if (i > 0) {
+              ctx.strokeStyle = 'rgba(51, 41, 31, 0.25)';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(lx, rowY);
+              ctx.lineTo(lx + lw, rowY);
+              ctx.stroke();
+            }
+            const textY = rowY + rowH / 2 + 8;
+            ctx.textAlign = 'left';
+            ctx.font = `400 22px ${serif}`;
+            ctx.fillStyle = CARD_COLORS.ink;
+            ctx.fillText(r.label, lx + 24, textY);
+            ctx.textAlign = 'right';
+            boldText(r.value, lx + lw - 24, textY, 24, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 0.5);
+          });
+        }
+        drawLedgerBox(64, 915, W - 128, [
+          { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
+          { label: 'Future value of current assets', value: fmt(result.futureAssets) },
+          { label: 'Still to be saved', value: fmt(Math.max(0, result.potRequired - result.futureAssets)) },
+        ]);
 
         // ---- Stat row ----
-        const statY = 800;
+        const statY = 1120;
         const statBoxW = 340, statBoxH = 160;
         const statXs = [64, W / 2 - statBoxW / 2, W - 64 - statBoxW];
         function statBox(x, label, value) {
@@ -840,7 +973,7 @@
         statBox(statXs[2], 'Years to go', String(result.years));
 
         // ---- Leveraged income callout ----
-        const boxY = 1020, boxH = 220;
+        const boxY = 1320, boxH = 220;
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(64, boxY, W - 128, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
@@ -877,6 +1010,38 @@
         }
         leverageLines.forEach((line, i) => {
           ctx.fillText(line, W / 2, boxY + 100 + i * 34);
+        });
+
+        // ---- Assumptions used ----
+        // The fine print behind the headline numbers — muted styling so
+        // it reads as reference detail, not another competing headline.
+        boldText('ASSUMPTIONS USED', W / 2, 1600, 20, CARD_COLORS.inkSecondary, 0.5);
+
+        const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
+        const assumeY = 1625, assumeH = 110, assumeX = 64, assumeW = W - 128;
+        const assumeCols = [
+          { label: 'Expected annual return', value: fmtPercentForCard(result.annualReturn) },
+          { label: 'Expected annual inflation', value: fmtPercentForCard(result.inflation) },
+          { label: 'Safe withdrawal rate', value: fmtPercentForCard(result.withdrawalRate) },
+          { label: 'Leveraged income assumed', value: fmt(result.leveraged) + '/mo' },
+        ];
+        const colW = assumeW / assumeCols.length;
+        ctx.strokeStyle = 'rgba(51, 41, 31, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(assumeX, assumeY, assumeW, assumeH);
+        assumeCols.forEach((col, i) => {
+          const colX = assumeX + i * colW;
+          if (i > 0) {
+            ctx.beginPath();
+            ctx.moveTo(colX, assumeY);
+            ctx.lineTo(colX, assumeY + assumeH);
+            ctx.stroke();
+          }
+          ctx.textAlign = 'center';
+          ctx.font = `400 15px ${serif}`;
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          wrapText(ctx, col.label, colX + colW / 2, assumeY + 24, colW - 24, 18);
+          boldText(col.value, colX + colW / 2, assumeY + assumeH - 26, 26, CARD_COLORS.ink, 0.5);
         });
 
         // ---- Footer ----
