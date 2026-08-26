@@ -1006,7 +1006,19 @@
         } else {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
         }
-        wrapText(ctx, leverageText, W / 2, boxY + 78, W - 200, 32);
+        const leverageLines = wrapTextBalanced(ctx, leverageText, W - 200);
+        // Vertically centred in the space below the title rather than
+        // pinned to a fixed offset — keeps a real gap under "LEVERAGED
+        // INCOME" whether the copy wraps to one line or three.
+        const leverageLineH = 32;
+        const leverageContentTop = boxY + 82;
+        const leverageContentBottom = boxY + boxH - 22;
+        const leverageBlockH = (leverageLines.length - 1) * leverageLineH;
+        const leverageStartY = Math.max(
+          leverageContentTop,
+          leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
+        );
+        leverageLines.forEach((line, i) => ctx.fillText(line, W / 2, leverageStartY + i * leverageLineH));
 
         // ---- Assumptions used ----
         // The fine print behind the headline numbers — muted styling so
@@ -1086,6 +1098,43 @@
     if (line) lines.push(line);
     const startY = y + (lines.length > 1 ? 0 : lineHeight / 2);
     lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+  }
+
+  // Greedy word-wrap (above) always fills each line to the brim before
+  // breaking, so the last line ends up conspicuously short — fine for
+  // short labels, but it makes a multi-sentence paragraph like the
+  // leveraged-income callout look ragged. This finds the narrowest wrap
+  // width that still produces the same number of lines the greedy wrap
+  // did at the full width — since a narrower budget forces the greedy
+  // algorithm to break earlier, that redistributes words more evenly
+  // across the fixed line count, without a full min-raggedness solver.
+  function wrapTextBalanced(ctx, text, maxWidth) {
+    function wrapAt(width) {
+      const words = text.split(' ');
+      let line = '';
+      const lines = [];
+      words.forEach((word) => {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > width && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line);
+      return lines;
+    }
+    const fullLines = wrapAt(maxWidth);
+    if (fullLines.length <= 1) return fullLines;
+    const targetCount = fullLines.length;
+    let lo = 0, hi = maxWidth;
+    for (let i = 0; i < 25; i++) {
+      const mid = (lo + hi) / 2;
+      if (wrapAt(mid).length <= targetCount) hi = mid; else lo = mid;
+    }
+    const balanced = wrapAt(hi);
+    return balanced.length === targetCount ? balanced : fullLines;
   }
 
   let lastShareImageUrl = null;
