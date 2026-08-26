@@ -337,6 +337,10 @@
       annualReturn, inflation, withdrawalRate,
       monthlySaved: monthlySavedForCard,
       yearsSooner: yearsSoonerForCard,
+      // The no-leverage monthly saving figure — the card's copy needs
+      // this alongside monthlySaved to spell out the actual alternative
+      // ("save £X instead"), not just the size of the reduction.
+      baseMonthlyForCompare,
       // Raw chart series + principal — the share-image card redraws the
       // actual growth chart rather than a simplified stand-in, so it
       // needs the same data drawChart() uses, not just its outputs.
@@ -983,34 +987,26 @@
         ctx.textAlign = 'left';
         boldText('LEVERAGED INCOME', 96, boxY + 46, 22, CARD_COLORS.accent, 0.6);
 
-        ctx.font = `400 25px ${serif}`;
+        ctx.font = `400 23px ${serif}`;
         ctx.fillStyle = CARD_COLORS.ink;
         ctx.textAlign = 'center';
-        let leverageLines;
+        const yearsSoonerText = result.yearsSooner ? result.yearsSooner.toFixed(1).replace(/\.0$/, '') : null;
+        // Every case below is framed as an assumption ("Assumes...") with
+        // the actual alternative spelled out, rather than "cuts your
+        // saving by £X" — phrasing that read as if the reduction had
+        // already happened, not as conditional on generating that income.
+        let leverageText;
         if (result.leveraged <= 0) {
-          leverageLines = [
-            'Rental income, a side business or dividends could',
-            'shorten this path — try adding some at investingbuffalo.com.',
-          ];
+          leverageText = 'Rental income, a side business or dividends could shorten this path — try adding some at investingbuffalo.com.';
         } else if (result.monthlySaved > 0) {
-          leverageLines = [
-            `${fmt(result.leveraged)}/month in leveraged income cuts your`,
-            `monthly saving by ${fmt(result.monthlySaved)}${result.yearsSooner ? `, or gets you there ${result.yearsSooner.toFixed(1).replace(/\.0$/, '')} years sooner.` : '.'}`,
-          ];
-        } else if (result.yearsSooner) {
-          leverageLines = [
-            `${fmt(result.leveraged)}/month in leveraged income gets you`,
-            `to your pot roughly ${result.yearsSooner.toFixed(1).replace(/\.0$/, '')} years sooner.`,
-          ];
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
+            + (yearsSoonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get there roughly ${yearsSoonerText} years sooner.` : '.');
+        } else if (yearsSoonerText) {
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get there roughly ${yearsSoonerText} years sooner.`;
         } else {
-          leverageLines = [
-            `Assuming ${fmt(result.leveraged)}/month in leveraged income`,
-            `toward your desired monthly income.`,
-          ];
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
         }
-        leverageLines.forEach((line, i) => {
-          ctx.fillText(line, W / 2, boxY + 100 + i * 34);
-        });
+        wrapText(ctx, leverageText, W / 2, boxY + 78, W - 200, 32);
 
         // ---- Assumptions used ----
         // The fine print behind the headline numbers — muted styling so
