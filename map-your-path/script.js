@@ -751,7 +751,7 @@
       fontLoads,
     ]).then(([buffalo]) => {
       const canvas = document.createElement('canvas');
-      const W = 1200, H = 1992;
+      const W = 1200, H = 1937;
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities — render the raster at real supersampled
       // resolution (at least 3x) so text edges stay crisp. All draw calls
@@ -985,7 +985,7 @@
         // desired income as its own equal-weight stat, rather than
         // cramming both values into one box as primary/caption.
         const statY = 1232;
-        const statBoxW = 250, statBoxH = 160, statGap = 24;
+        const statBoxW = 250, statBoxH = 130, statGap = 24;
         const statXs = [0, 1, 2, 3].map((i) => 64 + i * (statBoxW + statGap));
         function statBox(x, label, value) {
           ctx.strokeStyle = CARD_COLORS.ink;
@@ -1005,7 +1005,7 @@
         statBox(statXs[3], 'Years to go', String(result.years));
 
         // ---- Leveraged income callout ----
-        const boxY = 1432, boxH = 220;
+        const boxY = 1402, boxH = 195;
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(64, boxY, W - 128, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
@@ -1051,10 +1051,10 @@
         // ---- Assumptions used ----
         // The fine print behind the headline numbers — muted styling so
         // it reads as reference detail, not another competing headline.
-        boldText('ASSUMPTIONS USED', W / 2, 1712, 20, CARD_COLORS.inkSecondary, 0.5);
+        boldText('ASSUMPTIONS USED', W / 2, 1657, 20, CARD_COLORS.inkSecondary, 0.5);
 
         const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
-        const assumeY = 1737, assumeH = 110, assumeX = 64, assumeW = W - 128;
+        const assumeY = 1682, assumeH = 110, assumeX = 64, assumeW = W - 128;
         const assumeCols = [
           { label: 'Expected annual return', value: fmtPercentForCard(result.annualReturn) },
           { label: 'Expected annual inflation', value: fmtPercentForCard(result.inflation) },
