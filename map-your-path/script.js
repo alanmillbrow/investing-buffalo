@@ -352,7 +352,7 @@
       if (monthsSooner >= 1) {
         monthsSoonerForCard = monthsSooner;
         const soonerText = formatYearsMonths(monthsSooner);
-        leveragedIdeaSoonerEl.innerHTML = `Or, keep saving <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> a month as originally planned, and that same <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income gets you there <strong>${soonerText} sooner</strong>.`;
+        leveragedIdeaSoonerEl.innerHTML = `Or, keep saving <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> a month as originally planned, and get to the pot you need <strong>${soonerText} sooner</strong>.`;
       } else {
         leveragedIdeaSoonerEl.textContent = '';
       }
