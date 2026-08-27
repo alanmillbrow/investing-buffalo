@@ -1108,9 +1108,9 @@
           leverageText = 'A side business could generate leveraged income and shorten this path.';
         } else if (result.monthlySaved > 0) {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
-            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get there ${soonerText} sooner.` : '.');
+            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get to the pot you need ${soonerText} sooner.` : '.');
         } else if (soonerText) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get there ${soonerText} sooner.`;
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get to the pot you need ${soonerText} sooner.`;
         } else {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
         }
