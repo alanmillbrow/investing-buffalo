@@ -1919,7 +1919,8 @@ tbody tr:hover { background: var(--accent-soft); }
    exact same <h2> + <p class="section-note"> structure and a general
    selector would risk colliding with its own (differently-sized) rule.
    No <strong> here, so darkened like the other no-conflict pages. */
-.page-how-much-is-enough .income-note {
+.page-how-much-is-enough .income-note,
+.page-map-your-path .income-note {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-secondary);
