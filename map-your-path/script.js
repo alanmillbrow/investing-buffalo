@@ -350,7 +350,7 @@
       pmt: pmt === null ? (potRequired <= assets ? 0 : potRequired - futureAssets) : pmt,
       onTrack: pmt === null ? potRequired <= futureAssets : pmt <= 0,
       pmtIsNow: pmt === null,
-      futureMonthlyIncome, passiveMonthly, leveraged,
+      desiredIncome, futureMonthlyIncome, passiveMonthly, leveraged,
       annualReturn, inflation, withdrawalRate,
       monthlySaved: monthlySavedForCard,
       yearsSooner: yearsSoonerForCard,
@@ -981,24 +981,28 @@
         ]);
 
         // ---- Stat row ----
+        // Four boxes now (was three) — fits "today" alongside "future"
+        // desired income as its own equal-weight stat, rather than
+        // cramming both values into one box as primary/caption.
         const statY = 1232;
-        const statBoxW = 340, statBoxH = 160;
-        const statXs = [64, W / 2 - statBoxW / 2, W - 64 - statBoxW];
+        const statBoxW = 250, statBoxH = 160, statGap = 24;
+        const statXs = [0, 1, 2, 3].map((i) => 64 + i * (statBoxW + statGap));
         function statBox(x, label, value) {
           ctx.strokeStyle = CARD_COLORS.ink;
           ctx.lineWidth = 2;
           ctx.strokeRect(x, statY, statBoxW, statBoxH);
           ctx.textAlign = 'center';
-          ctx.font = `400 19px ${serif}`;
+          ctx.font = `400 18px ${serif}`;
           ctx.fillStyle = CARD_COLORS.inkSecondary;
-          wrapText(ctx, label, x + statBoxW / 2, statY + 34, statBoxW - 32, 24);
-          boldText(value, x + statBoxW / 2, statY + statBoxH - 34, 34, CARD_COLORS.ink, 0.6);
+          wrapText(ctx, label, x + statBoxW / 2, statY + 32, statBoxW - 28, 22);
+          boldText(value, x + statBoxW / 2, statY + statBoxH - 34, 30, CARD_COLORS.ink, 0.6);
         }
         const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
         statBox(statXs[0], savingsLabel, savingsValue);
-        statBox(statXs[1], 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
-        statBox(statXs[2], 'Years to go', String(result.years));
+        statBox(statXs[1], 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
+        statBox(statXs[2], 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
+        statBox(statXs[3], 'Years to go', String(result.years));
 
         // ---- Leveraged income callout ----
         const boxY = 1432, boxH = 220;
