@@ -1823,6 +1823,16 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-map-your-path .chart-target-note strong {
   font-weight: 600;
 }
+
+/* Same idea as the share-image card's wrapTextBalanced() — a plain
+   browser wrap fills each line to the brim before breaking, leaving a
+   conspicuously short last line, which reads worse on a short 2-3 line
+   lede directly under the page title than it does buried in a card.
+   text-wrap:balance is the CSS-native version of that same fix; a
+   no-op progressive enhancement in unsupported browsers (plain wrap). */
+.page-map-your-path .rm-lede {
+  text-wrap: balance;
+}
 /* UK Tax Tables — every .rf-p on this page is a substantial explanatory
    paragraph rather than a short intro/outro line, so (per the "large body
    of reading text" rule used elsewhere, e.g. Roadmap's .rf-p-regular)
