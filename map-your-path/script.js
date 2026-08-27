@@ -796,7 +796,10 @@
         measureCtx.font = `400 ${NAME_FONT_SIZE}px ${serif}`;
         nameLines = wrapTextBalanced(measureCtx, `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`, W - 200);
       }
-      const nameOffset = nameLines.length ? 30 + nameLines.length * NAME_LINE_HEIGHT : 0;
+      // 55, not 30 — the header's own text baseline sits at y=100, and
+      // 30 left barely any visual gap once the header's descent and the
+      // name line's own ascent are accounted for.
+      const nameOffset = nameLines.length ? 55 + nameLines.length * NAME_LINE_HEIGHT : 0;
 
       const canvas = document.createElement('canvas');
       const H = 1937 + nameOffset;
@@ -854,7 +857,7 @@
         if (nameLines.length) {
           ctx.textAlign = 'center';
           nameLines.forEach((line, i) => {
-            boldText(line, W / 2, 150 + i * NAME_LINE_HEIGHT, NAME_FONT_SIZE, CARD_COLORS.ink, 0.8);
+            boldText(line, W / 2, 175 + i * NAME_LINE_HEIGHT, NAME_FONT_SIZE, CARD_COLORS.ink, 0.8);
           });
         }
         ctx.save();

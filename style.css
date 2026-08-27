@@ -572,6 +572,16 @@ body {
   font-family: 'shackleton', Georgia, serif;
   letter-spacing: -0.01em;
 }
+/* Every other field here arrives pre-filled with a value — only the
+   "Your name" field ever shows a placeholder — so this only affects
+   that one in practice. Firefox otherwise dims placeholder text with
+   its own default opacity on top of whatever colour is set, so this
+   needs opacity:1 to let --text-tertiary's own alpha be the only one
+   in play, matching how .field-hint uses the same variable. */
+.input-prefix input::placeholder, .input-suffix input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
 
 .input-prefix-readonly {
   background: var(--interest-soft);
