@@ -52,8 +52,8 @@
   const themeToggle = $('themeToggle');
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
+  const bookmarkBtn = $('bookmarkBtn');
   const downloadReportBtn = $('downloadReportBtn');
-  const downloadImageBtn = $('downloadImageBtn');
   const shareImagePreview = $('shareImagePreview');
   const shareStatus = $('shareStatus');
 
@@ -699,8 +699,14 @@
     }
   });
 
-  downloadReportBtn.addEventListener('click', () => {
-    window.print();
+  // Modern browsers deliberately don't expose a JS API for adding a
+  // bookmark (removed everywhere after it was abused by spammy sites),
+  // so the best a page can do is prompt the visitor to use their
+  // browser's own shortcut — same "point at the platform's own tool"
+  // approach as the Share button's navigator.share fallback above.
+  bookmarkBtn.addEventListener('click', () => {
+    const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    setStatus(`Press ${isMac ? '⌘' : 'Ctrl'}+D to bookmark this page`);
   });
 
   // ---------- Downloadable share-image card ----------
@@ -1179,31 +1185,31 @@
 
   let lastShareImageUrl = null;
 
-  downloadImageBtn.addEventListener('click', () => {
+  downloadReportBtn.addEventListener('click', () => {
     if (!lastResult) return;
-    downloadImageBtn.disabled = true;
-    setStatus('Generating your image…', 0);
+    downloadReportBtn.disabled = true;
+    setStatus('Generating your report…', 0);
     buildShareCardCanvas(lastResult)
       .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
       .then((blob) => {
-        if (!blob) throw new Error('Could not create image');
+        if (!blob) throw new Error('Could not create report');
         if (lastShareImageUrl) URL.revokeObjectURL(lastShareImageUrl);
         const url = URL.createObjectURL(blob);
         lastShareImageUrl = url;
         shareImagePreview.src = url;
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'map-your-path-result.png';
+        link.download = 'map-your-path-report.png';
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setStatus('Image downloaded');
+        setStatus('Report downloaded');
       })
       .catch(() => {
-        setStatus('Could not generate the image — try again');
+        setStatus('Could not generate the report — try again');
       })
       .finally(() => {
-        downloadImageBtn.disabled = false;
+        downloadReportBtn.disabled = false;
       });
   });
 
