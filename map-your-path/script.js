@@ -40,8 +40,10 @@
   const reqPassiveAnnual = $('reqPassiveAnnual');
   const reqPassiveMonthly = $('reqPassiveMonthly');
   const potRequiredEl = $('potRequired');
-  const fvAssetsEl = $('fvAssets');
+  const currentAssetsValueEl = $('currentAssetsValue');
+  const assetsReturnEl = $('assetsReturn');
   const totalSavedEl = $('totalSaved');
+  const savingsReturnEl = $('savingsReturn');
   const savingsNeededEl = $('savingsNeeded');
   const leveragedIdeaSaveEl = $('leveragedIdeaSave');
   const leveragedIdeaSoonerEl = $('leveragedIdeaSooner');
@@ -228,8 +230,6 @@
     const potRequired = withdrawalRate > 0 ? passiveAnnual / withdrawalRate : Infinity;
     potRequiredValueEl.textContent = fmtCurrency(potRequired);
     potRequiredEl.textContent = fmtCurrency(potRequired);
-    fvAssetsEl.textContent = fmtCurrency(futureAssets);
-    totalSavedEl.textContent = fmtCurrency(Math.max(0, potRequired - futureAssets));
 
     const pmt = requiredMonthlySavings(potRequired, assets, monthlyRate, months);
     let pmtForChart = 0;
@@ -243,6 +243,23 @@
       savingsNeededEl.textContent = fmtCurrency(pmt);
       pmtForChart = pmt;
     }
+
+    // "Your pot" ledger — split each of the two building blocks (what
+    // your current assets grow into, and what your future savings grow
+    // into) into principal and the investment return on top of it.
+    // neededFromSavings is exactly the old "Still to be saved" figure;
+    // savingsContributed is the nominal sum of monthly contributions
+    // (no growth), so the remainder is what compounding added on top.
+    // In the "needed right now" case (pmt === null, no time left for a
+    // savings plan) the whole shortfall is a lump sum with no time to
+    // grow, so it's attributed entirely to "still to be saved" rather
+    // than split — savingsReturn correctly comes out as 0 there.
+    const neededFromSavings = Math.max(0, potRequired - futureAssets);
+    const savingsContributed = pmt === null ? neededFromSavings : pmtForChart * months;
+    currentAssetsValueEl.textContent = fmtCurrency(assets);
+    assetsReturnEl.textContent = fmtCurrency(futureAssets - assets);
+    totalSavedEl.textContent = fmtCurrency(savingsContributed);
+    savingsReturnEl.textContent = fmtCurrency(neededFromSavings - savingsContributed);
 
     let savingsSentence;
     if (pmt === null) {
@@ -341,6 +358,11 @@
       // this alongside monthlySaved to spell out the actual alternative
       // ("save £X instead"), not just the size of the reduction.
       baseMonthlyForCompare,
+      // The nominal (no-growth) contributions behind "still to be saved"
+      // — the card's "Your pot" ledger splits that figure into
+      // contributions vs. the investment return on top of them, same as
+      // the on-page ledger.
+      savingsContributed,
       // Raw chart series + principal — the share-image card redraws the
       // actual growth chart rather than a simplified stand-in, so it
       // needs the same data drawChart() uses, not just its outputs.
@@ -729,7 +751,7 @@
       fontLoads,
     ]).then(([buffalo]) => {
       const canvas = document.createElement('canvas');
-      const W = 1200, H = 1880;
+      const W = 1200, H = 1992;
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities — render the raster at real supersampled
       // resolution (at least 3x) so text edges stay crisp. All draw calls
@@ -952,12 +974,14 @@
         }
         drawLedgerBox(64, 915, W - 128, [
           { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
-          { label: 'Future value of current assets', value: fmt(result.futureAssets) },
-          { label: 'Still to be saved', value: fmt(Math.max(0, result.potRequired - result.futureAssets)) },
+          { label: 'Current assets', value: fmt(result.principal) },
+          { label: 'Investment return', value: fmt(result.futureAssets - result.principal) },
+          { label: 'Still to be saved', value: fmt(result.savingsContributed) },
+          { label: 'Investment return', value: fmt(Math.max(0, result.potRequired - result.futureAssets) - result.savingsContributed) },
         ]);
 
         // ---- Stat row ----
-        const statY = 1120;
+        const statY = 1232;
         const statBoxW = 340, statBoxH = 160;
         const statXs = [64, W / 2 - statBoxW / 2, W - 64 - statBoxW];
         function statBox(x, label, value) {
@@ -977,7 +1001,7 @@
         statBox(statXs[2], 'Years to go', String(result.years));
 
         // ---- Leveraged income callout ----
-        const boxY = 1320, boxH = 220;
+        const boxY = 1432, boxH = 220;
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(64, boxY, W - 128, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
@@ -1023,10 +1047,10 @@
         // ---- Assumptions used ----
         // The fine print behind the headline numbers — muted styling so
         // it reads as reference detail, not another competing headline.
-        boldText('ASSUMPTIONS USED', W / 2, 1600, 20, CARD_COLORS.inkSecondary, 0.5);
+        boldText('ASSUMPTIONS USED', W / 2, 1712, 20, CARD_COLORS.inkSecondary, 0.5);
 
         const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
-        const assumeY = 1625, assumeH = 110, assumeX = 64, assumeW = W - 128;
+        const assumeY = 1737, assumeH = 110, assumeX = 64, assumeW = W - 128;
         const assumeCols = [
           { label: 'Expected annual return', value: fmtPercentForCard(result.annualReturn) },
           { label: 'Expected annual inflation', value: fmtPercentForCard(result.inflation) },
