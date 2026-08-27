@@ -82,6 +82,21 @@
     return isNaN(val) ? 0 : val;
   }
 
+  // "2 years and 3 months" / "1 year" / "6 months" — used for the
+  // "get there sooner" figure, both on-page and on the share image.
+  // Rounds to the nearest whole month first (rather than rounding a
+  // decimal year count), so it's an exact calendar breakdown rather
+  // than an approximation — hence no "roughly" in the callers.
+  function formatYearsMonths(rawMonths) {
+    const totalMonths = Math.round(rawMonths);
+    const yrs = Math.floor(totalMonths / 12);
+    const mos = totalMonths % 12;
+    const yrPart = yrs > 0 ? `${yrs} year${yrs === 1 ? '' : 's'}` : '';
+    const moPart = mos > 0 ? `${mos} month${mos === 1 ? '' : 's'}` : '';
+    if (yrPart && moPart) return `${yrPart} and ${moPart}`;
+    return yrPart || moPart || '0 months';
+  }
+
   // ---------- Slider binding ----------
   function updateSliderFill(rangeEl) {
     const min = parseFloat(rangeEl.min);
@@ -295,7 +310,7 @@
     // share-image card needs whichever of these actually got computed,
     // whatever combination of leveraged/on-track applies this render.
     let monthlySavedForCard = 0;
-    let yearsSoonerForCard = null;
+    let monthsSoonerForCard = null;
 
     if (leveraged <= 0) {
       leveragedIdeaSaveEl.innerHTML = `Right now you&rsquo;re assuming <strong>${fmtCurrency(0)}</strong> in leveraged income. Drag the slider above to see how a side business could shorten your path.`;
@@ -314,12 +329,9 @@
       const monthsWithLeverageAtBasePmt = monthsToReachTarget(potRequired, assets, baseMonthlyForCompare, monthlyRate);
       const monthsSooner = Number.isFinite(monthsWithLeverageAtBasePmt) ? Math.max(0, months - monthsWithLeverageAtBasePmt) : 0;
       if (monthsSooner >= 1) {
-        const yearsSooner = monthsSooner / 12;
-        yearsSoonerForCard = yearsSooner;
-        const soonerText = yearsSooner >= 1
-          ? `${yearsSooner.toFixed(1).replace(/\.0$/, '')} years`
-          : `${Math.round(monthsSooner)} months`;
-        leveragedIdeaSoonerEl.innerHTML = `Or, keep saving <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> a month as originally planned, and that same <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income gets you there roughly <strong>${soonerText} sooner</strong>.`;
+        monthsSoonerForCard = monthsSooner;
+        const soonerText = formatYearsMonths(monthsSooner);
+        leveragedIdeaSoonerEl.innerHTML = `Or, keep saving <strong>${fmtCurrency(baseMonthlyForCompare)}</strong> a month as originally planned, and that same <strong>${fmtCurrency(leveraged)}</strong> a month in leveraged income gets you there <strong>${soonerText} sooner</strong>.`;
       } else {
         leveragedIdeaSoonerEl.textContent = '';
       }
@@ -353,7 +365,7 @@
       desiredIncome, futureMonthlyIncome, passiveMonthly, leveraged,
       annualReturn, inflation, withdrawalRate,
       monthlySaved: monthlySavedForCard,
-      yearsSooner: yearsSoonerForCard,
+      monthsSooner: monthsSoonerForCard,
       // The no-leverage monthly saving figure — the card's copy needs
       // this alongside monthlySaved to spell out the actual alternative
       // ("save £X instead"), not just the size of the reduction.
@@ -1018,7 +1030,7 @@
         ctx.font = `400 23px ${serif}`;
         ctx.fillStyle = CARD_COLORS.ink;
         ctx.textAlign = 'center';
-        const yearsSoonerText = result.yearsSooner ? result.yearsSooner.toFixed(1).replace(/\.0$/, '') : null;
+        const soonerText = result.monthsSooner ? formatYearsMonths(result.monthsSooner) : null;
         // Every case below is framed as an assumption ("Assumes...") with
         // the actual alternative spelled out, rather than "cuts your
         // saving by £X" — phrasing that read as if the reduction had
@@ -1028,9 +1040,9 @@
           leverageText = 'A side business could generate leveraged income and shorten this path.';
         } else if (result.monthlySaved > 0) {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
-            + (yearsSoonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get there roughly ${yearsSoonerText} years sooner.` : '.');
-        } else if (yearsSoonerText) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get there roughly ${yearsSoonerText} years sooner.`;
+            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get there ${soonerText} sooner.` : '.');
+        } else if (soonerText) {
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get there ${soonerText} sooner.`;
         } else {
           leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
         }
