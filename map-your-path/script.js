@@ -50,6 +50,7 @@
   const chartTargetEl = $('chartTarget');
 
   const themeToggle = $('themeToggle');
+  const reportNameInput = $('reportName');
   const copyLinkBtn = $('copyLinkBtn');
   const shareLinkBtn = $('shareLinkBtn');
   const bookmarkBtn = $('bookmarkBtn');
@@ -143,6 +144,11 @@
   bindTextAndRange(inflationInput, inflationRange, { onChange: render });
   bindTextAndRange(leveragedInput, leveragedRange, { isCurrency: true, onChange: render });
   bindTextAndRange(withdrawalRateInput, withdrawalRateRange, { onChange: render });
+
+  // Free text, not a number field, so it doesn't go through
+  // bindTextAndRange — it only needs the URL kept in sync (no chart or
+  // figures depend on it), not a full render().
+  reportNameInput.addEventListener('input', scheduleUrlUpdate);
 
   currencyButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -588,6 +594,9 @@
     setField('inflation', inflationInput, inflationRange, false);
     setField('leveraged', leveragedInput, leveragedRange, true);
     setField('withdrawalRate', withdrawalRateInput, withdrawalRateRange, false);
+    // Not numeric, so it doesn't fit the shared setField() helper above —
+    // just restore the raw text directly.
+    if (params.has('name')) reportNameInput.value = params.get('name');
   }
 
   function currentParams() {
@@ -601,6 +610,10 @@
     params.set('inflation', parseNumber(inflationInput.value));
     params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
     params.set('withdrawalRate', parseNumber(withdrawalRateInput.value));
+    // Omitted entirely when blank, rather than a bare "name=" — keeps the
+    // URL clean for the common case of nobody having typed a name.
+    const name = reportNameInput.value.trim();
+    if (name) params.set('name', name);
     return params;
   }
 
@@ -768,8 +781,25 @@
       document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
       fontLoads,
     ]).then(([buffalo]) => {
+      const serif = "'shackleton', Georgia, serif";
+      const W = 1200;
+
+      // Measured on a throwaway canvas rather than the real one below —
+      // canvas dimensions/transform don't affect measureText, so this
+      // needs no sizing of its own, and lets the line count (hence the
+      // extra height the name needs) be known before H is fixed for the
+      // real canvas.
+      const NAME_FONT_SIZE = 26, NAME_LINE_HEIGHT = 32;
+      let nameLines = [];
+      if (result.reportName) {
+        const measureCtx = document.createElement('canvas').getContext('2d');
+        measureCtx.font = `400 ${NAME_FONT_SIZE}px ${serif}`;
+        nameLines = wrapTextBalanced(measureCtx, `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`, W - 200);
+      }
+      const nameOffset = nameLines.length ? 30 + nameLines.length * NAME_LINE_HEIGHT : 0;
+
       const canvas = document.createElement('canvas');
-      const W = 1200, H = 1937;
+      const H = 1937 + nameOffset;
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities — render the raster at real supersampled
       // resolution (at least 3x) so text edges stay crisp. All draw calls
@@ -780,7 +810,6 @@
       canvas.height = H * scale;
       const ctx = canvas.getContext('2d');
       ctx.scale(scale, scale);
-      const serif = "'shackleton', Georgia, serif";
 
       // Shackleton only actually ships a normal (400) weight — building
       // the bold look manually (normal weight, stroked then filled in the
@@ -817,6 +846,19 @@
         // Kicker, top-right
         ctx.textAlign = 'right';
         boldText('MAP YOUR PATH', W - 64, 96, 20, CARD_COLORS.inkSecondary, 0.6);
+
+        // Personalised title — only when a name's been entered. Drawn at
+        // a fixed spot below the header; everything from the hero down
+        // is then pushed down by nameOffset (via translate, restored
+        // before the footer) to make room for it.
+        if (nameLines.length) {
+          ctx.textAlign = 'center';
+          nameLines.forEach((line, i) => {
+            boldText(line, W / 2, 150 + i * NAME_LINE_HEIGHT, NAME_FONT_SIZE, CARD_COLORS.ink, 0.8);
+          });
+        }
+        ctx.save();
+        ctx.translate(0, nameOffset);
 
         // ---- Hero: the headline stat ----
         ctx.textAlign = 'center';
@@ -1099,6 +1141,11 @@
         });
 
         // ---- Footer ----
+        // Restored to the untranslated coordinate space first — H already
+        // includes nameOffset, so the footer's H-relative positions must
+        // not also be shifted by the translate above, or it'd land past
+        // the bottom border.
+        ctx.restore();
         ctx.textAlign = 'center';
         boldText('Map your own path at investingbuffalo.com', W / 2, H - 90, 26, CARD_COLORS.accent, 0.8);
         ctx.font = `italic 400 17px ${serif}`;
@@ -1189,7 +1236,11 @@
     if (!lastResult) return;
     downloadReportBtn.disabled = true;
     setStatus('Generating your report…', 0);
-    buildShareCardCanvas(lastResult)
+    // Read fresh at click time rather than folding into the render()
+    // snapshot — the name doesn't affect any figures, so typing it
+    // shouldn't need a full render() just to be picked up here.
+    const cardData = { ...lastResult, reportName: reportNameInput.value.trim() };
+    buildShareCardCanvas(cardData)
       .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
       .then((blob) => {
         if (!blob) throw new Error('Could not create report');
