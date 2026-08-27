@@ -138,8 +138,23 @@
 
   bindTextAndRange(incomeInput, incomeRange, { isCurrency: true });
   bindTextAndRange(assetsInput, assetsRange, { isCurrency: true });
-  bindTextAndRange(currentAgeInput, currentAgeRange, {});
-  bindTextAndRange(targetAgeInput, targetAgeRange, {});
+
+  // Target age's slider keeps its full 16-100 track (rather than moving
+  // its `min` to match current age, which would shrink/shift the track
+  // as current age changes) — instead, any change to either field snaps
+  // target age back up to current age whenever it would end up below
+  // it, so the thumb simply can't be dragged past that floor.
+  function enforceAgeOrder() {
+    const current = parseNumber(currentAgeInput.value);
+    const target = parseNumber(targetAgeInput.value);
+    if (target < current) {
+      targetAgeInput.value = current;
+      targetAgeRange.value = current;
+      updateSliderFill(targetAgeRange);
+    }
+  }
+  bindTextAndRange(currentAgeInput, currentAgeRange, { onChange: enforceAgeOrder });
+  bindTextAndRange(targetAgeInput, targetAgeRange, { onChange: enforceAgeOrder });
   bindTextAndRange(returnRateInput, returnRateRange, { onChange: render });
   bindTextAndRange(inflationInput, inflationRange, { onChange: render });
   bindTextAndRange(leveragedInput, leveragedRange, { isCurrency: true, onChange: render });
