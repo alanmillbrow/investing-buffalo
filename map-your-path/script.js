@@ -975,9 +975,9 @@
         drawLedgerBox(64, 915, W - 128, [
           { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
           { label: 'Current assets', value: fmt(result.principal) },
-          { label: 'Investment return', value: fmt(result.futureAssets - result.principal) },
+          { label: 'Return on current assets', value: fmt(result.futureAssets - result.principal) },
           { label: 'Still to be saved', value: fmt(result.savingsContributed) },
-          { label: 'Investment return', value: fmt(Math.max(0, result.potRequired - result.futureAssets) - result.savingsContributed) },
+          { label: 'Return on still to be saved', value: fmt(Math.max(0, result.potRequired - result.futureAssets) - result.savingsContributed) },
         ]);
 
         // ---- Stat row ----
