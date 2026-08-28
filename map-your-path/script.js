@@ -681,9 +681,9 @@
 
   // ---------- Loading build-up ----------
   const LOADING_MESSAGES = [
-    'Crunching your numbers…',
-    'Adjusting for inflation…',
-    'Sizing your pot…',
+    'Sharpening the pencil…',
+    'Clacking the abacus…',
+    'Setting the compass…',
     'Mapping your path…',
   ];
   let loadingTimers = [];
