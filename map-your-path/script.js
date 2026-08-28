@@ -24,6 +24,8 @@
   const withdrawalRateRange = $('withdrawalRateRange');
 
   const currencyButtons = document.querySelectorAll('.currency-segmented .seg-btn');
+  const incomeBasisButtons = document.querySelectorAll('.income-basis-segmented .seg-btn');
+  const incomeHintEl = $('incomeHint');
   const incomeSymbol = $('incomeSymbol');
   const assetsSymbol = $('assetsSymbol');
   const leveragedSymbol = $('leveragedSymbol');
@@ -69,6 +71,12 @@
 
   const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' };
   let currentCurrency = 'GBP';
+  // Whether the "Desired monthly income" figure the visitor typed in is
+  // already in today's prices (the default — needs inflating forward to
+  // the withdrawal date) or already in prices at the withdrawal date
+  // (nothing more to do to it, but today's-terms figures shown
+  // elsewhere need working out backwards from it instead).
+  let incomeBasis = 'today';
   // Snapshot of the last render's figures, read by the share-image card
   // builder — see the end of render() for what it holds.
   let lastResult = null;
@@ -177,6 +185,20 @@
     });
   });
 
+  function updateIncomeHint() {
+    incomeHintEl.textContent = incomeBasis === 'future'
+      ? 'The income you will need based on what things will cost when withdrawals start'
+      : 'The income you will need based on what things cost today';
+  }
+  incomeBasisButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      incomeBasis = btn.dataset.basis;
+      incomeBasisButtons.forEach((b) => b.classList.toggle('active', b === btn));
+      updateIncomeHint();
+      render();
+    });
+  });
+
   // ---------- Screens ----------
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
@@ -249,7 +271,14 @@
       ? `Based on ${years} years from now, here's the pot you need and what could get you there sooner.`
       : `Your target age is at or before your current age, so there's no time left to invest — showing what you'd need right now instead.`;
 
-    const futureMonthlyIncome = desiredIncome * Math.pow(1 + inflation, years);
+    // If the visitor already entered the figure in prices at the
+    // withdrawal date, it needs no further inflating — and the
+    // today's-terms figure (used on the downloadable report) has to be
+    // worked out backwards from it instead, rather than forwards from
+    // desiredIncome as usual.
+    const inflationFactor = Math.pow(1 + inflation, years);
+    const futureMonthlyIncome = incomeBasis === 'future' ? desiredIncome : desiredIncome * inflationFactor;
+    const todayMonthlyIncome = incomeBasis === 'future' ? desiredIncome / inflationFactor : desiredIncome;
     const futureAnnualIncome = futureMonthlyIncome * 12;
     reqIncomeAnnual.textContent = fmtCurrency(futureAnnualIncome);
     reqIncomeMonthly.textContent = fmtCurrency(futureMonthlyIncome);
@@ -383,7 +412,7 @@
       pmt: pmt === null ? (potRequired <= assets ? 0 : potRequired - futureAssets) : pmt,
       onTrack: pmt === null ? potRequired <= futureAssets : pmt <= 0,
       pmtIsNow: pmt === null,
-      desiredIncome, futureMonthlyIncome, passiveMonthly, leveraged,
+      desiredIncome: todayMonthlyIncome, futureMonthlyIncome, passiveMonthly, leveraged,
       annualReturn, inflation, withdrawalRate,
       monthlySaved: monthlySavedForCard,
       monthsSooner: monthsSoonerForCard,
@@ -586,8 +615,10 @@
     const params = new URLSearchParams(location.search);
     const currencyParam = params.get('currency');
     const currency = CURRENCY_SYMBOLS[currencyParam] ? currencyParam : null;
+    const incomeBasisParam = params.get('incomeBasis');
+    const incomeBasis = incomeBasisParam === 'future' ? 'future' : incomeBasisParam === 'today' ? 'today' : null;
     const hasCore = params.has('income') && params.has('currentAge') && params.has('targetAge') && params.has('assets');
-    return { currency, hasCore, params };
+    return { currency, incomeBasis, hasCore, params };
   }
 
   function applyUrlParams(params) {
@@ -617,6 +648,7 @@
   function currentParams() {
     const params = new URLSearchParams();
     params.set('currency', currentCurrency);
+    params.set('incomeBasis', incomeBasis);
     params.set('income', Math.round(parseNumber(incomeInput.value)));
     params.set('currentAge', Math.round(parseNumber(currentAgeInput.value)));
     params.set('targetAge', Math.round(parseNumber(targetAgeInput.value)));
@@ -1326,6 +1358,11 @@
     incomeSymbol.textContent = symbol;
     assetsSymbol.textContent = symbol;
     leveragedSymbol.textContent = symbol;
+  }
+  if (initial.incomeBasis) {
+    incomeBasis = initial.incomeBasis;
+    incomeBasisButtons.forEach((b) => b.classList.toggle('active', b.dataset.basis === incomeBasis));
+    updateIncomeHint();
   }
 
   if (initial.hasCore) {

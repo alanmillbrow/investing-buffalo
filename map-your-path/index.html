@@ -58,7 +58,11 @@
 
         <div class="field">
           <label for="income">Desired monthly income</label>
-          <span class="field-hint">The income you will need based on what things cost today</span>
+          <div class="segmented income-basis-segmented">
+            <button type="button" class="seg-btn active" data-basis="today">Today&rsquo;s prices</button>
+            <button type="button" class="seg-btn" data-basis="future">Prices when withdrawals start</button>
+          </div>
+          <span class="field-hint" id="incomeHint">The income you will need based on what things cost today</span>
           <div class="input-prefix">
             <span id="incomeSymbol">£</span>
             <input type="text" inputmode="decimal" id="income" value="3,000">

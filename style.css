@@ -539,6 +539,16 @@ body {
   font-style: italic;
   color: var(--text-tertiary);
 }
+/* Map Your Path's income-basis toggle sits between the label and the
+   hint, unlike every other .field-hint which follows a label directly
+   — .field-hint's -6px pull is tuned for that direct-follow case, so
+   it needs cancelling here or the hint reads too close to the toggle. */
+.income-basis-segmented {
+  margin-bottom: 9px;
+}
+#incomeHint {
+  margin-top: 0;
+}
 
 .input-prefix, .input-suffix {
   display: flex;
