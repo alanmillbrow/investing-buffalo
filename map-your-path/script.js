@@ -691,7 +691,7 @@
   function runLoadingSequence(onDone) {
     loadingTimers.forEach(clearTimeout);
     loadingTimers = [];
-    const stepDuration = 550;
+    const stepDuration = 1000;
     const total = LOADING_MESSAGES.length * stepDuration;
     loadingBarFill.style.width = '0%';
     loadingMessageEl.textContent = LOADING_MESSAGES[0];
