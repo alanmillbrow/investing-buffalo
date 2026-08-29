@@ -714,6 +714,24 @@ select#frequency:focus {
   gap: 24px;
   align-items: stretch;
 }
+/* Buy Now Pay Later's two summary-rows show different headline titles
+   and £ values in each row — left at the shared auto sizing above, the
+   two rows' headline-cards would each independently size to their own
+   content and could drift apart as inputs change (a longer number, a
+   wrapped title), so the two rows wouldn't reliably line up. Fixed to a
+   width that comfortably fits both instead, scoped to this page only;
+   every other calculator's .summary-row repeats the same headline
+   title across its rows (e.g. "Monthly savings needed" x3), so auto
+   sizing already keeps them aligned there. Wrapped in the same
+   min-width the mobile reset below uses max-width for, so this doesn't
+   fight that single-column stack on narrow screens — a bare
+   (no-media-query) override would beat it on specificity alone
+   regardless of viewport. */
+@media (min-width: 901px) {
+  .page-buy-now-pay-later .summary-row {
+    grid-template-columns: 1fr 370px;
+  }
+}
 
 .ledger-table {
   margin: 24px -28px -28px;
@@ -1042,6 +1060,20 @@ select#frequency:focus {
 .headline-value-caption {
   display: block;
   margin-top: 8px;
+}
+
+/* Buy Now Pay Later's headline boxes get a second, genuinely small
+   sub-line under the big number — how much of that figure is over the
+   purchase price itself — unlike .headline-value-caption above, which
+   inherits .headline-value's own huge size since it's only ever used
+   for a short qualifier read as part of the number (e.g. "£3,102
+   needed now"), not a distinct secondary figure. */
+.headline-value-variance {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  letter-spacing: normal;
+  color: var(--text-secondary);
 }
 
 .dot {
@@ -1815,14 +1847,16 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-freedom-runway .formula-rule,
 .page-how-much-is-enough .formula-rule,
 .page-liquid-asset-forecaster .formula-rule,
-.page-map-your-path .formula-rule {
+.page-map-your-path .formula-rule,
+.page-buy-now-pay-later .formula-rule {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
 }
 .page-freedom-runway .formula-rule strong,
 .page-how-much-is-enough .formula-rule strong,
 .page-liquid-asset-forecaster .formula-rule strong,
-.page-map-your-path .formula-rule strong {
+.page-map-your-path .formula-rule strong,
+.page-buy-now-pay-later .formula-rule strong {
   font-weight: 600;
 }
 /* Sized up separately, since .formula-rule's base rule already matches
@@ -1832,15 +1866,25 @@ tbody tr:hover { background: var(--accent-soft); }
    "Reaching your pot" sentence (#chartTarget) is the same kind of
    dynamic results sentence, so it gets the same treatment. */
 .page-how-much-is-enough .chart-target-note,
-.page-map-your-path .chart-target-note {
+.page-map-your-path .chart-target-note,
+.page-buy-now-pay-later .chart-target-note {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   font-size: var(--body-font-size);
   line-height: var(--body-line-height); /* base rule doesn't set one */
 }
 .page-how-much-is-enough .chart-target-note strong,
-.page-map-your-path .chart-target-note strong {
+.page-map-your-path .chart-target-note strong,
+.page-buy-now-pay-later .chart-target-note strong {
   font-weight: 600;
+}
+/* This page's version sits directly under a plain "Summary" <h2> in its
+   own card, not below a chart legend inside .chart-card like the other
+   two pages above — the base rule's top/bottom margins (tuned for that
+   other context) would double up with the h2's own bottom margin and
+   this card's padding, so they're zeroed out here. */
+.page-buy-now-pay-later .chart-target-note {
+  margin: 0;
 }
 
 /* Same idea as the share-image card's wrapTextBalanced() — a plain
@@ -2417,6 +2461,15 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   fill: var(--text-tertiary);
   font-family: 'shackleton', Georgia, serif;
   font-size: 12px;
+}
+/* This page's two category labels ("Purchase price today", "Real
+   cost, today's money") are much longer than the Tipping Point Game's
+   ("Monthly income", "Lump sum") that this shared bar chart was sized
+   for — at the base 12px they're wide enough to nearly touch between
+   the two bars. Sized down just here so they sit with real breathing
+   room instead. */
+.page-buy-now-pay-later .bar-cat-label {
+  font-size: 10px;
 }
 .bar-chart-diff {
   margin: 14px 0 0;

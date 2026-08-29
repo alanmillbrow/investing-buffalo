@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Now Pay Later</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-buy-now-pay-later">
+
+<div class="bg-decoration"></div>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>Buy Now Pay Later</h1>
+        <p>See what today&rsquo;s purchase costs your future self</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+
+  <section class="card newsletter-signup">
+    <h2>Get the free UK Investing Starter Sheet</h2>
+    <p class="section-note">Get my simple guide on how to get started investing in the UK. Plus my monthly newsletter. Unsubscribe anytime.</p>
+    <script async data-uid="bedaa9c4ab" src="https://investing-buffalo.kit.com/bedaa9c4ab/index.js"></script>
+  </section>
+
+  <section class="card formula-card formula-summary">
+    <h2>Buy Now Pay Later</h2>
+    <div class="formula">
+      <div class="formula-term">
+        <span class="formula-abbr">P</span>
+        <span class="formula-word">Purchase Price</span>
+      </div>
+      <div class="formula-term">
+        <span class="formula-abbr">FV</span>
+        <span class="formula-word">Future Value</span>
+      </div>
+      <div class="formula-term">
+        <span class="formula-abbr">RC</span>
+        <span class="formula-word">Real Cost</span>
+      </div>
+    </div>
+    <p class="formula-rule">Money spent today can&rsquo;t compound. The <strong>Future Value</strong> is what your <strong>Purchase Price</strong> could have grown to had you invested it instead; the <strong>Real Cost</strong> brings that back to today&rsquo;s purchasing power.</p>
+  </section>
+
+  <main class="layout">
+    <!-- Inputs -->
+    <section class="card inputs-card">
+      <h2>Your numbers</h2>
+
+      <div class="field">
+        <label>Currency</label>
+        <div class="segmented currency-segmented">
+          <button type="button" class="seg-btn active" data-currency="GBP">£</button>
+          <button type="button" class="seg-btn" data-currency="USD">$</button>
+          <button type="button" class="seg-btn" data-currency="EUR">&euro;</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="price">Purchase price</label>
+        <span class="field-hint">What you&rsquo;re paying for it today</span>
+        <div class="input-prefix">
+          <span id="priceSymbol">£</span>
+          <input type="text" inputmode="decimal" id="price" value="2,000">
+        </div>
+        <input type="range" id="priceRange" min="0" max="20000" step="100" value="2000" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="currentAge">Current age</label>
+        <div class="input-suffix">
+          <input type="text" inputmode="numeric" id="currentAge" value="35">
+          <span>yrs</span>
+        </div>
+        <input type="range" id="currentAgeRange" min="16" max="100" step="1" value="35" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="futureAge">Future age</label>
+        <span class="field-hint">The age you&rsquo;re comparing your future self to</span>
+        <div class="input-suffix">
+          <input type="text" inputmode="numeric" id="futureAge" value="45">
+          <span>yrs</span>
+        </div>
+        <input type="range" id="futureAgeRange" min="16" max="100" step="1" value="45" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="returnRate">Expected annual return</label>
+        <div class="input-suffix">
+          <input type="text" inputmode="decimal" id="returnRate" value="7">
+          <span>%</span>
+        </div>
+        <input type="range" id="returnRateRange" min="0" max="25" step="0.5" value="7" class="slider">
+      </div>
+
+      <div class="field">
+        <label for="inflation">Expected annual inflation</label>
+        <span class="field-hint">Used to show the future cost in today&rsquo;s purchasing power</span>
+        <div class="input-suffix">
+          <input type="text" inputmode="decimal" id="inflation" value="3.5">
+          <span>%</span>
+        </div>
+        <input type="range" id="inflationRange" min="0" max="10" step="0.1" value="3.5" class="slider">
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results-col">
+      <div class="card share-card">
+        <h2>Save or share this result</h2>
+        <div class="share-actions">
+          <button id="copyLinkBtn" class="link-btn">Copy link</button>
+          <button id="shareLinkBtn" class="link-btn">Share</button>
+          <button id="bookmarkBtn" class="link-btn">Bookmark</button>
+        </div>
+        <p class="share-status" id="shareStatus"></p>
+      </div>
+
+      <div class="card">
+        <h2>Summary</h2>
+        <p class="chart-target-note" id="summarySentence"></p>
+      </div>
+
+      <div class="summary-row">
+        <div class="card summary-card">
+          <h2>In future money</h2>
+          <div class="ledger-table">
+            <div class="ledger-row"><span>Purchase price today</span><span id="priceOut">£0</span></div>
+            <div class="ledger-row"><span>Years growing, to age <span id="futureAgeOut1">45</span></span><span id="yearsOut1">0 yrs</span></div>
+            <div class="ledger-row"><span>Expected annual return</span><span id="returnOut">7%</span></div>
+          </div>
+        </div>
+        <div class="card headline-card">
+          <div class="ledger-row ledger-head headline-title"><span>True cost, in future money</span></div>
+          <div class="headline-value" id="futureValue">£0</div>
+        </div>
+      </div>
+
+      <div class="summary-row">
+        <div class="card summary-card">
+          <h2>In today&rsquo;s money</h2>
+          <div class="ledger-table">
+            <div class="ledger-row"><span>Purchase price today</span><span id="priceOut2">£0</span></div>
+            <div class="ledger-row"><span>Years of inflation</span><span id="yearsOut2">0 yrs</span></div>
+            <div class="ledger-row"><span>Expected annual inflation</span><span id="inflationOut">3.5%</span></div>
+          </div>
+        </div>
+        <div class="card headline-card">
+          <div class="ledger-row ledger-head headline-title"><span>Real cost, in today&rsquo;s money</span></div>
+          <div class="headline-value" id="realCost">£0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Purchase price vs real cost</h2>
+        <div class="bar-chart-wrap">
+          <svg class="bar-chart" id="barChartSvg" viewBox="0 0 300 190" role="img" aria-label="Bar chart comparing today's purchase price with the real cost to your future self"></svg>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-header">
+          <h2>What that money could have grown to</h2>
+          <div class="legend">
+            <span><i class="dot dot-contrib"></i>Purchase price</span>
+            <span><i class="dot dot-interest"></i>Investment return</span>
+          </div>
+        </div>
+        <canvas id="chart" height="260"></canvas>
+        <div id="tooltip" class="chart-tooltip"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>This calculator assumes a constant rate of investment return and inflation, which real life does not provide.</p>
+    <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
