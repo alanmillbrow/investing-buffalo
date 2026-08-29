@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Internal tool, not a public page — kept out of search results even
+     if the URL ever leaks, since nothing links to it. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Starter Sheet Builder</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-starter-sheet-builder">
+
+<div class="bg-decoration"></div>
+
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>Starter Sheet Builder</h1>
+        <p>Internal tool — generates the UK Investing Starter Sheet image</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+
+  <main class="narrow-layout">
+    <section class="card">
+      <h2>Sheet title</h2>
+      <div class="field">
+        <label for="sheetTitle">Title</label>
+        <input type="text" id="sheetTitle" value="UK Investing Starter Sheet">
+      </div>
+    </section>
+
+    <div id="sectionsContainer"></div>
+
+    <section class="card">
+      <h2>Disclaimer</h2>
+      <p class="section-note">Shown once, in a strip across the bottom of the sheet</p>
+      <div class="field">
+        <textarea id="disclaimer" rows="3">All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice. Investments can fall as well as rise, and you may get back less than you invest.</textarea>
+      </div>
+    </section>
+
+    <section class="card share-card">
+      <h2>Generate</h2>
+      <p class="section-note">Links are drawn as plain text on the image — it&rsquo;s a picture, not a clickable page, so the label and URL both show.</p>
+      <div class="share-actions">
+        <button id="generateBtn" class="link-btn link-btn-accent">Generate</button>
+        <button id="downloadBtn" class="link-btn" disabled>Download PNG</button>
+        <button id="clearDraftBtn" class="link-btn">Clear draft</button>
+      </div>
+      <p class="share-status" id="shareStatus"></p>
+      <div class="share-image-preview-wrap" id="previewWrap">
+        <img id="preview" alt="Generated UK Investing Starter Sheet preview">
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Not a public page — nothing on the site links here.</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

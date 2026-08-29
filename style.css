@@ -2634,6 +2634,20 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   margin-bottom: 0;
 }
 
+/* Starter Sheet Builder — every field is a bare <input type="text">
+   or <textarea>, not wrapped in an .input-prefix/.input-suffix box
+   like the calculators' fields, so none of them had anything setting
+   their width and they sat at the browser's tiny intrinsic default.
+   Fill the card's content width instead. */
+.page-starter-sheet-builder .field input[type="text"],
+.page-starter-sheet-builder .field textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+.page-starter-sheet-builder .field textarea {
+  resize: vertical;
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
