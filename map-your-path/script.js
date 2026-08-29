@@ -76,6 +76,8 @@
   const bookmarkBtn = $('bookmarkBtn');
   const downloadReportBtn = $('downloadReportBtn');
   const shareImagePreview = $('shareImagePreview');
+  const shareImagePreviewWrap = $('shareImagePreviewWrap');
+  const toggleReportPreviewBtn = $('toggleReportPreview');
   const shareStatus = $('shareStatus');
 
   const printReturnRateEl = $('printReturnRate');
@@ -870,6 +872,13 @@
     setStatus(`Press ${isMac ? '⌘' : 'Ctrl'}+D to bookmark this page`);
   });
 
+  // Same show/hide pattern as Freedom Runway/Liquid Asset Forecaster's
+  // "Show/Hide table" toggle.
+  toggleReportPreviewBtn.addEventListener('click', () => {
+    const hidden = shareImagePreviewWrap.classList.toggle('hidden');
+    toggleReportPreviewBtn.textContent = hidden ? 'Show report' : 'Hide report';
+  });
+
   // ---------- Downloadable share-image card ----------
   // Always rendered in the site's light/kraft palette regardless of the
   // viewer's current theme — a shared image needs to look the same and
@@ -1442,6 +1451,10 @@
         document.body.appendChild(link);
         link.click();
         link.remove();
+        // Reveal it if it was hidden — downloading implies wanting to
+        // see what was actually just saved.
+        shareImagePreviewWrap.classList.remove('hidden');
+        toggleReportPreviewBtn.textContent = 'Hide report';
         setStatus('Report downloaded');
       })
       .catch(() => {

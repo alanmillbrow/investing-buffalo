@@ -1208,6 +1208,9 @@ select#frequency:focus {
   border: 2px solid var(--card-border);
 }
 .share-image-preview-wrap img[src] { display: block; }
+/* Same show/hide pattern as .table-wrap.hidden on Freedom Runway and
+   Liquid Asset Forecaster — the toggle button just adds/removes this. */
+.share-image-preview-wrap.hidden { display: none; }
 
 .table-wrap {
   position: relative;
