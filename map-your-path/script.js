@@ -240,9 +240,13 @@
   });
 
   // Free text, not a number field, so it doesn't go through
-  // bindTextAndRange — it only needs the URL kept in sync (no chart or
-  // figures depend on it), not a full render().
-  reportNameInput.addEventListener('input', scheduleUrlUpdate);
+  // bindTextAndRange — it only needs the URL kept in sync and the live
+  // preview refreshed (it doesn't affect any figures, so no full
+  // render() needed just to pick it up).
+  reportNameInput.addEventListener('input', () => {
+    scheduleUrlUpdate();
+    schedulePreviewUpdate();
+  });
 
   currencyButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -515,7 +519,13 @@
       // needs the same data drawChart() uses, not just its outputs.
       series, principal: assets,
     };
-    shareImagePreview.removeAttribute('src');
+    // Debounced rather than immediate — render() fires on every slider
+    // tick, and rebuilding the canvas that often (each build involves a
+    // font-load check and a couple of animation-frame waits) would be
+    // wasteful and janky. schedulePreviewUpdate() is a no-op the first
+    // time render() runs before any card has ever been shown; the
+    // initial reveal is handled explicitly (see mapPathBtn/startup).
+    schedulePreviewUpdate();
 
     scheduleUrlUpdate();
   }
@@ -801,6 +811,12 @@
       // still display:none.
       showScreen('results');
       render();
+      // Immediate rather than the debounced schedulePreviewUpdate()
+      // render() just triggered — this is the first time the card can
+      // ever be shown, so it should appear right away rather than
+      // after the usual 500ms pause-in-editing delay.
+      clearTimeout(previewDebounceTimer);
+      regeneratePreview();
     });
   });
 
@@ -1368,23 +1384,58 @@
   }
 
   let lastShareImageUrl = null;
+  // Bumped on every regeneratePreview() call and compared against once
+  // the build resolves — a slow build superseded by a newer one (e.g.
+  // several slider ticks in quick succession) discards its result
+  // instead of clobbering the fresher preview that already landed.
+  let previewGenerationId = 0;
+  let previewDebounceTimer = null;
 
-  downloadReportBtn.addEventListener('click', () => {
-    if (!lastResult) return;
-    downloadReportBtn.disabled = true;
-    setStatus('Generating your report…', 0);
-    // Read fresh at click time rather than folding into the render()
-    // snapshot — the name doesn't affect any figures, so typing it
-    // shouldn't need a full render() just to be picked up here.
+  // Builds the report from the current inputs and updates the visible
+  // preview — used both for the live auto-updating preview (debounced,
+  // silent) and for the download button (immediate, with status text
+  // and the actual file save). Read fresh at call time rather than
+  // folding into the render() snapshot — the name doesn't affect any
+  // figures, so typing it shouldn't need a full render() just to be
+  // picked up here.
+  function regeneratePreview() {
+    if (!lastResult) return Promise.resolve(null);
+    const myId = ++previewGenerationId;
     const cardData = { ...lastResult, reportName: reportNameInput.value.trim() };
-    buildShareCardCanvas(cardData)
+    return buildShareCardCanvas(cardData)
       .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
       .then((blob) => {
-        if (!blob) throw new Error('Could not create report');
+        if (!blob || myId !== previewGenerationId) return null;
         if (lastShareImageUrl) URL.revokeObjectURL(lastShareImageUrl);
         const url = URL.createObjectURL(blob);
         lastShareImageUrl = url;
         shareImagePreview.src = url;
+        return url;
+      })
+      .catch(() => null);
+  }
+
+  // Debounced trigger for the live preview — called on every input
+  // change (via render(), plus the name field directly since that
+  // doesn't go through render()). Waits for a pause in editing rather
+  // than rebuilding the canvas on every keystroke/slider tick, which
+  // involves a font-load check and a couple of animation-frame waits
+  // each time (see buildShareCardCanvas) — noticeable if it ran that
+  // often.
+  function schedulePreviewUpdate() {
+    if (!lastResult) return;
+    clearTimeout(previewDebounceTimer);
+    previewDebounceTimer = setTimeout(regeneratePreview, 500);
+  }
+
+  downloadReportBtn.addEventListener('click', () => {
+    if (!lastResult) return;
+    downloadReportBtn.disabled = true;
+    clearTimeout(previewDebounceTimer);
+    setStatus('Generating your report…', 0);
+    regeneratePreview()
+      .then((url) => {
+        if (!url) throw new Error('Could not create report');
         const link = document.createElement('a');
         link.href = url;
         link.download = 'map-your-path-report.png';
@@ -1459,5 +1510,10 @@
     applyUrlParams(initial.params);
     showScreen('results');
     render();
+    // Immediate, same reasoning as the mapPathBtn handler above — the
+    // first ever showing of the card shouldn't wait out the usual
+    // debounce.
+    clearTimeout(previewDebounceTimer);
+    regeneratePreview();
   }
 })();
