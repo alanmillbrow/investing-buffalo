@@ -1701,6 +1701,14 @@
         leverageLines.forEach((line, i) => ctx.fillText(line, rightX + rightW / 2, leverageStartY + i * leverageLineH));
         ry = boxY + boxH + 90;
 
+        // Heading + same statBox() treatment as the four quick-stat
+        // boxes above (matching border, matching font sizes) — this
+        // grid had been drawn with its own quieter, unlabelled styling,
+        // unlike the "ASSUMPTIONS USED" strip on the portrait report.
+        ctx.textAlign = 'center';
+        boldText('ASSUMPTIONS USED', rightX + rightW / 2, ry + 40, 46, CARD_COLORS.inkSecondary, 0.8);
+        ry += 90;
+
         const assumeColW = (rightW - 40) / 2, assumeColH = 230;
         const fmtPercentForWallpaper = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
         const assumeItems = [
@@ -1712,14 +1720,7 @@
         assumeItems.forEach((item, i) => {
           const ax = rightX + (i % 2) * (assumeColW + 40);
           const ay = ry + Math.floor(i / 2) * (assumeColH + 40);
-          ctx.strokeStyle = 'rgba(51, 41, 31, 0.35)';
-          ctx.lineWidth = 2.5;
-          ctx.strokeRect(ax, ay, assumeColW, assumeColH);
-          ctx.textAlign = 'center';
-          ctx.font = `400 28px ${serif}`;
-          ctx.fillStyle = CARD_COLORS.inkSecondary;
-          wrapText(ctx, item.label, ax + assumeColW / 2, ay + 46, assumeColW - 40, 36);
-          boldText(item.value, ax + assumeColW / 2, ay + assumeColH - 40, 46, CARD_COLORS.ink, 1);
+          statBox(ax, ay, assumeColW, assumeColH, item.label, item.value);
         });
 
         // Footer
