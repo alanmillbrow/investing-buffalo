@@ -1195,7 +1195,7 @@
             ctx.fillStyle = CARD_COLORS.ink;
             ctx.fillText(r.label, lx + 24, textY);
             ctx.textAlign = 'right';
-            boldText(r.value, lx + lw - 24, textY, 24, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 0.5);
+            boldText(r.value, lx + lw - 24, textY, 22, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 0.5);
           });
         }
         drawLedgerBox(64, 915, W - 128, [
@@ -1211,7 +1211,7 @@
         // desired income as its own equal-weight stat, rather than
         // cramming both values into one box as primary/caption.
         const statY = 1232;
-        const statBoxW = 250, statBoxH = 130, statGap = 24;
+        const statBoxW = 250, statBoxH = 108, statGap = 24;
         const statXs = [0, 1, 2, 3].map((i) => 64 + i * (statBoxW + statGap));
         function statBox(x, y, label, value, labelSize = 18) {
           ctx.strokeStyle = CARD_COLORS.ink;
@@ -1220,8 +1220,8 @@
           ctx.textAlign = 'center';
           ctx.font = `400 ${labelSize}px ${serif}`;
           ctx.fillStyle = CARD_COLORS.inkSecondary;
-          wrapText(ctx, label, x + statBoxW / 2, y + 32, statBoxW - 28, 22);
-          boldText(value, x + statBoxW / 2, y + statBoxH - 34, 30, CARD_COLORS.ink, 0.6);
+          wrapText(ctx, label, x + statBoxW / 2, y + 24, statBoxW - 28, 22);
+          boldText(value, x + statBoxW / 2, y + statBoxH - 26, 30, CARD_COLORS.ink, 0.6);
         }
         const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
@@ -1279,7 +1279,7 @@
         // quick-stat boxes above, rather than its own quieter,
         // unlabelled strip — this is real reference detail too, not a
         // lesser footnote.
-        boldText('ASSUMPTIONS USED', W / 2, 1657, 20, CARD_COLORS.inkSecondary, 0.5);
+        boldText('ASSUMPTIONS USED', W / 2, 1657, 22, CARD_COLORS.inkSecondary, 0.6);
 
         const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
         const assumeY = 1682;
@@ -1469,7 +1469,7 @@
       function drawLedgerBox(lx, ly, lw, rows) {
         const rowH = 120;
         ctx.strokeStyle = CARD_COLORS.ink;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.strokeRect(lx, ly, lw, rowH * rows.length);
         rows.forEach((r, i) => {
           const rowY = ly + i * rowH;
@@ -1483,23 +1483,23 @@
           }
           const textY = rowY + rowH / 2 + 15;
           ctx.textAlign = 'left';
-          ctx.font = `400 38px ${serif}`;
+          ctx.font = `400 44px ${serif}`;
           ctx.fillStyle = CARD_COLORS.ink;
           ctx.fillText(r.label, lx + 32, textY);
           ctx.textAlign = 'right';
-          boldText(r.value, lx + lw - 32, textY, 40, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 1);
+          boldText(r.value, lx + lw - 32, textY, 44, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 1);
         });
       }
 
       function statBox(x, y, w, h, label, value) {
         ctx.strokeStyle = CARD_COLORS.ink;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.strokeRect(x, y, w, h);
         ctx.textAlign = 'center';
-        ctx.font = `400 32px ${serif}`;
+        ctx.font = `400 36px ${serif}`;
         ctx.fillStyle = CARD_COLORS.inkSecondary;
         wrapText(ctx, label, x + w / 2, y + 56, w - 56, 40);
-        boldText(value, x + w / 2, y + h - 56, 56, CARD_COLORS.ink, 1);
+        boldText(value, x + w / 2, y + h - 56, 60, CARD_COLORS.ink, 1.2);
       }
 
       function renderWallpaper() {
@@ -1507,7 +1507,7 @@
         ctx.fillStyle = CARD_COLORS.bg;
         ctx.fillRect(0, 0, W, H);
         ctx.strokeStyle = CARD_COLORS.ink;
-        ctx.lineWidth = 16;
+        ctx.lineWidth = 8;
         ctx.strokeRect(80, 80, W - 160, H - 160);
         ctx.textBaseline = 'alphabetic';
 
@@ -1670,7 +1670,7 @@
         // column. ----
         let ry = contentTop;
         ctx.textAlign = 'center';
-        boldText('YOUR POT', rightX + rightW / 2, ry + 40, 46, CARD_COLORS.inkSecondary, 0.8);
+        boldText('YOUR POT', rightX + rightW / 2, ry + 40, 44, CARD_COLORS.inkSecondary, 1.2);
         ry += 90;
         drawLedgerBox(rightX, ry, rightW, [
           { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
@@ -1703,12 +1703,12 @@
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(rightX, boxY, rightW, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.strokeRect(rightX, boxY, rightW, boxH);
         ctx.textAlign = 'left';
-        boldText('LEVERAGED INCOME', rightX + 40, boxY + 66, 40, CARD_COLORS.accent, 1);
+        boldText('LEVERAGED INCOME', rightX + 40, boxY + 66, 44, CARD_COLORS.accent, 1.2);
 
-        ctx.font = `400 36px ${serif}`;
+        ctx.font = `400 46px ${serif}`;
         ctx.fillStyle = CARD_COLORS.ink;
         ctx.textAlign = 'center';
         const soonerText = result.monthsSooner ? formatYearsMonths(result.monthsSooner) : null;
@@ -1740,7 +1740,7 @@
         // grid had been drawn with its own quieter, unlabelled styling,
         // unlike the "ASSUMPTIONS USED" strip on the portrait report.
         ctx.textAlign = 'center';
-        boldText('ASSUMPTIONS USED', rightX + rightW / 2, ry + 40, 46, CARD_COLORS.inkSecondary, 0.8);
+        boldText('ASSUMPTIONS USED', rightX + rightW / 2, ry + 40, 44, CARD_COLORS.inkSecondary, 1.2);
         ry += 90;
 
         const assumeColW = (rightW - 40) / 2, assumeColH = 230;
