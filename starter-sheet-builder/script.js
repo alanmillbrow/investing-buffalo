@@ -38,6 +38,11 @@
           <label for="s${index}-heading">Section heading</label>
           <input type="text" id="s${index}-heading" data-section="${index}" data-role="heading" value="${defaultHeading}">
         </div>
+        <div class="field">
+          <label for="s${index}-blurb">Section blurb</label>
+          <span class="field-hint">A short intro line shown under the heading, before the subheadings start</span>
+          <textarea id="s${index}-blurb" data-section="${index}" data-role="blurb" rows="3"></textarea>
+        </div>
         <p class="section-note">Leave any subheading/body pair blank to skip it — up to ${ITEMS_PER_SECTION} per section.</p>
         ${items}
         <div class="field">
@@ -81,6 +86,7 @@
       };
       return {
         heading: get('heading'),
+        blurb: get('blurb'),
         items: Array.from({ length: ITEMS_PER_SECTION }, (_, i) => ({
           subheading: get('subheading', i),
           body: get('body', i),
@@ -111,6 +117,7 @@
         if (el && val !== undefined) el.value = val;
       };
       setVal('heading', undefined, section.heading);
+      setVal('blurb', undefined, section.blurb);
       (section.items || []).forEach((item, i) => {
         setVal('subheading', i, item.subheading);
         setVal('body', i, item.body);
@@ -153,7 +160,7 @@
     introInput.value = '';
     disclaimerInput.value = '';
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
-    document.querySelectorAll('[data-role="subheading"], [data-role="body"], [data-role="linkLabel"], [data-role="linkUrl"]')
+    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
     setStatus('Draft cleared');
   });
@@ -206,21 +213,31 @@
   // Plain greedy word-wrap — good enough for editable, user-checked
   // copy (unlike the calculators' dynamic figures, there's a live
   // preview here to catch anything that runs long before download).
+  // Manual line breaks (Enter in a textarea) are treated as intentional
+  // and kept as their own line — including a blank line for spacing —
+  // rather than being collapsed into one flowing paragraph; each of
+  // those lines is then word-wrapped by width as normal.
   function wrapText(ctx, text, maxWidth) {
     if (!text) return [];
-    const words = text.split(/\s+/).filter(Boolean);
     const lines = [];
-    let line = '';
-    words.forEach((word) => {
-      const test = line ? `${line} ${word}` : word;
-      if (line && ctx.measureText(test).width > maxWidth) {
-        lines.push(line);
-        line = word;
-      } else {
-        line = test;
+    text.split('\n').forEach((paragraph) => {
+      if (paragraph.trim() === '') {
+        lines.push('');
+        return;
       }
+      const words = paragraph.split(/\s+/).filter(Boolean);
+      let line = '';
+      words.forEach((word) => {
+        const test = line ? `${line} ${word}` : word;
+        if (line && ctx.measureText(test).width > maxWidth) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line);
     });
-    if (line) lines.push(line);
     return lines;
   }
 
@@ -351,6 +368,18 @@
           ctx.lineTo(centerX + 40, y);
           ctx.stroke();
           y += 50;
+
+          // Section blurb — a short intro line before the subheadings start
+          if (section.blurb) {
+            ctx.textAlign = 'left';
+            ctx.font = `400 32px ${bodyFont}`;
+            const blurbLines = wrapText(ctx, section.blurb, colWidth);
+            blurbLines.forEach((line, li) => {
+              ctx.fillStyle = CARD_COLORS.inkSecondary;
+              ctx.fillText(line, colX, y + li * 40);
+            });
+            y += blurbLines.length * 40 + 30;
+          }
 
           // Sub-items — only the ones with something in them
           const items = section.items.filter((it) => it.subheading || it.body);
