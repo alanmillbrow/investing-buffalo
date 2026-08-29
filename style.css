@@ -546,7 +546,7 @@ body {
 .income-basis-segmented {
   margin-bottom: 9px;
 }
-#incomeHint {
+#incomeHint, #incomeHintResults {
   margin-top: 0;
 }
 

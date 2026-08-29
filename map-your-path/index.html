@@ -198,6 +198,61 @@
       </div>
 
       <section class="card no-print">
+        <h2>Your questions</h2>
+        <p class="section-note">Change any of these to see how your results update.</p>
+
+        <div class="field">
+          <label>Currency</label>
+          <div class="segmented currency-segmented">
+            <button type="button" class="seg-btn active" data-currency="GBP">£</button>
+            <button type="button" class="seg-btn" data-currency="USD">$</button>
+            <button type="button" class="seg-btn" data-currency="EUR">&euro;</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="incomeResults">Desired monthly income</label>
+          <div class="segmented income-basis-segmented">
+            <button type="button" class="seg-btn active" data-basis="today">Today&rsquo;s prices</button>
+            <button type="button" class="seg-btn" data-basis="future">Prices when withdrawals start</button>
+          </div>
+          <span class="field-hint" id="incomeHintResults">The income you will need based on what things cost today</span>
+          <div class="input-prefix">
+            <span id="incomeSymbolResults">£</span>
+            <input type="text" inputmode="decimal" id="incomeResults" value="3,000">
+          </div>
+          <input type="range" id="incomeRangeResults" min="0" max="20000" step="100" value="3000" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="currentAgeResults">Current age</label>
+          <div class="input-suffix">
+            <input type="text" inputmode="numeric" id="currentAgeResults" value="35">
+            <span>yrs</span>
+          </div>
+          <input type="range" id="currentAgeRangeResults" min="16" max="100" step="1" value="35" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="targetAgeResults">Age you want withdrawals to start</label>
+          <div class="input-suffix">
+            <input type="text" inputmode="numeric" id="targetAgeResults" value="55">
+            <span>yrs</span>
+          </div>
+          <input type="range" id="targetAgeRangeResults" min="16" max="100" step="1" value="55" class="slider">
+        </div>
+
+        <div class="field">
+          <label for="assetsResults">Current liquid assets</label>
+          <div class="input-prefix">
+            <span id="assetsSymbolResults">£</span>
+            <input type="text" inputmode="decimal" id="assetsResults" value="50,000">
+          </div>
+          <input type="range" id="assetsRangeResults" min="0" max="2000000" step="10000" value="50000" class="slider">
+        </div>
+      </section>
+
+      <section class="card no-print">
         <h2>Your assumptions</h2>
         <p class="section-note">Change any of these to see how your results update.</p>
 

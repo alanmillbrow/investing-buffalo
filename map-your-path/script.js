@@ -15,6 +15,20 @@
   const targetAgeRange = $('targetAgeRange');
   const assetsInput = $('assets');
   const assetsRange = $('assetsRange');
+
+  // Same four fields again, duplicated onto the results screen's own
+  // "Your questions" card so they're editable there too — kept in sync
+  // with the intake screen's copies above rather than being a second
+  // independent source of truth. See syncQuestionFields() in render().
+  const incomeResultsInput = $('incomeResults');
+  const incomeResultsRange = $('incomeRangeResults');
+  const currentAgeResultsInput = $('currentAgeResults');
+  const currentAgeResultsRange = $('currentAgeRangeResults');
+  const targetAgeResultsInput = $('targetAgeResults');
+  const targetAgeResultsRange = $('targetAgeRangeResults');
+  const assetsResultsInput = $('assetsResults');
+  const assetsResultsRange = $('assetsRangeResults');
+
   const returnRateInput = $('returnRate');
   const returnRateRange = $('returnRateRange');
   const inflationInput = $('inflation');
@@ -27,8 +41,11 @@
   const currencyButtons = document.querySelectorAll('.currency-segmented .seg-btn');
   const incomeBasisButtons = document.querySelectorAll('.income-basis-segmented .seg-btn');
   const incomeHintEl = $('incomeHint');
+  const incomeHintResultsEl = $('incomeHintResults');
   const incomeSymbol = $('incomeSymbol');
+  const incomeSymbolResults = $('incomeSymbolResults');
   const assetsSymbol = $('assetsSymbol');
+  const assetsSymbolResults = $('assetsSymbolResults');
   const leveragedSymbol = $('leveragedSymbol');
 
   const mapPathBtn = $('mapPathBtn');
@@ -169,6 +186,59 @@
   bindTextAndRange(leveragedInput, leveragedRange, { isCurrency: true, onChange: render });
   bindTextAndRange(withdrawalRateInput, withdrawalRateRange, { onChange: render });
 
+  // ---------- Results-screen "Your questions" duplicates ----------
+  // income/currentAge/targetAge/assets are now editable on both the
+  // intake and results screens — the intake fields above stay the one
+  // canonical source render() reads from; these duplicates mirror them
+  // bidirectionally: syncQuestionFieldsToResults() (called at the top
+  // of every render()) pushes canonical -> duplicate, and each
+  // duplicate's own onChange pulls duplicate -> canonical first.
+  function pullToCanonical(canonicalInput, canonicalRange, dupInput, dupRange) {
+    canonicalInput.value = dupInput.value;
+    canonicalRange.value = dupRange.value;
+    updateSliderFill(canonicalRange);
+  }
+  function syncQuestionFieldsToResults() {
+    [
+      [incomeInput, incomeRange, incomeResultsInput, incomeResultsRange],
+      [currentAgeInput, currentAgeRange, currentAgeResultsInput, currentAgeResultsRange],
+      [targetAgeInput, targetAgeRange, targetAgeResultsInput, targetAgeResultsRange],
+      [assetsInput, assetsRange, assetsResultsInput, assetsResultsRange],
+    ].forEach(([srcInput, srcRange, dupInput, dupRange]) => {
+      dupInput.value = srcInput.value;
+      dupRange.value = srcRange.value;
+      updateSliderFill(dupRange);
+    });
+  }
+  bindTextAndRange(incomeResultsInput, incomeResultsRange, {
+    isCurrency: true,
+    onChange: () => {
+      pullToCanonical(incomeInput, incomeRange, incomeResultsInput, incomeResultsRange);
+      render();
+    },
+  });
+  bindTextAndRange(assetsResultsInput, assetsResultsRange, {
+    isCurrency: true,
+    onChange: () => {
+      pullToCanonical(assetsInput, assetsRange, assetsResultsInput, assetsResultsRange);
+      render();
+    },
+  });
+  bindTextAndRange(currentAgeResultsInput, currentAgeResultsRange, {
+    onChange: () => {
+      pullToCanonical(currentAgeInput, currentAgeRange, currentAgeResultsInput, currentAgeResultsRange);
+      enforceAgeOrder();
+      render();
+    },
+  });
+  bindTextAndRange(targetAgeResultsInput, targetAgeResultsRange, {
+    onChange: () => {
+      pullToCanonical(targetAgeInput, targetAgeRange, targetAgeResultsInput, targetAgeResultsRange);
+      enforceAgeOrder();
+      render();
+    },
+  });
+
   // Free text, not a number field, so it doesn't go through
   // bindTextAndRange — it only needs the URL kept in sync (no chart or
   // figures depend on it), not a full render().
@@ -177,24 +247,33 @@
   currencyButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       currentCurrency = btn.dataset.currency;
-      currencyButtons.forEach((b) => b.classList.toggle('active', b === btn));
+      // By value, not by node identity (b === btn) — the intake and
+      // results screens each have their own copy of this control now,
+      // so a click on one copy needs to activate the matching button
+      // on both, not just itself.
+      currencyButtons.forEach((b) => b.classList.toggle('active', b.dataset.currency === currentCurrency));
       const symbol = CURRENCY_SYMBOLS[currentCurrency];
       incomeSymbol.textContent = symbol;
+      incomeSymbolResults.textContent = symbol;
       assetsSymbol.textContent = symbol;
+      assetsSymbolResults.textContent = symbol;
       leveragedSymbol.textContent = symbol;
       render();
     });
   });
 
   function updateIncomeHint() {
-    incomeHintEl.textContent = incomeBasis === 'future'
+    const text = incomeBasis === 'future'
       ? 'The income you will need based on what things will cost when withdrawals start'
       : 'The income you will need based on what things cost today';
+    incomeHintEl.textContent = text;
+    incomeHintResultsEl.textContent = text;
   }
   incomeBasisButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       incomeBasis = btn.dataset.basis;
-      incomeBasisButtons.forEach((b) => b.classList.toggle('active', b === btn));
+      // By value, same reason as the currency buttons above.
+      incomeBasisButtons.forEach((b) => b.classList.toggle('active', b.dataset.basis === incomeBasis));
       updateIncomeHint();
       render();
     });
@@ -262,6 +341,7 @@
 
   // ---------- Render ----------
   function render() {
+    syncQuestionFieldsToResults();
     const desiredIncome = parseNumber(incomeInput.value);
     const currentAge = Math.max(0, Math.round(parseNumber(currentAgeInput.value)));
     const targetAge = Math.max(0, Math.round(parseNumber(targetAgeInput.value)));
@@ -1361,7 +1441,9 @@
     currencyButtons.forEach((b) => b.classList.toggle('active', b.dataset.currency === currentCurrency));
     const symbol = CURRENCY_SYMBOLS[currentCurrency];
     incomeSymbol.textContent = symbol;
+    incomeSymbolResults.textContent = symbol;
     assetsSymbol.textContent = symbol;
+    assetsSymbolResults.textContent = symbol;
     leveragedSymbol.textContent = symbol;
   }
   if (initial.incomeBasis) {
