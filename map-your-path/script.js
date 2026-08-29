@@ -1632,17 +1632,19 @@
         // negative space, not a layout accident.
         drawWallpaperChart(leftX, chartTop + 110, leftW, 950);
 
-        // Footer — moved up into the space the fixed-height chart left
-        // behind rather than pinned to the very bottom of the page, so
-        // that blank area does some work instead of sitting completely
-        // empty. Left-aligned to match the rest of this column, not
-        // centred like a page-spanning footer would be.
-        const footerY = chartTop + 110 + 950 + 140;
-        ctx.textAlign = 'left';
-        boldText('Map your own path at investingbuffalo.com', leftX, footerY, 50, CARD_COLORS.accent, 1.2);
-        ctx.font = `italic 400 30px ${serif}`;
+        // Footer — sits in the negative space the fixed-height chart
+        // left behind rather than pinned to the very bottom of the
+        // page. Centred both ways within that space (not left-aligned
+        // like the rest of the column) and sized up to read as a real
+        // call to action, not a quiet page footer.
+        const chartBottomY = chartTop + 110 + 950;
+        const negSpaceTop = chartBottomY + 40;
+        const negSpaceMidY = (negSpaceTop + contentBottom) / 2;
+        ctx.textAlign = 'center';
+        boldText('Map your own path at investingbuffalo.com', leftX + leftW / 2, negSpaceMidY - 20, 84, CARD_COLORS.accent, 2);
+        ctx.font = `italic 400 32px ${serif}`;
         ctx.fillStyle = CARD_COLORS.inkTertiary;
-        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', leftX, footerY + 56);
+        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', leftX + leftW / 2, negSpaceMidY + 50, leftW);
 
         // ---- Right column: a stacked "reference" strip — ledger,
         // quick stats, leveraged income, assumptions — each with real
@@ -1666,13 +1668,16 @@
         // column, so there's room for real separation between cards.
         ry += 120 * 5 + 90;
 
+        // Order specific to this landscape format — today/future income
+        // paired on top (they read as a pair), saving-needed/years-to-go
+        // on the bottom, rather than the report card's order.
         const statW = (rightW - 40) / 2, statH = 230;
         const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
-        statBox(rightX, ry, statW, statH, savingsLabel, savingsValue);
-        statBox(rightX + statW + 40, ry, statW, statH, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
+        statBox(rightX, ry, statW, statH, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
+        statBox(rightX + statW + 40, ry, statW, statH, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
         ry += statH + 40;
-        statBox(rightX, ry, statW, statH, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
+        statBox(rightX, ry, statW, statH, savingsLabel, savingsValue);
         statBox(rightX + statW + 40, ry, statW, statH, 'Years to go', String(result.years));
         ry += statH + 100;
 
