@@ -292,11 +292,11 @@
         // the columns below only make room for it when it's actually
         // there rather than always reserving fixed dead space.
         const introStartY = 520;
-        const introLineHeight = 50;
+        const introLineHeight = 58;
         let introBottom = introStartY - 90;
         if (data.intro) {
-          ctx.font = `400 36px ${bodyFont}`;
-          const introLines = wrapText(ctx, data.intro, W * 0.62).slice(0, 4);
+          ctx.font = `400 44px ${bodyFont}`;
+          const introLines = wrapText(ctx, data.intro, W * 0.66).slice(0, 4);
           ctx.fillStyle = CARD_COLORS.inkSecondary;
           introLines.forEach((line, li) => {
             ctx.fillText(line, W / 2, introStartY + li * introLineHeight);
@@ -310,7 +310,7 @@
         const numCols = 4;
         const colWidth = (W - margin * 2 - colGap * (numCols - 1)) / numCols;
         const contentTop = Math.max(620, introBottom + 90);
-        const contentBottom = H - 340;
+        const contentBottom = H - 400;
         const linkBlockHeight = 130;
         const linkTop = contentBottom - linkBlockHeight;
 
@@ -335,7 +335,7 @@
           y += 60;
 
           // Section heading, wrapped, centred
-          const headingSize = fitFontSize(section.heading.toUpperCase(), colWidth, 52, 34, serif);
+          const headingSize = fitFontSize(section.heading.toUpperCase(), colWidth, 56, 36, serif);
           ctx.font = `400 ${headingSize}px ${serif}`;
           const headingLines = wrapText(ctx, section.heading.toUpperCase(), colWidth);
           headingLines.forEach((line, li) => {
@@ -357,25 +357,25 @@
           items.forEach((item) => {
             if (item.subheading) {
               ctx.textAlign = 'left';
-              ctx.font = `600 34px ${bodyFont}`;
+              ctx.font = `600 42px ${bodyFont}`;
               const subLines = wrapText(ctx, item.subheading, colWidth);
               subLines.forEach((line, li) => {
                 ctx.fillStyle = CARD_COLORS.ink;
-                ctx.fillText(line, colX, y + li * 42);
+                ctx.fillText(line, colX, y + li * 50);
               });
-              y += subLines.length * 42 + 10;
+              y += subLines.length * 50 + 10;
             }
             if (item.body) {
               ctx.textAlign = 'left';
-              ctx.font = `400 28px ${bodyFont}`;
+              ctx.font = `400 34px ${bodyFont}`;
               const bodyLines = wrapText(ctx, item.body, colWidth);
               bodyLines.forEach((line, li) => {
                 ctx.fillStyle = CARD_COLORS.inkSecondary;
-                ctx.fillText(line, colX, y + li * 36);
+                ctx.fillText(line, colX, y + li * 42);
               });
-              y += bodyLines.length * 36;
+              y += bodyLines.length * 42;
             }
-            y += 34;
+            y += 40;
           });
 
           // Link — pinned to the same Y in every column regardless of
@@ -413,19 +413,19 @@
         ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(margin, H - 300);
-        ctx.lineTo(W - margin, H - 300);
+        ctx.moveTo(margin, H - 330);
+        ctx.lineTo(W - margin, H - 330);
         ctx.stroke();
 
-        boldText('investingbuffalo.com', W / 2, H - 230, 44, CARD_COLORS.accent, 1.2);
+        boldText('investingbuffalo.com', W / 2, H - 260, 44, CARD_COLORS.accent, 1.2);
 
         if (data.disclaimer) {
-          ctx.font = `italic 400 30px ${bodyFont}`;
+          ctx.font = `italic 400 38px ${bodyFont}`;
           ctx.fillStyle = CARD_COLORS.inkTertiary;
           const discLines = wrapText(ctx, data.disclaimer, W - margin * 2 - 160);
-          const startY = H - 170;
+          const startY = H - 205;
           discLines.slice(0, 3).forEach((line, li) => {
-            ctx.fillText(line, W / 2, startY + li * 38);
+            ctx.fillText(line, W / 2, startY + li * 46);
           });
         }
       }
