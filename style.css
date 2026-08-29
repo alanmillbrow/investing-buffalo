@@ -1324,6 +1324,12 @@ tbody tr:hover { background: var(--accent-soft); }
 .app-footer p + p {
   margin-top: 6px;
 }
+/* Hides the footer while the loading/build-up screen is active — see
+   showScreen() in map-your-path/script.js. Scoped to this page since
+   .app-footer is shared sitewide. */
+.page-map-your-path .app-footer.is-hidden {
+  display: none;
+}
 
 /* ---------- Financial Freedom Roadmap page ---------- */
 .narrow-layout {

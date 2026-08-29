@@ -5,6 +5,7 @@
 
   // ---------- Elements ----------
   const screens = { intake: $('screenIntake'), loading: $('screenLoading'), results: $('screenResults') };
+  const appFooter = document.querySelector('.app-footer');
 
   const incomeInput = $('income');
   const incomeRange = $('incomeRange');
@@ -202,6 +203,10 @@
   // ---------- Screens ----------
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
+    // The footer's disclaimer text has no place next to the fun
+    // build-up screen — hidden there only, back on the intake and
+    // results screens either side of it.
+    appFooter.classList.toggle('is-hidden', name === 'loading');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
