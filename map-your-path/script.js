@@ -964,7 +964,11 @@
       const nameOffset = nameLines.length ? 38 + nameLines.length * NAME_LINE_HEIGHT : 0;
 
       const canvas = document.createElement('canvas');
-      const H = 1937 + nameOffset;
+      // 1930 rather than 1937 — pulls the footer up 21px (7 logical px at
+      // this 3x scale) into the slack the tightened stat/assumptions
+      // boxes left below them, landing exactly on 3600x6000 for the
+      // common one-line-name case instead of overshooting to 6021.
+      const H = 1930 + nameOffset;
       // Downloaded/shared images get viewed at all sorts of sizes and
       // pixel densities — render the raster at real supersampled
       // resolution (at least 3x) so text edges stay crisp. All draw calls
@@ -1169,7 +1173,13 @@
           ctx.stroke();
           ctx.restore();
         }
-        drawCardChart(64, 505, W - 128, 320, result.series, result.principal, result.potRequired);
+        // Narrower than the full content width (W - 128, the ledger/stat
+        // boxes' span) so it doesn't run flush to the card's edges —
+        // centred within that width rather than left-aligned, matching
+        // the desktop wallpaper's narrower, centred chart.
+        const cardChartWidth = W - 128 - 100;
+        const cardChartX = 64 + (W - 128 - cardChartWidth) / 2;
+        drawCardChart(cardChartX, 505, cardChartWidth, 320, result.series, result.principal, result.potRequired);
 
         // ---- Your pot: ledger breakdown ----
         boldText('YOUR POT', W / 2, 890, 22, CARD_COLORS.inkSecondary, 0.6);
@@ -1301,6 +1311,7 @@
         // quick-stat boxes above, rather than its own quieter,
         // unlabelled strip — this is real reference detail too, not a
         // lesser footnote.
+        ctx.textAlign = 'center';
         boldText('ASSUMPTIONS USED', W / 2, 1657, 22, CARD_COLORS.inkSecondary, 0.6);
 
         const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
@@ -1994,7 +2005,7 @@
         if (!url) throw new Error('Could not create report');
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'map-your-path-report.png';
+        link.download = 'map-your-path-portrait.png';
         document.body.appendChild(link);
         link.click();
         link.remove();
