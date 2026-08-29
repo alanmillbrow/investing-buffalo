@@ -2223,7 +2223,7 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 }
 @keyframes loading-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.12); opacity: 0.65; }
+  50% { transform: scale(0.88); opacity: 0.65; }
 }
 .loading-message {
   font-family: 'shackleton', Georgia, serif;
