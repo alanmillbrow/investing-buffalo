@@ -948,12 +948,14 @@
       // extra height the name needs) be known before H is fixed for the
       // real canvas.
       const NAME_FONT_SIZE = 26, NAME_LINE_HEIGHT = 32;
-      let nameLines = [];
-      if (result.reportName) {
-        const measureCtx = document.createElement('canvas').getContext('2d');
-        measureCtx.font = `400 ${NAME_FONT_SIZE}px ${serif}`;
-        nameLines = wrapTextBalanced(measureCtx, `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`, W - 200);
-      }
+      // Always shown, name or not — "YOUR" stands in for "‹NAME›’S" when
+      // no name's been entered, rather than dropping the header entirely.
+      const titleText = result.reportName
+        ? `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`
+        : 'YOUR PERSONALISED PATH TO FINANCIAL FREEDOM';
+      const measureCtx = document.createElement('canvas').getContext('2d');
+      measureCtx.font = `400 ${NAME_FONT_SIZE}px ${serif}`;
+      const nameLines = wrapTextBalanced(measureCtx, titleText, W - 200);
       // Tuned so the gap above the name line (header baseline 100 to
       // name line baseline 190 = 90) matches the gap below its last line
       // (to the hero kicker at 210, once translated) — a fixed +32 per
@@ -1010,10 +1012,11 @@
         ctx.textAlign = 'right';
         boldText('MAP YOUR PATH', W - 64, 96, 20, CARD_COLORS.inkSecondary, 0.6);
 
-        // Personalised title — only when a name's been entered. Drawn at
-        // a fixed spot below the header; everything from the hero down
-        // is then pushed down by nameOffset (via translate, restored
-        // before the footer) to make room for it.
+        // Title — personalised when a name's been entered, "YOUR ..."
+        // otherwise, but always shown. Drawn at a fixed spot below the
+        // header; everything from the hero down is then pushed down by
+        // nameOffset (via translate, restored before the footer) to
+        // make room for it.
         if (nameLines.length) {
           ctx.textAlign = 'center';
           nameLines.forEach((line, i) => {
@@ -1210,22 +1213,22 @@
         const statY = 1232;
         const statBoxW = 250, statBoxH = 130, statGap = 24;
         const statXs = [0, 1, 2, 3].map((i) => 64 + i * (statBoxW + statGap));
-        function statBox(x, label, value) {
+        function statBox(x, y, label, value, labelSize = 18) {
           ctx.strokeStyle = CARD_COLORS.ink;
           ctx.lineWidth = 2;
-          ctx.strokeRect(x, statY, statBoxW, statBoxH);
+          ctx.strokeRect(x, y, statBoxW, statBoxH);
           ctx.textAlign = 'center';
-          ctx.font = `400 18px ${serif}`;
+          ctx.font = `400 ${labelSize}px ${serif}`;
           ctx.fillStyle = CARD_COLORS.inkSecondary;
-          wrapText(ctx, label, x + statBoxW / 2, statY + 32, statBoxW - 28, 22);
-          boldText(value, x + statBoxW / 2, statY + statBoxH - 34, 30, CARD_COLORS.ink, 0.6);
+          wrapText(ctx, label, x + statBoxW / 2, y + 32, statBoxW - 28, 22);
+          boldText(value, x + statBoxW / 2, y + statBoxH - 34, 30, CARD_COLORS.ink, 0.6);
         }
         const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
-        statBox(statXs[0], savingsLabel, savingsValue);
-        statBox(statXs[1], 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
-        statBox(statXs[2], 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
-        statBox(statXs[3], 'Years to go', String(result.years));
+        statBox(statXs[0], statY, savingsLabel, savingsValue);
+        statBox(statXs[1], statY, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
+        statBox(statXs[2], statY, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
+        statBox(statXs[3], statY, 'Years to go', String(result.years));
 
         // ---- Leveraged income callout ----
         const boxY = 1402, boxH = 195;
@@ -1272,36 +1275,21 @@
         leverageLines.forEach((line, i) => ctx.fillText(line, W / 2, leverageStartY + i * leverageLineH));
 
         // ---- Assumptions used ----
-        // The fine print behind the headline numbers — muted styling so
-        // it reads as reference detail, not another competing headline.
+        // Same statBox() treatment (border, font sizes) as the four
+        // quick-stat boxes above, rather than its own quieter,
+        // unlabelled strip — this is real reference detail too, not a
+        // lesser footnote.
         boldText('ASSUMPTIONS USED', W / 2, 1657, 20, CARD_COLORS.inkSecondary, 0.5);
 
         const fmtPercentForCard = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
-        const assumeY = 1682, assumeH = 110, assumeX = 64, assumeW = W - 128;
+        const assumeY = 1682;
         const assumeCols = [
           { label: 'Expected annual return', value: fmtPercentForCard(result.annualReturn) },
           { label: 'Expected annual inflation', value: fmtPercentForCard(result.inflation) },
           { label: 'Safe withdrawal rate', value: fmtPercentForCard(result.withdrawalRate) },
           { label: 'Leveraged income assumed', value: fmt(result.leveraged) + '/mo' },
         ];
-        const colW = assumeW / assumeCols.length;
-        ctx.strokeStyle = 'rgba(51, 41, 31, 0.35)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(assumeX, assumeY, assumeW, assumeH);
-        assumeCols.forEach((col, i) => {
-          const colX = assumeX + i * colW;
-          if (i > 0) {
-            ctx.beginPath();
-            ctx.moveTo(colX, assumeY);
-            ctx.lineTo(colX, assumeY + assumeH);
-            ctx.stroke();
-          }
-          ctx.textAlign = 'center';
-          ctx.font = `400 15px ${serif}`;
-          ctx.fillStyle = CARD_COLORS.inkSecondary;
-          wrapText(ctx, col.label, colX + colW / 2, assumeY + 24, colW - 24, 18);
-          boldText(col.value, colX + colW / 2, assumeY + assumeH - 26, 26, CARD_COLORS.ink, 0.5);
-        });
+        assumeCols.forEach((col, i) => statBox(statXs[i], assumeY, col.label, col.value, 15));
 
         // ---- Footer ----
         // Restored to the untranslated coordinate space first — H already
@@ -1538,7 +1526,11 @@
         // headline figure and the chart that explains it) beside a
         // right "reference" column (the supporting numbers) — split
         // evenly down the centre. ----
-        const contentTop = 460, contentBottom = 2940;
+        // contentBottom pushed down close to the border now that the
+        // footer no longer needs clearance at the old page-bottom
+        // position — that reclaimed room goes to the right column's
+        // spacing below.
+        const contentTop = 460, contentBottom = 3000;
         const margin = 160, gap = 140;
         const halfW = (W - margin * 2 - gap) / 2;
         const leftW = halfW, rightW = halfW;
@@ -1554,17 +1546,24 @@
         ctx.lineTo(rightX - gap / 2, contentBottom);
         ctx.stroke();
 
-        // ---- Left column: hero + chart, left-aligned rather than
-        // centred — it anchors the top of this column like a headline
-        // on a page, not a poster stat floating in the middle. ----
+        // ---- Left column: hero + chart, centred on the column's own
+        // midpoint rather than left-aligned — every row (title, kicker,
+        // figure, subtitle, chart heading, legend, chart) shares one
+        // central axis instead of a ragged left edge. ----
+        const centerX = leftX + leftW / 2;
         let heroTop = contentTop;
-        ctx.textAlign = 'left';
-        if (result.reportName) {
-          const title = `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`;
+        ctx.textAlign = 'center';
+        // Always shown, name or not — "YOUR" stands in for "‹NAME›’S"
+        // when no name's been entered, rather than dropping the title
+        // (and the space it reserves) entirely.
+        {
+          const title = result.reportName
+            ? `${result.reportName.toUpperCase()}’S PERSONALISED PATH TO FINANCIAL FREEDOM`
+            : 'YOUR PERSONALISED PATH TO FINANCIAL FREEDOM';
           const titleSize = fitFontSize(title, leftW, 56, 32);
           const titleLines = wrapTextBalanced(ctx, title, leftW);
           ctx.font = `400 ${titleSize}px ${serif}`;
-          titleLines.forEach((line, i) => boldText(line, leftX, heroTop + 40 + i * (titleSize + 14), titleSize, CARD_COLORS.ink, 0.8));
+          titleLines.forEach((line, i) => boldText(line, centerX, heroTop + 40 + i * (titleSize + 14), titleSize, CARD_COLORS.ink, 0.8));
           heroTop += 40 + titleLines.length * (titleSize + 14) + 40;
         }
         // Baseline gaps below are fixed pixel amounts, not fractions of
@@ -1576,12 +1575,12 @@
         // case (figureSize maxed at 300) — a smaller shrunk figure only
         // ever gets *more* clearance, never less.
         const kickerY = heroTop + 90;
-        boldText('THE POT YOU NEED', leftX, kickerY, 84, CARD_COLORS.inkSecondary, 1.4);
+        boldText('THE POT YOU NEED', centerX, kickerY, 84, CARD_COLORS.inkSecondary, 1.4);
 
         const figureText = fmt(result.potRequired);
         const figureSize = fitFontSize(figureText, leftW, 300, 150);
         const figureY = kickerY + 340;
-        boldText(figureText, leftX, figureY, figureSize, CARD_COLORS.accent, Math.max(4, figureSize * 0.026));
+        boldText(figureText, centerX, figureY, figureSize, CARD_COLORS.accent, Math.max(4, figureSize * 0.026));
         const figureBottom = figureY + 300 * 0.22;
 
         ctx.font = `400 58px ${serif}`;
@@ -1589,11 +1588,18 @@
         const heroSub = result.leveraged > 0
           ? `to provide ${fmt(result.passiveMonthly)}/month passive income by age ${result.targetAge}`
           : `to provide ${fmt(result.passiveMonthly)}/month by age ${result.targetAge}`;
-        ctx.fillText(heroSub, leftX, figureBottom + 70, leftW);
+        ctx.fillText(heroSub, centerX, figureBottom + 70, leftW);
 
-        const chartTop = figureBottom + 220;
-        ctx.textAlign = 'left';
-        boldText('REACHING YOUR POT', leftX, chartTop, 46, CARD_COLORS.inkSecondary, 0.8);
+        // Same gaps as the portrait report card (buildShareCardCanvas
+        // above: heroSub→title 70, title→legend 34, legend→chart 21 in
+        // its 1200-wide space), scaled up by how much wider this column
+        // is than that card, rather than a fresh set of numbers.
+        const portraitScale = leftW / 1200;
+        const chartTop = figureBottom + 70 + 70 * portraitScale;
+        ctx.textAlign = 'center';
+        boldText('REACHING YOUR POT', centerX, chartTop, 46, CARD_COLORS.inkSecondary, 0.8);
+        const legendY = chartTop + 34 * portraitScale;
+        const chartY = legendY + 21 * portraitScale;
         (function legendRow(cy) {
           const items = [
             { color: contribColor, label: 'Savings' },
@@ -1602,8 +1608,12 @@
           ];
           ctx.font = `400 32px ${serif}`;
           const dotR = 13, gapDotText = 16, gapItems = 48;
-          let cx = leftX;
-          items.forEach((it) => {
+          // Row width computed up front so the whole legend can be
+          // centred on centerX rather than starting from a fixed edge.
+          const itemWidths = items.map((it) => dotR * 2 + gapDotText + ctx.measureText(it.label).width);
+          const totalWidth = itemWidths.reduce((a, b) => a + b, 0) + gapItems * (items.length - 1);
+          let cx = centerX - totalWidth / 2;
+          items.forEach((it, i) => {
             if (it.dashed) {
               ctx.strokeStyle = it.color;
               ctx.lineWidth = 5;
@@ -1623,21 +1633,29 @@
             ctx.textBaseline = 'alphabetic';
             ctx.fillStyle = CARD_COLORS.inkSecondary;
             ctx.fillText(it.label, cx + dotR * 2 + gapDotText, cy);
-            cx += dotR * 2 + gapDotText + ctx.measureText(it.label).width + gapItems;
+            cx += itemWidths[i] + gapItems;
           });
-        })(chartTop + 60);
+        })(legendY);
         // Fixed height rather than stretched to fill the rest of the
         // column — a chart doesn't need to be as tall as the space
         // available for it, and the resulting gap below is deliberate
-        // negative space, not a layout accident.
-        drawWallpaperChart(leftX, chartTop + 110, leftW, 950);
+        // negative space, not a layout accident. Narrower than the
+        // column itself (leftW) so it doesn't run flush to the divider —
+        // the rest of the column (title, hero figure, footer) still
+        // spans the full leftW. Centred within that column width rather
+        // than left-aligned like the rest, since a narrower chart flush
+        // to the left edge reads as misaligned, not intentional.
+        const chartHeight = 1050;
+        const chartWidth = leftW - 200;
+        const chartX = leftX + (leftW - chartWidth) / 2;
+        drawWallpaperChart(chartX, chartY, chartWidth, chartHeight);
 
         // Footer — sits in the negative space the fixed-height chart
         // left behind rather than pinned to the very bottom of the
         // page. Centred both ways within that space (not left-aligned
         // like the rest of the column) and sized up to read as a real
         // call to action, not a quiet page footer.
-        const chartBottomY = chartTop + 110 + 950;
+        const chartBottomY = chartY + chartHeight;
         const negSpaceTop = chartBottomY + 40;
         const negSpaceMidY = (negSpaceTop + contentBottom) / 2;
         ctx.textAlign = 'center';
@@ -1666,7 +1684,7 @@
         // longer needs to reach any particular depth now the chart
         // beside it has its own fixed height instead of filling the
         // column, so there's room for real separation between cards.
-        ry += 120 * 5 + 90;
+        ry += 120 * 5 + 100;
 
         // Order specific to this landscape format — today/future income
         // paired on top (they read as a pair), saving-needed/years-to-go
@@ -1676,12 +1694,12 @@
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
         statBox(rightX, ry, statW, statH, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
         statBox(rightX + statW + 40, ry, statW, statH, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
-        ry += statH + 40;
+        ry += statH + 50;
         statBox(rightX, ry, statW, statH, savingsLabel, savingsValue);
         statBox(rightX + statW + 40, ry, statW, statH, 'Years to go', String(result.years));
-        ry += statH + 100;
+        ry += statH + 110;
 
-        const boxY = ry, boxH = 380;
+        const boxY = ry, boxH = 400;
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(rightX, boxY, rightW, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
@@ -1715,7 +1733,7 @@
           leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
         );
         leverageLines.forEach((line, i) => ctx.fillText(line, rightX + rightW / 2, leverageStartY + i * leverageLineH));
-        ry = boxY + boxH + 90;
+        ry = boxY + boxH + 100;
 
         // Heading + same statBox() treatment as the four quick-stat
         // boxes above (matching border, matching font sizes) — this
