@@ -75,6 +75,7 @@
   const shareLinkBtn = $('shareLinkBtn');
   const bookmarkBtn = $('bookmarkBtn');
   const downloadReportBtn = $('downloadReportBtn');
+  const downloadDesktopReportBtn = $('downloadDesktopReportBtn');
   const shareImagePreview = $('shareImagePreview');
   const shareImagePreviewWrap = $('shareImagePreviewWrap');
   const toggleReportPreviewBtn = $('toggleReportPreview');
@@ -1334,6 +1335,118 @@
     });
   }
 
+  // ---------- Desktop wallpaper (16:10, 5120x3200) ----------
+  // A completely different composition from the report card above, not
+  // just a resize — a wallpaper sits behind desktop icons, so it needs
+  // to stay minimal and full-bleed (no bordered "card" edge, no dense
+  // tables/chart) with one loud, legible headline rather than a full
+  // summary. Generated on demand only when the button's clicked, not
+  // kept live-updating like the report preview.
+  function buildWallpaperCanvas(result) {
+    const symbol = CURRENCY_SYMBOLS[result.currency];
+    const fmt = (n) => symbol + fmtNumber(n);
+
+    const fontLoads = document.fonts
+      ? document.fonts.load("400 480px 'shackleton'").catch(() => {})
+      : Promise.resolve();
+
+    return Promise.all([
+      loadRecoloredBuffalo(CARD_COLORS.ink),
+      document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+      fontLoads,
+    ]).then(([buffalo]) => {
+      const W = 5120, H = 3200;
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const serif = "'shackleton', Georgia, serif";
+
+      function boldText(text, x, y, size, color, strokeWidth) {
+        ctx.font = `400 ${size}px ${serif}`;
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.strokeText(text, x, y);
+        ctx.fillText(text, x, y);
+      }
+
+      // Shrinks from startSize until the text fits maxWidth — the pot
+      // figure has no fixed length (from a few hundred thousand to
+      // several million, in three different currencies), so a fixed
+      // size risks running off the canvas for a long number.
+      function fitFontSize(text, maxWidth, startSize, minSize) {
+        let size = startSize;
+        ctx.font = `400 ${size}px ${serif}`;
+        while (size > minSize && ctx.measureText(text).width > maxWidth) {
+          size -= 8;
+          ctx.font = `400 ${size}px ${serif}`;
+        }
+        return size;
+      }
+
+      function renderWallpaper() {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = CARD_COLORS.bg;
+        ctx.fillRect(0, 0, W, H);
+        ctx.textBaseline = 'alphabetic';
+
+        // Brand lockup, top-left
+        const markSize = 220;
+        ctx.drawImage(buffalo, 200, 180, markSize, markSize);
+        ctx.textAlign = 'left';
+        boldText('Investing Buffalo', 480, 340, 100, CARD_COLORS.ink, 2);
+
+        // Kicker, top-right — personalised title if a name's been
+        // entered, same as the report card.
+        ctx.textAlign = 'right';
+        const kicker = result.reportName
+          ? `${result.reportName.toUpperCase()}’S PATH TO FINANCIAL FREEDOM`
+          : 'MAP YOUR PATH';
+        const kickerSize = fitFontSize(kicker, W - 680, 56, 32);
+        boldText(kicker, W - 200, 300, kickerSize, CARD_COLORS.inkSecondary, 1.2);
+
+        // Hero — the one thing this image needs to say, big enough to
+        // read from across a desk. Vertical rhythm scaled up from the
+        // report card's already-proven hero (kicker y=210/size=26,
+        // figure y=335/size=116, sub y=380) — same ~4.27x factor as the
+        // brand mark above — rather than guessed numbers, which is what
+        // left the kicker overlapping the figure the first time round.
+        ctx.textAlign = 'center';
+        boldText('THE POT YOU NEED', W / 2, 1196, 111, CARD_COLORS.inkSecondary, 1.6);
+
+        const figureText = fmt(result.potRequired);
+        const figureSize = fitFontSize(figureText, W - 600, 480, 220);
+        boldText(figureText, W / 2, 1730, figureSize, CARD_COLORS.accent, Math.max(6, figureSize * 0.026));
+
+        ctx.font = `400 115px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        const heroSub = result.leveraged > 0
+          ? `to provide ${fmt(result.passiveMonthly)}/month passive income by age ${result.targetAge}`
+          : `to provide ${fmt(result.passiveMonthly)}/month by age ${result.targetAge}`;
+        ctx.fillText(heroSub, W / 2, 1922, W - 800);
+
+        // Footer — small and quiet, not competing with the hero
+        boldText('Map your own path at investingbuffalo.com', W / 2, H - 140, 46, CARD_COLORS.accent, 1);
+      }
+
+      renderWallpaper();
+      return new Promise((resolve) => {
+        let done = false;
+        function finish() {
+          if (done) return;
+          done = true;
+          renderWallpaper();
+          resolve(canvas);
+        }
+        requestAnimationFrame(() => requestAnimationFrame(finish));
+        setTimeout(finish, 400);
+      });
+    });
+  }
+
   // Simple manual word-wrap for canvas text — fillText has no native
   // wrapping, and the stat-box labels are long enough to occasionally
   // need a second line at this box width.
@@ -1462,6 +1575,41 @@
       })
       .finally(() => {
         downloadReportBtn.disabled = false;
+      });
+  });
+
+  // Generated fresh on click only — unlike the live report preview
+  // above, there's no persistent on-page wallpaper preview to keep in
+  // sync, so nothing to debounce here.
+  downloadDesktopReportBtn.addEventListener('click', () => {
+    if (!lastResult) return;
+    downloadDesktopReportBtn.disabled = true;
+    setStatus('Generating your desktop wallpaper…', 0);
+    const cardData = { ...lastResult, reportName: reportNameInput.value.trim() };
+    buildWallpaperCanvas(cardData)
+      .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
+      .then((blob) => {
+        if (!blob) throw new Error('Could not create wallpaper');
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'map-your-path-desktop.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        // Not cached anywhere else, unlike lastShareImageUrl above which
+        // stays live for the on-page preview <img> — freed once the
+        // download's had a moment to actually start (revoking straight
+        // after click() risks cancelling it in some browsers, since the
+        // download itself reads the blob asynchronously).
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        setStatus('Desktop report downloaded');
+      })
+      .catch(() => {
+        setStatus('Could not generate the desktop report — try again');
+      })
+      .finally(() => {
+        downloadDesktopReportBtn.disabled = false;
       });
   });
 
