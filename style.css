@@ -2453,6 +2453,13 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 .page-game #assumptionTable { margin-bottom: 0; }
 
 .bar-chart-wrap { margin-top: 28px; }
+/* Just the heading-to-chart gap brought down to match the growth chart
+   card's own gap just below it — full width, same size as every other
+   card here, unlike an earlier attempt that shrank the whole chart
+   down to close this gap instead of just closing the gap. */
+.page-buy-now-pay-later .bar-chart-wrap {
+  margin-top: 18px;
+}
 .bar-chart { width: 100%; height: auto; display: block; }
 .bar-rect { transition: height 0.3s ease, y 0.3s ease; }
 .bar-rect-winner { fill: var(--badge-free-bg); }
