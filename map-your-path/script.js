@@ -1241,26 +1241,48 @@
         ctx.textAlign = 'left';
         boldText('LEVERAGED INCOME', 96, boxY + 46, 22, CARD_COLORS.accent, 0.6);
 
-        ctx.font = `400 23px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.ink;
+        const bodyFont = "'chaparral-pro', Georgia, serif";
+        ctx.font = `400 23px ${bodyFont}`;
         ctx.textAlign = 'center';
         const soonerText = result.monthsSooner ? formatYearsMonths(result.monthsSooner) : null;
         // Every case below is framed as an assumption ("Assumes...") with
         // the actual alternative spelled out, rather than "cuts your
         // saving by £X" — phrasing that read as if the reduction had
         // already happened, not as conditional on generating that income.
-        let leverageText;
+        // Built as a flat {word, hl} token list rather than one template
+        // string — the £ figures and the "sooner" duration read in the
+        // page's primary ink colour against the rest in its muted
+        // secondary, matching the live page's <strong> spans in "What
+        // leveraged income could do", same body font too.
+        const leverageWords = [];
         if (result.leveraged <= 0) {
-          leverageText = 'A side business could generate leveraged income and shorten this path.';
+          pushWords(leverageWords, 'A side business could generate leveraged income and shorten this path.', false);
         } else if (result.monthlySaved > 0) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
-            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get to the pot you need ${soonerText} sooner.` : '.');
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income, which cuts your monthly saving requirement by', false);
+          pushWords(leverageWords, fmt(result.monthlySaved), true);
+          pushWords(leverageWords, 'to', false);
+          pushWords(leverageWords, fmt(result.pmt) + (soonerText ? ',' : '.'), true);
+          if (soonerText) {
+            pushWords(leverageWords, 'or save', false);
+            pushWords(leverageWords, `${fmt(result.baseMonthlyForCompare)}/month`, true);
+            pushWords(leverageWords, 'as originally planned and get to the pot you need', false);
+            pushWords(leverageWords, `${soonerText} sooner.`, true);
+          }
         } else if (soonerText) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get to the pot you need ${soonerText} sooner.`;
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income — keep saving', false);
+          pushWords(leverageWords, `${fmt(result.baseMonthlyForCompare)}/month`, true);
+          pushWords(leverageWords, 'as planned and get to the pot you need', false);
+          pushWords(leverageWords, `${soonerText} sooner.`, true);
         } else {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income toward your desired monthly income.', false);
         }
-        const leverageLines = wrapTextBalanced(ctx, leverageText, W - 200);
+        const leverageLines = wrapRichWords(ctx, leverageWords, W - 200);
         // Vertically centred in the space below the title rather than
         // pinned to a fixed offset — keeps a real gap under "LEVERAGED
         // INCOME" whether the copy wraps to one line or three.
@@ -1272,7 +1294,7 @@
           leverageContentTop,
           leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
         );
-        leverageLines.forEach((line, i) => ctx.fillText(line, W / 2, leverageStartY + i * leverageLineH));
+        drawRichLines(ctx, leverageLines, W / 2, leverageStartY, leverageLineH);
 
         // ---- Assumptions used ----
         // Same statBox() treatment (border, font sizes) as the four
@@ -1301,7 +1323,7 @@
         boldText('Map your own path at investingbuffalo.com', W / 2, H - 90, 26, CARD_COLORS.accent, 0.8);
         ctx.font = `italic 400 17px ${serif}`;
         ctx.fillStyle = CARD_COLORS.inkTertiary;
-        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', W / 2, H - 58);
+        ctx.fillText('Illustrative only — assumes a constant return and inflation. This is not financial advice.', W / 2, H - 58);
       }
 
       // document.fonts.load() resolving still isn't a hard guarantee the
@@ -1662,7 +1684,7 @@
         boldText('Map your own path at investingbuffalo.com', leftX + leftW / 2, negSpaceMidY - 20, 84, CARD_COLORS.accent, 2);
         ctx.font = `italic 400 32px ${serif}`;
         ctx.fillStyle = CARD_COLORS.inkTertiary;
-        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', leftX + leftW / 2, negSpaceMidY + 50, leftW);
+        ctx.fillText('Illustrative only — assumes a constant return and inflation. This is not financial advice.', leftX + leftW / 2, negSpaceMidY + 50, leftW);
 
         // ---- Right column: a stacked "reference" strip — ledger,
         // quick stats, leveraged income, assumptions — each with real
@@ -1708,22 +1730,42 @@
         ctx.textAlign = 'left';
         boldText('LEVERAGED INCOME', rightX + 40, boxY + 66, 44, CARD_COLORS.accent, 1.2);
 
-        ctx.font = `400 46px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.ink;
+        const bodyFont = "'chaparral-pro', Georgia, serif";
+        ctx.font = `400 46px ${bodyFont}`;
         ctx.textAlign = 'center';
         const soonerText = result.monthsSooner ? formatYearsMonths(result.monthsSooner) : null;
-        let leverageText;
+        // Built as a flat {word, hl} token list — see the report card's
+        // matching block above for why (per-word colour to match the
+        // live page's <strong> spans, same body font too).
+        const leverageWords = [];
         if (result.leveraged <= 0) {
-          leverageText = 'A side business could generate leveraged income and shorten this path.';
+          pushWords(leverageWords, 'A side business could generate leveraged income and shorten this path.', false);
         } else if (result.monthlySaved > 0) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
-            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get to the pot you need ${soonerText} sooner.` : '.');
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income, which cuts your monthly saving requirement by', false);
+          pushWords(leverageWords, fmt(result.monthlySaved), true);
+          pushWords(leverageWords, 'to', false);
+          pushWords(leverageWords, fmt(result.pmt) + (soonerText ? ',' : '.'), true);
+          if (soonerText) {
+            pushWords(leverageWords, 'or save', false);
+            pushWords(leverageWords, `${fmt(result.baseMonthlyForCompare)}/month`, true);
+            pushWords(leverageWords, 'as originally planned and get to the pot you need', false);
+            pushWords(leverageWords, `${soonerText} sooner.`, true);
+          }
         } else if (soonerText) {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get to the pot you need ${soonerText} sooner.`;
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income — keep saving', false);
+          pushWords(leverageWords, `${fmt(result.baseMonthlyForCompare)}/month`, true);
+          pushWords(leverageWords, 'as planned and get to the pot you need', false);
+          pushWords(leverageWords, `${soonerText} sooner.`, true);
         } else {
-          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
+          pushWords(leverageWords, 'Assumes', false);
+          pushWords(leverageWords, `${fmt(result.leveraged)}/month`, true);
+          pushWords(leverageWords, 'in leveraged income toward your desired monthly income.', false);
         }
-        const leverageLines = wrapTextBalanced(ctx, leverageText, rightW - 100);
+        const leverageLines = wrapRichWords(ctx, leverageWords, rightW - 100);
         const leverageLineH = 48;
         const leverageContentTop = boxY + 130;
         const leverageContentBottom = boxY + boxH - 30;
@@ -1732,7 +1774,7 @@
           leverageContentTop,
           leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
         );
-        leverageLines.forEach((line, i) => ctx.fillText(line, rightX + rightW / 2, leverageStartY + i * leverageLineH));
+        drawRichLines(ctx, leverageLines, rightX + rightW / 2, leverageStartY, leverageLineH);
         ry = boxY + boxH + 100;
 
         // Heading + same statBox() treatment as the four quick-stat
@@ -1829,6 +1871,72 @@
     }
     const balanced = wrapAt(hi);
     return balanced.length === targetCount ? balanced : fullLines;
+  }
+
+  // Splits `text` into individual words tagged with a highlight flag and
+  // appends them to `arr` — used to build a flat token list for the
+  // leveraged-income callout, where the £ figures and the "sooner"
+  // duration read in the page's primary ink colour against the rest in
+  // its muted secondary, matching the live page's <strong> spans.
+  function pushWords(arr, text, hl) {
+    text.split(' ').filter(Boolean).forEach((word) => arr.push({ word, hl }));
+  }
+
+  // Same greedy-then-narrow balancing trick as wrapTextBalanced above,
+  // but over a token list that carries a highlight flag per word instead
+  // of a plain string — the highlighted and plain words share one
+  // font/size, so wrapping only needs word widths, not per-token font
+  // switching.
+  function wrapRichWords(ctx, words, maxWidth) {
+    function wrapAt(width) {
+      const lines = [];
+      let line = [];
+      let lineWidth = 0;
+      const spaceW = ctx.measureText(' ').width;
+      words.forEach((w) => {
+        const ww = ctx.measureText(w.word).width;
+        const addW = line.length ? spaceW + ww : ww;
+        if (line.length && lineWidth + addW > width) {
+          lines.push(line);
+          line = [w];
+          lineWidth = ww;
+        } else {
+          line.push(w);
+          lineWidth += addW;
+        }
+      });
+      if (line.length) lines.push(line);
+      return lines;
+    }
+    const fullLines = wrapAt(maxWidth);
+    if (fullLines.length <= 1) return fullLines;
+    const targetCount = fullLines.length;
+    let lo = 0, hi = maxWidth;
+    for (let i = 0; i < 25; i++) {
+      const mid = (lo + hi) / 2;
+      if (wrapAt(mid).length <= targetCount) hi = mid; else lo = mid;
+    }
+    const balanced = wrapAt(hi);
+    return balanced.length === targetCount ? balanced : fullLines;
+  }
+
+  // Draws wrapped, per-word-coloured lines centred on centerX — the
+  // canvas equivalent of the page's ".formula-rule strong" treatment
+  // (highlighted words in CARD_COLORS.ink, the rest in inkSecondary).
+  function drawRichLines(ctx, lines, centerX, startY, lineHeight) {
+    const spaceW = ctx.measureText(' ').width;
+    ctx.textAlign = 'left';
+    lines.forEach((line, i) => {
+      let totalW = 0;
+      line.forEach((w, idx) => { totalW += ctx.measureText(w.word).width + (idx > 0 ? spaceW : 0); });
+      let x = centerX - totalW / 2;
+      const y = startY + i * lineHeight;
+      line.forEach((w) => {
+        ctx.fillStyle = w.hl ? CARD_COLORS.ink : CARD_COLORS.inkSecondary;
+        ctx.fillText(w.word, x, y);
+        x += ctx.measureText(w.word).width + spaceW;
+      });
+    });
   }
 
   let lastShareImageUrl = null;
