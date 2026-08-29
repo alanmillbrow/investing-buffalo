@@ -789,11 +789,11 @@
   function runLoadingSequence(onDone) {
     loadingTimers.forEach(clearTimeout);
     loadingTimers = [];
-    // Last step ("Mapping your path…") held for 3000ms instead of the
+    // Last step ("Mapping your path…") held for 3500ms instead of the
     // usual 1000 — a longer beat on the final message before landing on
     // the results, rather than an even four-step tick. Takes the whole
-    // sequence from 4000ms to 6000ms.
-    const stepDurations = LOADING_MESSAGES.map((_, i) => (i === LOADING_MESSAGES.length - 1 ? 3000 : 1000));
+    // sequence from 4000ms to 6500ms.
+    const stepDurations = LOADING_MESSAGES.map((_, i) => (i === LOADING_MESSAGES.length - 1 ? 3500 : 1000));
     const total = stepDurations.reduce((a, b) => a + b, 0);
     let elapsed = 0;
     loadingBarFill.style.width = '0%';
