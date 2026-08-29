@@ -2013,6 +2013,15 @@ tbody tr:hover { background: var(--accent-soft); }
 .story-cta {
   color: var(--text-primary);
 }
+/* Calculators: each of the five numbered entries above gets a divider
+   line before it (.cal-intro-step's border-top), so the closing CTA
+   line that follows the last one got a plain gap and no line — the one
+   spot in the list-then-outro rhythm without a break. Matches that same
+   border/padding treatment instead of introducing a new one. */
+.page-calculators .story-cta {
+  border-top: 1px solid var(--input-border);
+  padding-top: 28px;
+}
 /* Pull standalone lines of body text (the CTA line, and the intro/outro
    paragraphs around the four-stages card) closer to their neighbours
    than the default 48px narrow-layout gap */
