@@ -1632,6 +1632,18 @@
         // negative space, not a layout accident.
         drawWallpaperChart(leftX, chartTop + 110, leftW, 950);
 
+        // Footer — moved up into the space the fixed-height chart left
+        // behind rather than pinned to the very bottom of the page, so
+        // that blank area does some work instead of sitting completely
+        // empty. Left-aligned to match the rest of this column, not
+        // centred like a page-spanning footer would be.
+        const footerY = chartTop + 110 + 950 + 140;
+        ctx.textAlign = 'left';
+        boldText('Map your own path at investingbuffalo.com', leftX, footerY, 50, CARD_COLORS.accent, 1.2);
+        ctx.font = `italic 400 30px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkTertiary;
+        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', leftX, footerY + 56);
+
         // ---- Right column: a stacked "reference" strip — ledger,
         // quick stats, leveraged income, assumptions — each with real
         // room to breathe now it isn't sharing width with a third
@@ -1721,13 +1733,6 @@
           const ay = ry + Math.floor(i / 2) * (assumeColH + 40);
           statBox(ax, ay, assumeColW, assumeColH, item.label, item.value);
         });
-
-        // Footer
-        ctx.textAlign = 'center';
-        boldText('Map your own path at investingbuffalo.com', W / 2, H - 180, 56, CARD_COLORS.accent, 1.4);
-        ctx.font = `italic 400 32px ${serif}`;
-        ctx.fillStyle = CARD_COLORS.inkTertiary;
-        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', W / 2, H - 120);
       }
 
       renderWallpaper();
