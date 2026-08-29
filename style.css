@@ -1866,6 +1866,14 @@ tbody tr:hover { background: var(--accent-soft); }
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
 }
+/* The opening pair and the closing Engine Fuel callout aren't account-
+   by-account explanatory prose like the .rf-p-regular paragraphs below
+   — they're the page's intro/outro, so they get the same Semibold
+   weight as About Me's .story-p rather than this page's default
+   Regular. */
+.page-tax-tables .rf-p:not(.rf-p-regular) {
+  font-weight: 600; /* Semibold, matching About Me's .story-p */
+}
 /* Income tax band table's intro sentence — plain .section-note (pulled up
    -12px toward the h2 above, same as everywhere else it's used right
    under a heading) would otherwise touch the table below with no gap,
