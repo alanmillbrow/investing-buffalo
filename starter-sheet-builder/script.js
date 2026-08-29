@@ -57,6 +57,7 @@
 
   // ---------- Elements (queried after the sections above exist) ----------
   const sheetTitleInput = $('sheetTitle');
+  const introInput = $('introText');
   const disclaimerInput = $('disclaimer');
   const generateBtn = $('generateBtn');
   const downloadBtn = $('downloadBtn');
@@ -66,7 +67,7 @@
   const preview = $('preview');
   const themeToggle = $('themeToggle');
 
-  const allFields = () => Array.from(document.querySelectorAll('[data-role], #sheetTitle, #disclaimer'));
+  const allFields = () => Array.from(document.querySelectorAll('[data-role], #sheetTitle, #introText, #disclaimer'));
 
   // ---------- Data model in/out of the form ----------
   function collectData() {
@@ -90,6 +91,7 @@
     });
     return {
       title: sheetTitleInput.value.trim(),
+      intro: introInput.value.trim(),
       sections,
       disclaimer: disclaimerInput.value.trim(),
     };
@@ -98,6 +100,7 @@
   function applyData(data) {
     if (!data) return;
     if (data.title !== undefined) sheetTitleInput.value = data.title;
+    if (data.intro !== undefined) introInput.value = data.intro;
     if (data.disclaimer !== undefined) disclaimerInput.value = data.disclaimer;
     (data.sections || []).forEach((section, s) => {
       const setVal = (role, item, val) => {
@@ -147,6 +150,7 @@
     if (!window.confirm('Clear all fields and the saved draft? This can’t be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     sheetTitleInput.value = 'UK Investing Starter Sheet';
+    introInput.value = '';
     disclaimerInput.value = '';
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
     document.querySelectorAll('[data-role="subheading"], [data-role="body"], [data-role="linkLabel"], [data-role="linkUrl"]')
@@ -283,12 +287,29 @@
         const titleSize = fitFontSize(data.title.toUpperCase(), W - 320, 130, 70, serif);
         boldText(data.title.toUpperCase(), W / 2, 420, titleSize, CARD_COLORS.accent, Math.max(3, titleSize * 0.03));
 
+        // ---- Intro message, centred beneath the title ----
+        // A short thanks-for-downloading/summary sentence — optional, so
+        // the columns below only make room for it when it's actually
+        // there rather than always reserving fixed dead space.
+        const introStartY = 520;
+        const introLineHeight = 50;
+        let introBottom = introStartY - 90;
+        if (data.intro) {
+          ctx.font = `400 36px ${bodyFont}`;
+          const introLines = wrapText(ctx, data.intro, W * 0.62).slice(0, 4);
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          introLines.forEach((line, li) => {
+            ctx.fillText(line, W / 2, introStartY + li * introLineHeight);
+          });
+          introBottom = introStartY + (introLines.length - 1) * introLineHeight;
+        }
+
         // ---- Four columns ----
         const margin = 160;
         const colGap = 80;
         const numCols = 4;
         const colWidth = (W - margin * 2 - colGap * (numCols - 1)) / numCols;
-        const contentTop = 620;
+        const contentTop = Math.max(620, introBottom + 90);
         const contentBottom = H - 340;
         const linkBlockHeight = 130;
         const linkTop = contentBottom - linkBlockHeight;
@@ -392,19 +413,19 @@
         ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(margin, H - 260);
-        ctx.lineTo(W - margin, H - 260);
+        ctx.moveTo(margin, H - 300);
+        ctx.lineTo(W - margin, H - 300);
         ctx.stroke();
 
-        boldText('investingbuffalo.com', W / 2, H - 190, 44, CARD_COLORS.accent, 1.2);
+        boldText('investingbuffalo.com', W / 2, H - 230, 44, CARD_COLORS.accent, 1.2);
 
         if (data.disclaimer) {
-          ctx.font = `italic 400 24px ${bodyFont}`;
+          ctx.font = `italic 400 30px ${bodyFont}`;
           ctx.fillStyle = CARD_COLORS.inkTertiary;
-          const discLines = wrapText(ctx, data.disclaimer, W - margin * 2 - 200);
-          const startY = H - 140;
+          const discLines = wrapText(ctx, data.disclaimer, W - margin * 2 - 160);
+          const startY = H - 170;
           discLines.slice(0, 3).forEach((line, li) => {
-            ctx.fillText(line, W / 2, startY + li * 30);
+            ctx.fillText(line, W / 2, startY + li * 38);
           });
         }
       }
