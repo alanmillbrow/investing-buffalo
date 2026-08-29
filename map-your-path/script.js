@@ -1336,18 +1336,19 @@
   }
 
   // ---------- Desktop wallpaper (16:10, 5120x3200) ----------
-  // A completely different composition from the report card above, not
-  // just a resize — a wallpaper sits behind desktop icons, so it needs
-  // to stay minimal and full-bleed (no bordered "card" edge, no dense
-  // tables/chart) with one loud, legible headline rather than a full
-  // summary. Generated on demand only when the button's clicked, not
+  // Same content as the report card, laid out fresh for a landscape
+  // frame instead of a tall single column — hero up top, then chart /
+  // pot breakdown+stats / leveraged+assumptions side by side in three
+  // columns, since a single stacked column at this aspect ratio would
+  // either need illegibly small text or run off the bottom of the
+  // canvas. Generated on demand only when the button's clicked, not
   // kept live-updating like the report preview.
   function buildWallpaperCanvas(result) {
     const symbol = CURRENCY_SYMBOLS[result.currency];
     const fmt = (n) => symbol + fmtNumber(n);
 
     const fontLoads = document.fonts
-      ? document.fonts.load("400 480px 'shackleton'").catch(() => {})
+      ? document.fonts.load("400 300px 'shackleton'").catch(() => {})
       : Promise.resolve();
 
     return Promise.all([
@@ -1361,6 +1362,9 @@
       canvas.height = H;
       const ctx = canvas.getContext('2d');
       const serif = "'shackleton', Georgia, serif";
+      const contribColor = CARD_COLORS.ink;
+      const interestColor = '#786246';
+      const targetColor = '#6b5136';
 
       function boldText(text, x, y, size, color, strokeWidth) {
         ctx.font = `400 ${size}px ${serif}`;
@@ -1387,17 +1391,141 @@
         return size;
       }
 
+      function compactCurrencyForWallpaper(v) {
+        if (v >= 1_000_000) return symbol + (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (v >= 1_000) return symbol + (v / 1_000).toFixed(0) + 'K';
+        return symbol + Math.round(v);
+      }
+
+      function drawWallpaperChart(cx, cy, cw, ch) {
+        const points = [{ year: 0, contributed: result.principal, interest: 0, balance: result.principal }, ...result.series];
+        if (points.length < 2 || !Number.isFinite(result.potRequired)) return;
+
+        const padding = { top: 10, right: 20, bottom: 60, left: 190 };
+        const plotW = cw - padding.left - padding.right;
+        const plotH = ch - padding.top - padding.bottom;
+        const maxBalance = Math.max(result.potRequired, ...points.map((p) => p.balance)) * 1.05;
+        const maxYear = points[points.length - 1].year || 1;
+        const xForYear = (yr) => cx + padding.left + (yr / maxYear) * plotW;
+        const yForVal = (v) => cy + padding.top + plotH - (v / maxBalance) * plotH;
+
+        ctx.font = `400 30px ${serif}`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'right';
+        const ySteps = 4;
+        for (let i = 0; i <= ySteps; i++) {
+          const val = (maxBalance / ySteps) * i;
+          const yy = yForVal(val);
+          ctx.strokeStyle = 'rgba(51, 41, 31, 0.15)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + padding.left, yy);
+          ctx.lineTo(cx + cw - padding.right, yy);
+          ctx.stroke();
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          ctx.fillText(compactCurrencyForWallpaper(val), cx + padding.left - 20, yy);
+        }
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        const maxLabels = 8;
+        const xLabelStep = Math.max(1, Math.ceil(maxYear / Math.max(1, maxLabels - 1)));
+        for (let yr = 0; yr <= maxYear; yr += xLabelStep) {
+          ctx.fillText('Yr ' + yr, xForYear(yr), cy + ch - padding.bottom + 44);
+        }
+
+        function drawArea(getTop, getBottom, color) {
+          ctx.beginPath();
+          points.forEach((p, i) => {
+            const px = xForYear(p.year), py = yForVal(getTop(p));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          });
+          for (let i = points.length - 1; i >= 0; i--) {
+            const p = points[i];
+            ctx.lineTo(xForYear(p.year), yForVal(getBottom(p)));
+          }
+          ctx.closePath();
+          ctx.fillStyle = color;
+          ctx.fill();
+        }
+        drawArea((p) => p.contributed, () => 0, 'rgba(51, 41, 31, 0.2)');
+        drawArea((p) => p.balance, (p) => p.contributed, 'rgba(120, 98, 70, 0.32)');
+
+        function drawLine(getVal, color) {
+          ctx.beginPath();
+          points.forEach((p, i) => {
+            const px = xForYear(p.year), py = yForVal(getVal(p));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          });
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 6;
+          ctx.stroke();
+        }
+        drawLine((p) => p.contributed, contribColor);
+        drawLine((p) => p.balance, interestColor);
+
+        ctx.save();
+        ctx.setLineDash([16, 12]);
+        ctx.beginPath();
+        const targetY = yForVal(result.potRequired);
+        ctx.moveTo(cx + padding.left, targetY);
+        ctx.lineTo(cx + cw - padding.right, targetY);
+        ctx.strokeStyle = targetColor;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawLedgerBox(lx, ly, lw, rows) {
+        const rowH = 130;
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(lx, ly, lw, rowH * rows.length);
+        rows.forEach((r, i) => {
+          const rowY = ly + i * rowH;
+          if (i > 0) {
+            ctx.strokeStyle = 'rgba(51, 41, 31, 0.25)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(lx, rowY);
+            ctx.lineTo(lx + lw, rowY);
+            ctx.stroke();
+          }
+          const textY = rowY + rowH / 2 + 15;
+          ctx.textAlign = 'left';
+          ctx.font = `400 38px ${serif}`;
+          ctx.fillStyle = CARD_COLORS.ink;
+          ctx.fillText(r.label, lx + 32, textY);
+          ctx.textAlign = 'right';
+          boldText(r.value, lx + lw - 32, textY, 40, r.accent ? CARD_COLORS.accent : CARD_COLORS.ink, 1);
+        });
+      }
+
+      function statBox(x, y, w, h, label, value) {
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        ctx.textAlign = 'center';
+        ctx.font = `400 32px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkSecondary;
+        wrapText(ctx, label, x + w / 2, y + 56, w - 56, 40);
+        boldText(value, x + w / 2, y + h - 56, 56, CARD_COLORS.ink, 1);
+      }
+
       function renderWallpaper() {
         ctx.clearRect(0, 0, W, H);
         ctx.fillStyle = CARD_COLORS.bg;
         ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = CARD_COLORS.ink;
+        ctx.lineWidth = 16;
+        ctx.strokeRect(80, 80, W - 160, H - 160);
         ctx.textBaseline = 'alphabetic';
 
         // Brand lockup, top-left
-        const markSize = 220;
-        ctx.drawImage(buffalo, 200, 180, markSize, markSize);
+        const markSize = 180;
+        ctx.drawImage(buffalo, 160, 170, markSize, markSize);
         ctx.textAlign = 'left';
-        boldText('Investing Buffalo', 480, 340, 100, CARD_COLORS.ink, 2);
+        boldText('Investing Buffalo', 380, 300, 95, CARD_COLORS.ink, 2);
 
         // Kicker, top-right — personalised title if a name's been
         // entered, same as the report card.
@@ -1405,31 +1533,150 @@
         const kicker = result.reportName
           ? `${result.reportName.toUpperCase()}’S PATH TO FINANCIAL FREEDOM`
           : 'MAP YOUR PATH';
-        const kickerSize = fitFontSize(kicker, W - 680, 56, 32);
-        boldText(kicker, W - 200, 300, kickerSize, CARD_COLORS.inkSecondary, 1.2);
+        const kickerSize = fitFontSize(kicker, W - 800, 58, 32);
+        boldText(kicker, W - 160, 300, kickerSize, CARD_COLORS.inkSecondary, 1.2);
 
-        // Hero — the one thing this image needs to say, big enough to
-        // read from across a desk. Vertical rhythm scaled up from the
-        // report card's already-proven hero (kicker y=210/size=26,
-        // figure y=335/size=116, sub y=380) — same ~4.27x factor as the
-        // brand mark above — rather than guessed numbers, which is what
-        // left the kicker overlapping the figure the first time round.
+        // Hero
         ctx.textAlign = 'center';
-        boldText('THE POT YOU NEED', W / 2, 1196, 111, CARD_COLORS.inkSecondary, 1.6);
+        boldText('THE POT YOU NEED', W / 2, 680, 100, CARD_COLORS.inkSecondary, 1.6);
 
         const figureText = fmt(result.potRequired);
-        const figureSize = fitFontSize(figureText, W - 600, 480, 220);
-        boldText(figureText, W / 2, 1730, figureSize, CARD_COLORS.accent, Math.max(6, figureSize * 0.026));
+        const figureSize = fitFontSize(figureText, W - 800, 300, 150);
+        boldText(figureText, W / 2, 960, figureSize, CARD_COLORS.accent, Math.max(4, figureSize * 0.026));
 
-        ctx.font = `400 115px ${serif}`;
+        ctx.font = `400 68px ${serif}`;
         ctx.fillStyle = CARD_COLORS.ink;
         const heroSub = result.leveraged > 0
           ? `to provide ${fmt(result.passiveMonthly)}/month passive income by age ${result.targetAge}`
           : `to provide ${fmt(result.passiveMonthly)}/month by age ${result.targetAge}`;
-        ctx.fillText(heroSub, W / 2, 1922, W - 800);
+        ctx.fillText(heroSub, W / 2, 1060, W - 800);
 
-        // Footer — small and quiet, not competing with the hero
-        boldText('Map your own path at investingbuffalo.com', W / 2, H - 140, 46, CARD_COLORS.accent, 1);
+        // ---- Three-column content grid ----
+        const contentTop = 1180, contentBottom = 2900;
+        const margin = 160, gap = 120;
+        const colW = (W - margin * 2 - gap * 2) / 3;
+        const col1X = margin, col2X = margin + colW + gap, col3X = margin + (colW + gap) * 2;
+
+        // Column 1 — the growth chart
+        ctx.textAlign = 'center';
+        boldText('REACHING YOUR POT', col1X + colW / 2, contentTop + 50, 50, CARD_COLORS.inkSecondary, 0.8);
+        (function legendRow(cy) {
+          const items = [
+            { color: contribColor, label: 'Savings' },
+            { color: interestColor, label: 'Investment return' },
+            { color: targetColor, label: 'Target pot', dashed: true },
+          ];
+          ctx.font = `400 32px ${serif}`;
+          const dotR = 13, gapDotText = 16, gapItems = 48;
+          const widths = items.map((it) => dotR * 2 + gapDotText + ctx.measureText(it.label).width);
+          const totalW = widths.reduce((a, b) => a + b, 0) + gapItems * (items.length - 1);
+          let cx = col1X + colW / 2 - totalW / 2;
+          items.forEach((it, i) => {
+            if (it.dashed) {
+              ctx.strokeStyle = it.color;
+              ctx.lineWidth = 5;
+              ctx.setLineDash([9, 7]);
+              ctx.beginPath();
+              ctx.moveTo(cx, cy - 12);
+              ctx.lineTo(cx + dotR * 2, cy - 12);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            } else {
+              ctx.beginPath();
+              ctx.fillStyle = it.color;
+              ctx.arc(cx + dotR, cy - 12, dotR, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = CARD_COLORS.inkSecondary;
+            ctx.fillText(it.label, cx + dotR * 2 + gapDotText, cy);
+            cx += widths[i] + gapItems;
+          });
+        })(contentTop + 130);
+        drawWallpaperChart(col1X, contentTop + 190, colW, contentBottom - (contentTop + 190));
+
+        // Column 2 — Your pot ledger + quick stats
+        ctx.textAlign = 'center';
+        boldText('YOUR POT', col2X + colW / 2, contentTop + 50, 50, CARD_COLORS.inkSecondary, 0.8);
+        drawLedgerBox(col2X, contentTop + 110, colW, [
+          { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
+          { label: 'Current assets', value: fmt(result.principal) },
+          { label: 'Return on current assets', value: fmt(result.futureAssets - result.principal) },
+          { label: 'Still to be saved', value: fmt(result.savingsContributed) },
+          { label: 'Return on still to be saved', value: fmt(Math.max(0, result.potRequired - result.futureAssets) - result.savingsContributed) },
+        ]);
+        const statW = (colW - 40) / 2, statH = 380, statY1 = contentTop + 110 + 130 * 5 + 80, statY2 = statY1 + statH + 40;
+        const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
+        const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
+        statBox(col2X, statY1, statW, statH, savingsLabel, savingsValue);
+        statBox(col2X + statW + 40, statY1, statW, statH, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
+        statBox(col2X, statY2, statW, statH, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
+        statBox(col2X + statW + 40, statY2, statW, statH, 'Years to go', String(result.years));
+
+        // Column 3 — leveraged income + assumptions
+        const boxY = contentTop + 20, boxH = 760;
+        ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
+        ctx.fillRect(col3X, boxY, colW, boxH);
+        ctx.strokeStyle = CARD_COLORS.accent;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(col3X, boxY, colW, boxH);
+        ctx.textAlign = 'left';
+        boldText('LEVERAGED INCOME', col3X + 40, boxY + 70, 42, CARD_COLORS.accent, 1);
+
+        ctx.font = `400 38px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.textAlign = 'center';
+        const soonerText = result.monthsSooner ? formatYearsMonths(result.monthsSooner) : null;
+        let leverageText;
+        if (result.leveraged <= 0) {
+          leverageText = 'A side business could generate leveraged income and shorten this path.';
+        } else if (result.monthlySaved > 0) {
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income, which cuts your monthly saving requirement by ${fmt(result.monthlySaved)} to ${fmt(result.pmt)}`
+            + (soonerText ? `, or save ${fmt(result.baseMonthlyForCompare)}/month as originally planned and get to the pot you need ${soonerText} sooner.` : '.');
+        } else if (soonerText) {
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income — keep saving ${fmt(result.baseMonthlyForCompare)}/month as planned and get to the pot you need ${soonerText} sooner.`;
+        } else {
+          leverageText = `Assumes ${fmt(result.leveraged)}/month in leveraged income toward your desired monthly income.`;
+        }
+        const leverageLines = wrapTextBalanced(ctx, leverageText, colW - 100);
+        const leverageLineH = 50;
+        const leverageContentTop = boxY + 150;
+        const leverageContentBottom = boxY + boxH - 40;
+        const leverageBlockH = (leverageLines.length - 1) * leverageLineH;
+        const leverageStartY = Math.max(
+          leverageContentTop,
+          leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
+        );
+        leverageLines.forEach((line, i) => ctx.fillText(line, col3X + colW / 2, leverageStartY + i * leverageLineH));
+
+        const assumeY = boxY + boxH + 80, assumeColW = (colW - 40) / 2, assumeColH = 380;
+        const fmtPercentForWallpaper = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
+        const assumeItems = [
+          { label: 'Expected annual return', value: fmtPercentForWallpaper(result.annualReturn) },
+          { label: 'Expected annual inflation', value: fmtPercentForWallpaper(result.inflation) },
+          { label: 'Safe withdrawal rate', value: fmtPercentForWallpaper(result.withdrawalRate) },
+          { label: 'Leveraged income assumed', value: fmt(result.leveraged) + '/mo' },
+        ];
+        assumeItems.forEach((item, i) => {
+          const ax = col3X + (i % 2) * (assumeColW + 40);
+          const ay = assumeY + Math.floor(i / 2) * (assumeColH + 40);
+          ctx.strokeStyle = 'rgba(51, 41, 31, 0.35)';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(ax, ay, assumeColW, assumeColH);
+          ctx.textAlign = 'center';
+          ctx.font = `400 30px ${serif}`;
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          wrapText(ctx, item.label, ax + assumeColW / 2, ay + 50, assumeColW - 40, 38);
+          boldText(item.value, ax + assumeColW / 2, ay + assumeColH - 46, 50, CARD_COLORS.ink, 1);
+        });
+
+        // Footer
+        ctx.textAlign = 'center';
+        boldText('Map your own path at investingbuffalo.com', W / 2, H - 180, 56, CARD_COLORS.accent, 1.4);
+        ctx.font = `italic 400 32px ${serif}`;
+        ctx.fillStyle = CARD_COLORS.inkTertiary;
+        ctx.fillText('Illustrative only — assumes a constant return and inflation, and is not financial advice.', W / 2, H - 120);
       }
 
       renderWallpaper();
