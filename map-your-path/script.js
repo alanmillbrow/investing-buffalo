@@ -1534,15 +1534,14 @@
         ctx.textAlign = 'right';
         boldText('MAP YOUR PATH', W - 160, 280, 46, CARD_COLORS.inkSecondary, 1);
 
-        // ---- Two-column composition: a wide left "story" column (the
+        // ---- Two-column composition: left "story" column (the
         // headline figure and the chart that explains it) beside a
-        // narrower right "reference" column (the supporting numbers) —
-        // an asymmetric split reads as designed, unlike three equal
-        // grid columns, and gives the right column's cards real
-        // vertical room instead of fighting for space. ----
+        // right "reference" column (the supporting numbers) — split
+        // evenly down the centre. ----
         const contentTop = 460, contentBottom = 2940;
         const margin = 160, gap = 140;
-        const leftW = 2760, rightW = W - margin * 2 - gap - leftW;
+        const halfW = (W - margin * 2 - gap) / 2;
+        const leftW = halfW, rightW = halfW;
         const leftX = margin, rightX = margin + leftW + gap;
 
         // Thin rule between the two columns — the one graphic device
