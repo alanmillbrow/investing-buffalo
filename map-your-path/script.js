@@ -1479,7 +1479,7 @@
       }
 
       function drawLedgerBox(lx, ly, lw, rows) {
-        const rowH = 110;
+        const rowH = 120;
         ctx.strokeStyle = CARD_COLORS.ink;
         ctx.lineWidth = 3;
         ctx.strokeRect(lx, ly, lw, rowH * rows.length);
@@ -1627,7 +1627,11 @@
             cx += dotR * 2 + gapDotText + ctx.measureText(it.label).width + gapItems;
           });
         })(chartTop + 60);
-        drawWallpaperChart(leftX, chartTop + 110, leftW, contentBottom - (chartTop + 110));
+        // Fixed height rather than stretched to fill the rest of the
+        // column — a chart doesn't need to be as tall as the space
+        // available for it, and the resulting gap below is deliberate
+        // negative space, not a layout accident.
+        drawWallpaperChart(leftX, chartTop + 110, leftW, 950);
 
         // ---- Right column: a stacked "reference" strip — ledger,
         // quick stats, leveraged income, assumptions — each with real
@@ -1644,19 +1648,24 @@
           { label: 'Still to be saved', value: fmt(result.savingsContributed) },
           { label: 'Return on still to be saved', value: fmt(Math.max(0, result.potRequired - result.futureAssets) - result.savingsContributed) },
         ]);
-        ry += 110 * 5 + 60;
+        // Gaps between each card below are generous on purpose, not
+        // stretched to hit a target total height — this column no
+        // longer needs to reach any particular depth now the chart
+        // beside it has its own fixed height instead of filling the
+        // column, so there's room for real separation between cards.
+        ry += 120 * 5 + 90;
 
-        const statW = (rightW - 40) / 2, statH = 260;
+        const statW = (rightW - 40) / 2, statH = 230;
         const savingsLabel = result.pmtIsNow ? 'Needed right now' : 'Monthly savings needed';
         const savingsValue = result.onTrack ? 'On track' : fmt(result.pmt);
         statBox(rightX, ry, statW, statH, savingsLabel, savingsValue);
         statBox(rightX + statW + 40, ry, statW, statH, 'Desired income (today)', fmt(result.desiredIncome) + '/mo');
-        ry += statH + 30;
+        ry += statH + 40;
         statBox(rightX, ry, statW, statH, 'Desired income (future)', fmt(result.futureMonthlyIncome) + '/mo');
         statBox(rightX + statW + 40, ry, statW, statH, 'Years to go', String(result.years));
-        ry += statH + 60;
+        ry += statH + 100;
 
-        const boxY = ry, boxH = 400;
+        const boxY = ry, boxH = 380;
         ctx.fillStyle = 'rgba(140, 63, 52, 0.1)';
         ctx.fillRect(rightX, boxY, rightW, boxH);
         ctx.strokeStyle = CARD_COLORS.accent;
@@ -1690,9 +1699,9 @@
           leverageContentTop + (leverageContentBottom - leverageContentTop - leverageBlockH) / 2
         );
         leverageLines.forEach((line, i) => ctx.fillText(line, rightX + rightW / 2, leverageStartY + i * leverageLineH));
-        ry = boxY + boxH + 60;
+        ry = boxY + boxH + 90;
 
-        const assumeColW = (rightW - 40) / 2, assumeColH = 260;
+        const assumeColW = (rightW - 40) / 2, assumeColH = 230;
         const fmtPercentForWallpaper = (n) => (n * 100).toFixed(1).replace(/\.0$/, '') + '%';
         const assumeItems = [
           { label: 'Expected annual return', value: fmtPercentForWallpaper(result.annualReturn) },
@@ -1702,7 +1711,7 @@
         ];
         assumeItems.forEach((item, i) => {
           const ax = rightX + (i % 2) * (assumeColW + 40);
-          const ay = ry + Math.floor(i / 2) * (assumeColH + 30);
+          const ay = ry + Math.floor(i / 2) * (assumeColH + 40);
           ctx.strokeStyle = 'rgba(51, 41, 31, 0.35)';
           ctx.lineWidth = 2.5;
           ctx.strokeRect(ax, ay, assumeColW, assumeColH);
