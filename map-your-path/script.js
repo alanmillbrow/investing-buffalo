@@ -1020,15 +1020,23 @@
         // otherwise, but always shown. Drawn at a fixed spot below the
         // header; everything from the hero down is then pushed down by
         // nameOffset (via translate, restored before the footer) to
-        // make room for it.
+        // make room for it. Nudged up 10px from the original 190 — half
+        // of the hero block's own 20px move up above — so it still sits
+        // roughly centred between the header and "THE POT YOU NEED"
+        // rather than crowding the kicker.
         if (nameLines.length) {
           ctx.textAlign = 'center';
           nameLines.forEach((line, i) => {
-            boldText(line, W / 2, 190 + i * NAME_LINE_HEIGHT, NAME_FONT_SIZE, CARD_COLORS.ink, 0.8);
+            boldText(line, W / 2, 180 + i * NAME_LINE_HEIGHT, NAME_FONT_SIZE, CARD_COLORS.ink, 0.8);
           });
         }
         ctx.save();
-        ctx.translate(0, nameOffset);
+        // 20px extra on top of nameOffset — pulls everything from "THE
+        // POT YOU NEED" down through the assumptions boxes up, closing
+        // the gap that had built up above the footer once the stat/
+        // assumptions boxes were tightened without the rest of the
+        // block following them up.
+        ctx.translate(0, nameOffset - 20);
 
         // ---- Hero: the headline stat ----
         ctx.textAlign = 'center';
