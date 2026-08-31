@@ -66,6 +66,7 @@
   const disclaimerInput = $('disclaimer');
   const generateBtn = $('generateBtn');
   const downloadBtn = $('downloadBtn');
+  const downloadPdfBtn = $('downloadPdfBtn');
   const clearDraftBtn = $('clearDraftBtn');
   const shareStatus = $('shareStatus');
   const previewWrap = $('previewWrap');
@@ -523,6 +524,18 @@
 
   // ---------- Generate / download ----------
   let lastUrl = null;
+  let lastCanvas = null;
+
+  function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
 
   generateBtn.addEventListener('click', () => {
     const data = collectData();
@@ -533,7 +546,10 @@
     generateBtn.disabled = true;
     setStatus('Generating…', 0);
     buildStarterSheetCanvas(data)
-      .then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, 'image/png')))
+      .then((canvas) => {
+        lastCanvas = canvas;
+        return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      })
       .then((blob) => {
         if (!blob) throw new Error('Could not create image');
         if (lastUrl) URL.revokeObjectURL(lastUrl);
@@ -541,6 +557,7 @@
         preview.src = lastUrl;
         previewWrap.classList.remove('hidden');
         downloadBtn.disabled = false;
+        downloadPdfBtn.disabled = false;
         setStatus('Preview updated');
       })
       .catch(() => {
@@ -560,6 +577,89 @@
     link.click();
     link.remove();
     setStatus('Downloaded');
+  });
+
+  // ---------- PDF export ----------
+  // No PDF library — the sheet is always a single full-bleed image, so
+  // it's a single-page PDF with one JPEG XObject, hand-built to the
+  // spec (a handful of indirect objects + an xref table). JPEG (not
+  // PNG) so the stream can be embedded as-is via /DCTDecode with no
+  // need to implement zlib/deflate in the browser.
+  function buildSingleImagePdf(jpegBytes, pixelWidth, pixelHeight) {
+    const PRINT_DPI = 150; // physical page size only — the embedded image keeps its full pixel detail
+    const pageWidth = (pixelWidth * 72) / PRINT_DPI;
+    const pageHeight = (pixelHeight * 72) / PRINT_DPI;
+    const enc = new TextEncoder();
+    const chunks = [];
+    let offset = 0;
+    const offsets = [];
+    function write(part) {
+      const bytes = typeof part === 'string' ? enc.encode(part) : part;
+      chunks.push(bytes);
+      offset += bytes.length;
+    }
+    function startObj(n) {
+      offsets[n] = offset;
+      write(`${n} 0 obj\n`);
+    }
+
+    write('%PDF-1.4\n');
+
+    startObj(1);
+    write('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+    startObj(2);
+    write('<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+
+    startObj(3);
+    write(
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] ` +
+      `/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`
+    );
+
+    startObj(4);
+    write(
+      `<< /Type /XObject /Subtype /Image /Width ${pixelWidth} /Height ${pixelHeight} ` +
+      `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`
+    );
+    write(jpegBytes);
+    write('\nendstream\nendobj\n');
+
+    const content = `q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ`;
+    startObj(5);
+    write(`<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`);
+
+    const xrefStart = offset;
+    write(`xref\n0 6\n0000000000 65535 f \n`);
+    for (let n = 1; n <= 5; n++) {
+      write(`${String(offsets[n]).padStart(10, '0')} 00000 n \n`);
+    }
+    write(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+
+    return new Blob(chunks, { type: 'application/pdf' });
+  }
+
+  downloadPdfBtn.addEventListener('click', () => {
+    if (!lastCanvas) return;
+    downloadPdfBtn.disabled = true;
+    setStatus('Building PDF…', 0);
+    lastCanvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setStatus('Could not build the PDF — try again');
+          downloadPdfBtn.disabled = false;
+          return;
+        }
+        blob.arrayBuffer().then((buf) => {
+          const pdfBlob = buildSingleImagePdf(new Uint8Array(buf), lastCanvas.width, lastCanvas.height);
+          triggerDownload(pdfBlob, 'uk-investing-starter-sheet.pdf');
+          setStatus('Downloaded PDF');
+          downloadPdfBtn.disabled = false;
+        });
+      },
+      'image/jpeg',
+      0.92
+    );
   });
 
   // ---------- Theme ----------
