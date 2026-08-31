@@ -540,7 +540,7 @@
           // Number badge
           ctx.textAlign = 'center';
           boldText(String(i + 1).padStart(2, '0'), centerX, y, 40, CARD_COLORS.accent, 1);
-          y += 60;
+          y += 110;
 
           // Section heading, wrapped, centred
           const headingSize = fitFontSize(section.heading.toUpperCase(), colWidth, 56, 36, serif);
