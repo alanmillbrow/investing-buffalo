@@ -502,7 +502,18 @@
         ctx.lineTo(W - margin, H - 330);
         ctx.stroke();
 
-        boldText('investingbuffalo.com', W / 2, H - 260, 44, CARD_COLORS.accent, 1.2);
+        const brandLabel = 'investingbuffalo.com';
+        const brandY = H - 260;
+        const brandSize = 44;
+        boldText(brandLabel, W / 2, brandY, brandSize, CARD_COLORS.accent, 1.2);
+        const brandWidth = ctx.measureText(brandLabel).width;
+        linkRegions.push({
+          x: W / 2 - brandWidth / 2 - 16,
+          y: brandY - brandSize * 0.85,
+          width: brandWidth + 32,
+          height: brandSize * 1.15,
+          url: 'https://investingbuffalo.com/',
+        });
 
         if (data.disclaimer) {
           ctx.font = `italic 400 38px ${bodyFont}`;
