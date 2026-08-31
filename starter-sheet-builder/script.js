@@ -494,17 +494,32 @@
         });
 
         // ---- Footer: brand line + disclaimer strip ----
+        // Positioned bottom-up (padding from the border, then stacking
+        // the brand line and divider above the disclaimer) rather than
+        // fixed offsets from H — that left a big empty gap below a
+        // short disclaimer, since the block was anchored to the top of
+        // its zone instead of the bottom.
         ctx.textAlign = 'center';
+        ctx.font = `italic 400 38px ${bodyFont}`;
+        const discLines = data.disclaimer
+          ? wrapText(ctx, data.disclaimer, W - margin * 2 - 160).slice(0, 3)
+          : [];
+        const discLineHeight = 46;
+        const footerBottomPad = 110;
+        const lastBaseline = H - footerBottomPad;
+        const discStartY = discLines.length ? lastBaseline - (discLines.length - 1) * discLineHeight : lastBaseline;
+        const brandY = discLines.length ? discStartY - 60 : lastBaseline;
+        const dividerY = brandY - 70;
+
         ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(margin, H - 330);
-        ctx.lineTo(W - margin, H - 330);
+        ctx.moveTo(margin, dividerY);
+        ctx.lineTo(W - margin, dividerY);
         ctx.stroke();
 
         const brandPrefix = 'For more, visit ';
         const brandLabel = 'investingbuffalo.com';
-        const brandY = H - 260;
         const brandSize = 44;
 
         ctx.textAlign = 'left';
@@ -526,13 +541,11 @@
           url: 'https://investingbuffalo.com/',
         });
 
-        if (data.disclaimer) {
+        if (discLines.length) {
           ctx.font = `italic 400 38px ${bodyFont}`;
           ctx.fillStyle = CARD_COLORS.ink;
-          const discLines = wrapText(ctx, data.disclaimer, W - margin * 2 - 160);
-          const startY = H - 205;
-          discLines.slice(0, 3).forEach((line, li) => {
-            ctx.fillText(line, W / 2, startY + li * 46);
+          discLines.forEach((line, li) => {
+            ctx.fillText(line, W / 2, discStartY + li * discLineHeight);
           });
         }
       }
