@@ -2647,6 +2647,12 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 .page-starter-sheet-builder .field textarea {
   resize: vertical;
 }
+/* The draft-portability note sits between two .share-actions button
+   rows, not under an <h2> like the base .section-note's -12px pull-up
+   assumes — left as-is it overlaps the button row above it. */
+.page-starter-sheet-builder .share-actions + .section-note {
+  margin-top: 16px;
+}
 
 @media (max-width: 900px) {
   .layout {
