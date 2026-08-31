@@ -186,6 +186,7 @@
     inkSecondary: 'rgba(51, 41, 31, 0.64)',
     inkTertiary: 'rgba(51, 41, 31, 0.44)',
     accent: '#8c3f34',
+    accentText: '#f2e9d8',
   };
 
   let recoloredBuffaloPromise = null;
@@ -351,7 +352,7 @@
         const colWidth = (W - margin * 2 - colGap * (numCols - 1)) / numCols;
         const contentTop = Math.max(620, introBottom + 90);
         const contentBottom = H - 400;
-        const linkBlockHeight = 130;
+        const linkBlockHeight = 170;
         const linkTop = contentBottom - linkBlockHeight;
 
         data.sections.forEach((section, i) => {
@@ -432,46 +433,43 @@
 
           // Link — pinned to the same Y in every column regardless of
           // how much (or little) sits above it, so all four line up.
-          // Styled to unmistakably read as a link (bold, underlined,
-          // on its own pill) since the sheet is a static image, not a
-          // clickable page — the label has to do the work of a real
-          // hyperlink's affordance on its own.
+          // Drawn as one solid, full-column-width button: the same
+          // fixed box (position, width, corner radius) in every column,
+          // with the label always centred inside it — since it's a
+          // static image, not a clickable page, the button shape itself
+          // has to carry the "this is a link" meaning, and keeping that
+          // shape identical everywhere removes any doubt about which
+          // text belongs to which box.
           if (section.linkLabel || section.linkUrl) {
-            ctx.strokeStyle = 'rgba(51, 41, 31, 0.25)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(colX, linkTop);
-            ctx.lineTo(colX + colWidth, linkTop);
-            ctx.stroke();
-
             ctx.textAlign = 'center';
-            let linkY = linkTop + 64;
+            const btnWidth = colWidth;
+            const btnX = colX;
+
+            let btnHeight = 84;
+            let labelLines = [];
             if (section.linkLabel) {
-              ctx.font = `600 36px ${bodyFont}`;
+              ctx.font = `600 34px ${bodyFont}`;
               const labelText = `${section.linkLabel}  →`;
-              const labelLines = wrapText(ctx, labelText, colWidth - 40).slice(0, 2);
-
-              // Pill background behind the label so it reads as a
-              // button, not just another line of body copy.
-              const pillHeight = labelLines.length * 46 + 28;
-              const pillWidth = Math.max(...labelLines.map((l) => ctx.measureText(l).width)) + 64;
-              const pillTop = linkY - 40;
-              ctx.fillStyle = 'rgba(140, 63, 52, 0.12)';
-              ctx.strokeStyle = CARD_COLORS.accent;
-              ctx.lineWidth = 2.5;
-              const pr = 30;
-              const px = centerX - pillWidth / 2;
-              ctx.beginPath();
-              ctx.roundRect(px, pillTop, pillWidth, pillHeight, pr);
-              ctx.fill();
-              ctx.stroke();
-
-              labelLines.forEach((line, li) => {
-                ctx.fillStyle = CARD_COLORS.accent;
-                ctx.fillText(line, centerX, linkY + li * 46);
-              });
-              linkY = pillTop + pillHeight + 34;
+              labelLines = wrapText(ctx, labelText, btnWidth - 72).slice(0, 2);
+              btnHeight = labelLines.length * 44 + 40;
             }
+
+            const btnTop = linkTop;
+            ctx.fillStyle = CARD_COLORS.accent;
+            ctx.beginPath();
+            ctx.roundRect(btnX, btnTop, btnWidth, btnHeight, 16);
+            ctx.fill();
+
+            if (labelLines.length) {
+              const textBlockHeight = labelLines.length * 44;
+              const firstBaselineY = btnTop + (btnHeight - textBlockHeight) / 2 + 32;
+              ctx.fillStyle = CARD_COLORS.accentText;
+              labelLines.forEach((line, li) => {
+                ctx.fillText(line, centerX, firstBaselineY + li * 44);
+              });
+            }
+
+            let linkY = btnTop + btnHeight + 34;
             if (section.linkUrl) {
               ctx.font = `400 24px ${bodyFont}`;
               ctx.fillStyle = CARD_COLORS.inkTertiary;
