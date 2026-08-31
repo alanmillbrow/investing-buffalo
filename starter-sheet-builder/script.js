@@ -50,6 +50,16 @@
           <span class="field-hint">A short closing line shown after body text 4, before the link</span>
           <textarea id="s${index}-post-blurb" data-section="${index}" data-role="postBlurb" rows="3"></textarea>
         </div>
+        ${index === SECTION_COUNT - 1 ? `
+        <div class="field">
+          <label for="s${index}-link2-label">Second link label</label>
+          <span class="field-hint">Appears above the main link below, as a blue button instead of red — e.g. an external account sign-up</span>
+          <input type="text" id="s${index}-link2-label" data-section="${index}" data-role="linkLabel2">
+        </div>
+        <div class="field">
+          <label for="s${index}-link2-url">Second link URL</label>
+          <input type="text" id="s${index}-link2-url" data-section="${index}" data-role="linkUrl2" placeholder="https://...">
+        </div>` : ''}
         <div class="field">
           <label for="s${index}-link-label">Link label</label>
           <input type="text" id="s${index}-link-label" data-section="${index}" data-role="linkLabel">
@@ -101,6 +111,8 @@
           body: get('body', i),
         })),
         postBlurb: get('postBlurb'),
+        linkLabel2: get('linkLabel2'),
+        linkUrl2: get('linkUrl2'),
         linkLabel: get('linkLabel'),
         linkUrl: get('linkUrl'),
       };
@@ -133,6 +145,8 @@
         setVal('body', i, item.body);
       });
       setVal('postBlurb', undefined, section.postBlurb);
+      setVal('linkLabel2', undefined, section.linkLabel2);
+      setVal('linkUrl2', undefined, section.linkUrl2);
       setVal('linkLabel', undefined, section.linkLabel);
       setVal('linkUrl', undefined, section.linkUrl);
     });
@@ -171,7 +185,7 @@
     introInput.value = '';
     disclaimerInput.value = '';
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
-    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel"], [data-role="linkUrl"]')
+    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel2"], [data-role="linkUrl2"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
     setStatus('Draft cleared');
   });
@@ -386,6 +400,74 @@
         return size;
       }
 
+      // Solid, full-column-width button — the same fixed box shape
+      // (position, width, corner radius) every time it's used, with the
+      // label always centred inside it, since the sheet is a static
+      // image, not a clickable page, and the button shape itself has to
+      // carry the "this is a link" meaning. Shared by the main link
+      // button (every section) and the second, blue link button
+      // (section 4 only) so both stay pixel-identical in format.
+      function measureLinkButtonHeight(label, width) {
+        if (!label) return 110;
+        ctx.font = `600 44px ${bodyFont}`;
+        const labelText = `${label}  →`;
+        const lines = wrapText(ctx, labelText, width - 90).slice(0, 2);
+        return lines.length * 54 + 56;
+      }
+
+      // Full space a button+URL block actually occupies, from the
+      // button's top to just past its last URL line — used to stack a
+      // second block above it without the URL text landing on/under
+      // whatever comes next.
+      function measureLinkBlockHeight(label, url, width) {
+        const btnHeight = measureLinkButtonHeight(label, width);
+        if (!url) return btnHeight;
+        ctx.font = `400 28px ${bodyFont}`;
+        const urlLines = wrapUrlText(ctx, url, width).slice(0, 2);
+        return btnHeight + 46 + (urlLines.length - 1) * 34 + 20;
+      }
+
+      function drawLinkButton(x, width, centerX, top, label, url, fillColor) {
+        ctx.textAlign = 'center';
+        let labelLines = [];
+        if (label) {
+          ctx.font = `600 44px ${bodyFont}`;
+          const labelText = `${label}  →`;
+          labelLines = wrapText(ctx, labelText, width - 90).slice(0, 2);
+        }
+        const height = measureLinkButtonHeight(label, width);
+
+        ctx.fillStyle = fillColor;
+        ctx.beginPath();
+        ctx.roundRect(x, top, width, height, 16);
+        ctx.fill();
+
+        if (url) {
+          linkRegions.push({ x, y: top, width, height, url });
+        }
+
+        if (labelLines.length) {
+          const textBlockHeight = labelLines.length * 54;
+          const firstBaselineY = top + (height - textBlockHeight) / 2 + 38;
+          ctx.fillStyle = CARD_COLORS.accentText;
+          labelLines.forEach((line, li) => {
+            ctx.fillText(line, centerX, firstBaselineY + li * 54);
+          });
+        }
+
+        let linkY = top + height + 46;
+        if (url) {
+          ctx.font = `400 28px ${bodyFont}`;
+          ctx.fillStyle = CARD_COLORS.inkSecondary;
+          const urlLines = wrapUrlText(ctx, url, width).slice(0, 2);
+          urlLines.forEach((line, li) => {
+            ctx.fillText(line, centerX, linkY + li * 34);
+          });
+        }
+
+        return height;
+      }
+
       // Rebuilt fresh on every renderSheet() call below — records each
       // section's button as a pixel-space rect (canvas coordinates,
       // top-left origin) so the PDF export can turn it into a real
@@ -530,57 +612,22 @@
             y += postBlurbLines.length * 52 + 30;
           }
 
-          // Link — pinned to the same Y in every column regardless of
-          // how much (or little) sits above it, so all four line up.
-          // Drawn as one solid, full-column-width button: the same
-          // fixed box (position, width, corner radius) in every column,
-          // with the label always centred inside it — since it's a
-          // static image, not a clickable page, the button shape itself
-          // has to carry the "this is a link" meaning, and keeping that
-          // shape identical everywhere removes any doubt about which
-          // text belongs to which box.
+          // Second link — section 4 only, a blue button sitting directly
+          // above the main red one. Positioned by its own height so the
+          // main button's Y stays exactly where every other section's
+          // main button is (still pinned/aligned across all four
+          // columns); the second button just grows upward from there.
+          if (i === SECTION_COUNT - 1 && (section.linkLabel2 || section.linkUrl2)) {
+            const secondaryGap = 40;
+            const secondaryBlockHeight = measureLinkBlockHeight(section.linkLabel2, section.linkUrl2, colWidth);
+            const secondaryTop = linkTop - secondaryGap - secondaryBlockHeight;
+            drawLinkButton(colX, colWidth, centerX, secondaryTop, section.linkLabel2, section.linkUrl2, '#5C7A8A');
+          }
+
+          // Main link — pinned to the same Y in every column regardless
+          // of how much (or little) sits above it, so all four line up.
           if (section.linkLabel || section.linkUrl) {
-            ctx.textAlign = 'center';
-            const btnWidth = colWidth;
-            const btnX = colX;
-
-            let btnHeight = 110;
-            let labelLines = [];
-            if (section.linkLabel) {
-              ctx.font = `600 44px ${bodyFont}`;
-              const labelText = `${section.linkLabel}  →`;
-              labelLines = wrapText(ctx, labelText, btnWidth - 90).slice(0, 2);
-              btnHeight = labelLines.length * 54 + 56;
-            }
-
-            const btnTop = linkTop;
-            ctx.fillStyle = CARD_COLORS.accent;
-            ctx.beginPath();
-            ctx.roundRect(btnX, btnTop, btnWidth, btnHeight, 16);
-            ctx.fill();
-
-            if (section.linkUrl) {
-              linkRegions.push({ x: btnX, y: btnTop, width: btnWidth, height: btnHeight, url: section.linkUrl });
-            }
-
-            if (labelLines.length) {
-              const textBlockHeight = labelLines.length * 54;
-              const firstBaselineY = btnTop + (btnHeight - textBlockHeight) / 2 + 38;
-              ctx.fillStyle = CARD_COLORS.accentText;
-              labelLines.forEach((line, li) => {
-                ctx.fillText(line, centerX, firstBaselineY + li * 54);
-              });
-            }
-
-            let linkY = btnTop + btnHeight + 46;
-            if (section.linkUrl) {
-              ctx.font = `400 28px ${bodyFont}`;
-              ctx.fillStyle = CARD_COLORS.inkSecondary;
-              const urlLines = wrapUrlText(ctx, section.linkUrl, colWidth).slice(0, 2);
-              urlLines.forEach((line, li) => {
-                ctx.fillText(line, centerX, linkY + li * 34);
-              });
-            }
+            drawLinkButton(colX, colWidth, centerX, linkTop, section.linkLabel, section.linkUrl, CARD_COLORS.accent);
           }
         });
 
