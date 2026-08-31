@@ -396,7 +396,7 @@
         const colGap = 80;
         const numCols = 4;
         const colWidth = (W - margin * 2 - colGap * (numCols - 1)) / numCols;
-        const contentTop = Math.max(620, introBottom + 90);
+        const contentTop = Math.max(660, introBottom + 110);
         const contentBottom = H - 400;
         const linkBlockHeight = 210;
         const linkTop = contentBottom - linkBlockHeight;
@@ -437,7 +437,7 @@
           ctx.moveTo(centerX - 40, y);
           ctx.lineTo(centerX + 40, y);
           ctx.stroke();
-          y += 50;
+          y += 102;
 
           // Section blurb — a short intro line before the subheadings start
           if (section.blurb) {
