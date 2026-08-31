@@ -502,13 +502,24 @@
         ctx.lineTo(W - margin, H - 330);
         ctx.stroke();
 
+        const brandPrefix = 'For more, visit ';
         const brandLabel = 'investingbuffalo.com';
         const brandY = H - 260;
         const brandSize = 44;
-        boldText(brandLabel, W / 2, brandY, brandSize, CARD_COLORS.accent, 1.2);
+
+        ctx.textAlign = 'left';
+        ctx.font = `400 ${brandSize}px ${serif}`;
+        const prefixWidth = ctx.measureText(brandPrefix).width;
         const brandWidth = ctx.measureText(brandLabel).width;
+        const brandStartX = W / 2 - (prefixWidth + brandWidth) / 2;
+
+        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.fillText(brandPrefix, brandStartX, brandY);
+        boldText(brandLabel, brandStartX + prefixWidth, brandY, brandSize, CARD_COLORS.accent, 1.2);
+        ctx.textAlign = 'center';
+
         linkRegions.push({
-          x: W / 2 - brandWidth / 2 - 16,
+          x: brandStartX + prefixWidth - 16,
           y: brandY - brandSize * 0.85,
           width: brandWidth + 32,
           height: brandSize * 1.15,
@@ -517,7 +528,7 @@
 
         if (data.disclaimer) {
           ctx.font = `italic 400 38px ${bodyFont}`;
-          ctx.fillStyle = CARD_COLORS.inkTertiary;
+          ctx.fillStyle = CARD_COLORS.ink;
           const discLines = wrapText(ctx, data.disclaimer, W - margin * 2 - 160);
           const startY = H - 205;
           discLines.slice(0, 3).forEach((line, li) => {
