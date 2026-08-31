@@ -428,13 +428,13 @@
             }
             if (item.body) {
               ctx.textAlign = 'left';
-              ctx.font = `400 34px ${bodyFont}`;
+              ctx.font = `400 44px ${bodyFont}`;
               const bodyLines = wrapText(ctx, item.body, colWidth);
               bodyLines.forEach((line, li) => {
                 ctx.fillStyle = CARD_COLORS.inkSecondary;
-                ctx.fillText(line, colX, y + li * 42);
+                ctx.fillText(line, colX, y + li * 52);
               });
-              y += bodyLines.length * 42;
+              y += bodyLines.length * 52;
             }
             y += 40;
           });
@@ -493,33 +493,23 @@
           }
         });
 
-        // ---- Footer: brand line + disclaimer strip ----
-        // Positioned bottom-up (padding from the border, then stacking
-        // the brand line and divider above the disclaimer) rather than
-        // fixed offsets from H — that left a big empty gap below a
-        // short disclaimer, since the block was anchored to the top of
-        // its zone instead of the bottom.
+        // ---- Footer: brand line + disclaimer strip + closing ornament ----
+        // Divider/brand/disclaimer back at their original fixed offsets
+        // from H. The tailpiece below (mirroring .page-ornament-close
+        // from the rest of the site) fills what used to be dead space
+        // under a short disclaimer, so a fixed layout looks intentional
+        // again instead of leaving a gap.
         ctx.textAlign = 'center';
-        ctx.font = `italic 400 38px ${bodyFont}`;
-        const discLines = data.disclaimer
-          ? wrapText(ctx, data.disclaimer, W - margin * 2 - 160).slice(0, 3)
-          : [];
-        const discLineHeight = 46;
-        const footerBottomPad = 110;
-        const lastBaseline = H - footerBottomPad;
-        const discStartY = discLines.length ? lastBaseline - (discLines.length - 1) * discLineHeight : lastBaseline;
-        const brandY = discLines.length ? discStartY - 60 : lastBaseline;
-        const dividerY = brandY - 70;
-
         ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(margin, dividerY);
-        ctx.lineTo(W - margin, dividerY);
+        ctx.moveTo(margin, H - 330);
+        ctx.lineTo(W - margin, H - 330);
         ctx.stroke();
 
         const brandPrefix = 'For more, visit ';
         const brandLabel = 'investingbuffalo.com';
+        const brandY = H - 260;
         const brandSize = 44;
 
         ctx.textAlign = 'left';
@@ -541,13 +531,43 @@
           url: 'https://investingbuffalo.com/',
         });
 
+        ctx.font = `italic 400 38px ${bodyFont}`;
+        const discLineHeight = 46;
+        const discStartY = H - 205;
+        // Capped at 2 (not 3) lines now that the tailpiece sits right
+        // below — a 3rd line would leave it no room before the border.
+        const discLines = data.disclaimer
+          ? wrapText(ctx, data.disclaimer, W - margin * 2 - 160).slice(0, 2)
+          : [];
         if (discLines.length) {
-          ctx.font = `italic 400 38px ${bodyFont}`;
           ctx.fillStyle = CARD_COLORS.ink;
           discLines.forEach((line, li) => {
             ctx.fillText(line, W / 2, discStartY + li * discLineHeight);
           });
         }
+
+        // ---- Closing ornament (tailpiece) ----
+        // Mirrors .page-ornament-close elsewhere on the site: a small
+        // buffalo mark flanked by two short rules, centred beneath the
+        // disclaimer. Positioned relative to the disclaimer's actual
+        // last line so it still sits right below the text whether the
+        // disclaimer is one line or two.
+        const discLastBaseline = discLines.length ? discStartY + (discLines.length - 1) * discLineHeight : discStartY - 20;
+        const ornamentY = discLastBaseline + 62;
+        const ornamentIconSize = 40;
+        const ornamentHalfIcon = ornamentIconSize / 2;
+        const ornamentRuleWidth = 110;
+        const ornamentRuleGap = 36;
+
+        ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - ornamentHalfIcon - ornamentRuleGap - ornamentRuleWidth, ornamentY);
+        ctx.lineTo(W / 2 - ornamentHalfIcon - ornamentRuleGap, ornamentY);
+        ctx.moveTo(W / 2 + ornamentHalfIcon + ornamentRuleGap, ornamentY);
+        ctx.lineTo(W / 2 + ornamentHalfIcon + ornamentRuleGap + ornamentRuleWidth, ornamentY);
+        ctx.stroke();
+        ctx.drawImage(buffalo, W / 2 - ornamentHalfIcon, ornamentY - ornamentHalfIcon, ornamentIconSize, ornamentIconSize);
       }
 
       renderSheet();
