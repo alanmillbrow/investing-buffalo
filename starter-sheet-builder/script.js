@@ -179,7 +179,7 @@
   allFields().forEach((el) => el.addEventListener('input', scheduleSave));
 
   clearDraftBtn.addEventListener('click', () => {
-    if (!window.confirm('Clear all fields and the saved draft? This can’t be undone.')) return;
+    if (!window.confirm('Clear all fields and the saved text? This can’t be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     sheetTitleInput.value = 'UK Investing Starter Sheet';
     introInput.value = '';
@@ -187,15 +187,15 @@
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
     document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel2"], [data-role="linkUrl2"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
-    setStatus('Draft cleared');
+    setStatus('Text cleared');
   });
 
   // Draft only lives in this browser's localStorage — export/import
   // moves it to another browser or computer without needing a backend.
   exportDraftBtn.addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(collectData(), null, 2)], { type: 'application/json' });
-    triggerDownload(blob, 'starter-sheet-draft.json');
-    setStatus('Draft exported');
+    triggerDownload(blob, 'starter-sheet-text.json');
+    setStatus('Text exported');
   });
 
   importDraftBtn.addEventListener('click', () => {
@@ -211,10 +211,10 @@
         const data = JSON.parse(text);
         applyData(data);
         scheduleSave();
-        setStatus('Draft imported');
+        setStatus('Text imported');
       })
       .catch(() => {
-        setStatus('Could not import that file — is it a starter sheet draft?');
+        setStatus('Could not import that file — is it a starter sheet text export?');
       });
   });
 
