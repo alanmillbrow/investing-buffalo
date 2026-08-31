@@ -72,6 +72,9 @@
   const generateBtn = $('generateBtn');
   const downloadBtn = $('downloadBtn');
   const downloadPdfBtn = $('downloadPdfBtn');
+  const exportDraftBtn = $('exportDraftBtn');
+  const importDraftBtn = $('importDraftBtn');
+  const importDraftFile = $('importDraftFile');
   const clearDraftBtn = $('clearDraftBtn');
   const shareStatus = $('shareStatus');
   const previewWrap = $('previewWrap');
@@ -171,6 +174,34 @@
     document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
     setStatus('Draft cleared');
+  });
+
+  // Draft only lives in this browser's localStorage — export/import
+  // moves it to another browser or computer without needing a backend.
+  exportDraftBtn.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(collectData(), null, 2)], { type: 'application/json' });
+    triggerDownload(blob, 'starter-sheet-draft.json');
+    setStatus('Draft exported');
+  });
+
+  importDraftBtn.addEventListener('click', () => {
+    importDraftFile.value = '';
+    importDraftFile.click();
+  });
+
+  importDraftFile.addEventListener('change', () => {
+    const file = importDraftFile.files[0];
+    if (!file) return;
+    file.text()
+      .then((text) => {
+        const data = JSON.parse(text);
+        applyData(data);
+        scheduleSave();
+        setStatus('Draft imported');
+      })
+      .catch(() => {
+        setStatus('Could not import that file — is it a starter sheet draft?');
+      });
   });
 
   loadDraft();
