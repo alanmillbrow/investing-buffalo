@@ -241,6 +241,29 @@
     return lines;
   }
 
+  // URLs have no spaces for wrapText's word-splitting to break on, so a
+  // long one was previously drawn as a single unbroken line that could
+  // run past the column edge and overlap the next section — this was
+  // the actual "links don't work properly" bug. Break at the natural
+  // URL wrap points (after /, ., -, _) instead, same greedy packing.
+  function wrapUrlText(ctx, text, maxWidth) {
+    if (!text) return [];
+    const chunks = text.match(/[^/.\-_]*[/.\-_]|[^/.\-_]+$/g) || [text];
+    const lines = [];
+    let line = '';
+    chunks.forEach((chunk) => {
+      const test = line + chunk;
+      if (line && ctx.measureText(test).width > maxWidth) {
+        lines.push(line);
+        line = chunk;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
   function buildStarterSheetCanvas(data) {
     const fontLoads = document.fonts
       ? Promise.all([
@@ -409,6 +432,10 @@
 
           // Link — pinned to the same Y in every column regardless of
           // how much (or little) sits above it, so all four line up.
+          // Styled to unmistakably read as a link (bold, underlined,
+          // on its own pill) since the sheet is a static image, not a
+          // clickable page — the label has to do the work of a real
+          // hyperlink's affordance on its own.
           if (section.linkLabel || section.linkUrl) {
             ctx.strokeStyle = 'rgba(51, 41, 31, 0.25)';
             ctx.lineWidth = 2;
@@ -418,21 +445,40 @@
             ctx.stroke();
 
             ctx.textAlign = 'center';
-            let linkY = linkTop + 52;
+            let linkY = linkTop + 64;
             if (section.linkLabel) {
-              ctx.font = `600 32px ${bodyFont}`;
-              const labelText = `→ ${section.linkLabel}`;
-              const labelLines = wrapText(ctx, labelText, colWidth);
+              ctx.font = `600 36px ${bodyFont}`;
+              const labelText = `${section.linkLabel}  →`;
+              const labelLines = wrapText(ctx, labelText, colWidth - 40).slice(0, 2);
+
+              // Pill background behind the label so it reads as a
+              // button, not just another line of body copy.
+              const pillHeight = labelLines.length * 46 + 28;
+              const pillWidth = Math.max(...labelLines.map((l) => ctx.measureText(l).width)) + 64;
+              const pillTop = linkY - 40;
+              ctx.fillStyle = 'rgba(140, 63, 52, 0.12)';
+              ctx.strokeStyle = CARD_COLORS.accent;
+              ctx.lineWidth = 2.5;
+              const pr = 30;
+              const px = centerX - pillWidth / 2;
+              ctx.beginPath();
+              ctx.roundRect(px, pillTop, pillWidth, pillHeight, pr);
+              ctx.fill();
+              ctx.stroke();
+
               labelLines.forEach((line, li) => {
                 ctx.fillStyle = CARD_COLORS.accent;
-                ctx.fillText(line, centerX, linkY + li * 40);
+                ctx.fillText(line, centerX, linkY + li * 46);
               });
-              linkY += labelLines.length * 40 + 6;
+              linkY = pillTop + pillHeight + 34;
             }
             if (section.linkUrl) {
               ctx.font = `400 24px ${bodyFont}`;
               ctx.fillStyle = CARD_COLORS.inkTertiary;
-              ctx.fillText(section.linkUrl, centerX, linkY);
+              const urlLines = wrapUrlText(ctx, section.linkUrl, colWidth).slice(0, 2);
+              urlLines.forEach((line, li) => {
+                ctx.fillText(line, centerX, linkY + li * 30);
+              });
             }
           }
         });
