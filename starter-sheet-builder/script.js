@@ -535,11 +535,11 @@
 
             let linkY = btnTop + btnHeight + 34;
             if (section.linkUrl) {
-              ctx.font = `400 24px ${bodyFont}`;
-              ctx.fillStyle = CARD_COLORS.inkTertiary;
+              ctx.font = `400 28px ${bodyFont}`;
+              ctx.fillStyle = CARD_COLORS.inkSecondary;
               const urlLines = wrapUrlText(ctx, section.linkUrl, colWidth).slice(0, 2);
               urlLines.forEach((line, li) => {
-                ctx.fillText(line, centerX, linkY + li * 30);
+                ctx.fillText(line, centerX, linkY + li * 34);
               });
             }
           }
