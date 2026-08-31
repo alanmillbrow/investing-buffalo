@@ -46,6 +46,11 @@
         <p class="section-note">Leave any subheading/body pair blank to skip it — up to ${ITEMS_PER_SECTION} per section.</p>
         ${items}
         <div class="field">
+          <label for="s${index}-post-blurb">Post-section blurb</label>
+          <span class="field-hint">A short closing line shown after body text 4, before the link</span>
+          <textarea id="s${index}-post-blurb" data-section="${index}" data-role="postBlurb" rows="3"></textarea>
+        </div>
+        <div class="field">
           <label for="s${index}-link-label">Link label</label>
           <input type="text" id="s${index}-link-label" data-section="${index}" data-role="linkLabel">
         </div>
@@ -92,6 +97,7 @@
           subheading: get('subheading', i),
           body: get('body', i),
         })),
+        postBlurb: get('postBlurb'),
         linkLabel: get('linkLabel'),
         linkUrl: get('linkUrl'),
       };
@@ -123,6 +129,7 @@
         setVal('subheading', i, item.subheading);
         setVal('body', i, item.body);
       });
+      setVal('postBlurb', undefined, section.postBlurb);
       setVal('linkLabel', undefined, section.linkLabel);
       setVal('linkUrl', undefined, section.linkUrl);
     });
@@ -161,7 +168,7 @@
     introInput.value = '';
     disclaimerInput.value = '';
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
-    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="linkLabel"], [data-role="linkUrl"]')
+    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
     setStatus('Draft cleared');
   });
@@ -360,7 +367,7 @@
         const colWidth = (W - margin * 2 - colGap * (numCols - 1)) / numCols;
         const contentTop = Math.max(620, introBottom + 90);
         const contentBottom = H - 400;
-        const linkBlockHeight = 170;
+        const linkBlockHeight = 210;
         const linkTop = contentBottom - linkBlockHeight;
 
         data.sections.forEach((section, i) => {
@@ -404,13 +411,13 @@
           // Section blurb — a short intro line before the subheadings start
           if (section.blurb) {
             ctx.textAlign = 'left';
-            ctx.font = `400 32px ${bodyFont}`;
+            ctx.font = `400 44px ${bodyFont}`;
             const blurbLines = wrapText(ctx, section.blurb, colWidth);
             blurbLines.forEach((line, li) => {
               ctx.fillStyle = CARD_COLORS.inkSecondary;
-              ctx.fillText(line, colX, y + li * 40);
+              ctx.fillText(line, colX, y + li * 52);
             });
-            y += blurbLines.length * 40 + 30;
+            y += blurbLines.length * 52 + 30;
           }
 
           // Sub-items — only the ones with something in them
@@ -418,13 +425,13 @@
           items.forEach((item) => {
             if (item.subheading) {
               ctx.textAlign = 'left';
-              ctx.font = `600 42px ${bodyFont}`;
+              ctx.font = `600 44px ${bodyFont}`;
               const subLines = wrapText(ctx, item.subheading, colWidth);
               subLines.forEach((line, li) => {
                 ctx.fillStyle = CARD_COLORS.ink;
-                ctx.fillText(line, colX, y + li * 50);
+                ctx.fillText(line, colX, y + li * 52);
               });
-              y += subLines.length * 50 + 10;
+              y += subLines.length * 52 + 10;
             }
             if (item.body) {
               ctx.textAlign = 'left';
@@ -438,6 +445,20 @@
             }
             y += 40;
           });
+
+          // Post-section blurb — same treatment as the section blurb,
+          // but after the last body text instead of before the first
+          // subheading.
+          if (section.postBlurb) {
+            ctx.textAlign = 'left';
+            ctx.font = `400 44px ${bodyFont}`;
+            const postBlurbLines = wrapText(ctx, section.postBlurb, colWidth);
+            postBlurbLines.forEach((line, li) => {
+              ctx.fillStyle = CARD_COLORS.inkSecondary;
+              ctx.fillText(line, colX, y + li * 52);
+            });
+            y += postBlurbLines.length * 52 + 30;
+          }
 
           // Link — pinned to the same Y in every column regardless of
           // how much (or little) sits above it, so all four line up.
@@ -453,13 +474,13 @@
             const btnWidth = colWidth;
             const btnX = colX;
 
-            let btnHeight = 84;
+            let btnHeight = 110;
             let labelLines = [];
             if (section.linkLabel) {
-              ctx.font = `600 34px ${bodyFont}`;
+              ctx.font = `600 44px ${bodyFont}`;
               const labelText = `${section.linkLabel}  →`;
-              labelLines = wrapText(ctx, labelText, btnWidth - 72).slice(0, 2);
-              btnHeight = labelLines.length * 44 + 40;
+              labelLines = wrapText(ctx, labelText, btnWidth - 90).slice(0, 2);
+              btnHeight = labelLines.length * 54 + 56;
             }
 
             const btnTop = linkTop;
@@ -473,11 +494,11 @@
             }
 
             if (labelLines.length) {
-              const textBlockHeight = labelLines.length * 44;
-              const firstBaselineY = btnTop + (btnHeight - textBlockHeight) / 2 + 32;
+              const textBlockHeight = labelLines.length * 54;
+              const firstBaselineY = btnTop + (btnHeight - textBlockHeight) / 2 + 38;
               ctx.fillStyle = CARD_COLORS.accentText;
               labelLines.forEach((line, li) => {
-                ctx.fillText(line, centerX, firstBaselineY + li * 44);
+                ctx.fillText(line, centerX, firstBaselineY + li * 54);
               });
             }
 
