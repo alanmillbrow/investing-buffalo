@@ -228,6 +228,45 @@
     accentText: '#f2e9d8',
   };
 
+  // Fixed QR code linking to investingbuffalo.com, drawn on every sheet.
+  // Pre-generated module matrix (version 3, error correction M) rather
+  // than built at runtime — there's no QR-encoding library on this
+  // static site, and the target URL never changes. Verified to decode
+  // correctly (with a standard 4-module quiet zone added) before being
+  // hard-coded here; drawn as vector rects in renderSheet() rather than
+  // a bitmap so it stays crisp at the sheet's full resolution.
+  const QR_MATRIX = [
+    '11111110001000100111001111111',
+    '10000010011000001110101000001',
+    '10111010011110110110001011101',
+    '10111010001001001011001011101',
+    '10111010000110000110001011101',
+    '10000010110000011111101000001',
+    '11111110101010101010101111111',
+    '00000000011001011111100000000',
+    '10010110101000101010010100000',
+    '10001000100101011000101001001',
+    '11010010111011110101100111110',
+    '01111001100011001000001100110',
+    '01000111100100110100111001011',
+    '11001101001011111101100000000',
+    '10111110111111100010111101111',
+    '00110101101110010111110001010',
+    '10011011010011000101010100010',
+    '01110101111011111100011101001',
+    '10100110110100111100100000011',
+    '00001100010100100111001010011',
+    '10011110101110010000111110100',
+    '00000000110010110001100010111',
+    '11111110001100001000101010010',
+    '10000010111000110010100011100',
+    '10111010000100001110111110010',
+    '10111010111000010001101111101',
+    '10111010000111011001000011101',
+    '10000010001011001111101000010',
+    '11111110110010110010101001010',
+  ];
+
   let recoloredBuffaloPromise = null;
   function loadRecoloredBuffalo(color) {
     if (recoloredBuffaloPromise) return recoloredBuffaloPromise;
@@ -533,7 +572,7 @@
               });
             }
 
-            let linkY = btnTop + btnHeight + 34;
+            let linkY = btnTop + btnHeight + 46;
             if (section.linkUrl) {
               ctx.font = `400 28px ${bodyFont}`;
               ctx.fillStyle = CARD_COLORS.inkSecondary;
@@ -552,11 +591,12 @@
         // under a short disclaimer, so a fixed layout looks intentional
         // again instead of leaving a gap.
         ctx.textAlign = 'center';
+        const dividerY = H - 330;
         ctx.strokeStyle = 'rgba(51, 41, 31, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(margin, H - 330);
-        ctx.lineTo(W - margin, H - 330);
+        ctx.moveTo(margin, dividerY);
+        ctx.lineTo(W - margin, dividerY);
         ctx.stroke();
 
         const brandPrefix = 'For more, visit ';
@@ -588,8 +628,10 @@
         const discStartY = H - 205;
         // Capped at 2 (not 3) lines now that the tailpiece sits right
         // below — a 3rd line would leave it no room before the border.
+        // Narrower than the plain margin*2-160 width so a long centred
+        // line can't reach into the QR code's corner on the right.
         const discLines = data.disclaimer
-          ? wrapText(ctx, data.disclaimer, W - margin * 2 - 160).slice(0, 2)
+          ? wrapText(ctx, data.disclaimer, W - margin * 2 - 420).slice(0, 2)
           : [];
         if (discLines.length) {
           ctx.fillStyle = CARD_COLORS.ink;
@@ -620,6 +662,43 @@
         ctx.lineTo(W / 2 + ornamentHalfIcon + ornamentRuleGap + ornamentRuleWidth, ornamentY);
         ctx.stroke();
         ctx.drawImage(buffalo, W / 2 - ornamentHalfIcon, ornamentY - ornamentHalfIcon, ornamentIconSize, ornamentIconSize);
+
+        // ---- QR code, bottom-right corner ----
+        // A self-contained square: its own 4-module quiet zone is
+        // baked into qrSize, and qrGap (the same value on all three
+        // open sides) is extra breathing room beyond that on top of
+        // the border/divider — never less than what the code needs to
+        // scan reliably.
+        const qrModuleSize = 5;
+        const qrQuietZoneModules = 4;
+        const qrTotalModules = QR_MATRIX.length + qrQuietZoneModules * 2;
+        const qrSize = qrTotalModules * qrModuleSize;
+        const footerBandHeight = (H - 80) - dividerY;
+        const qrGap = (footerBandHeight - qrSize) / 2;
+        const qrLeft = (W - 80) - qrGap - qrSize;
+        const qrTop = dividerY + qrGap;
+
+        ctx.fillStyle = CARD_COLORS.ink;
+        QR_MATRIX.forEach((row, r) => {
+          for (let c = 0; c < row.length; c++) {
+            if (row[c] === '1') {
+              ctx.fillRect(
+                qrLeft + (c + qrQuietZoneModules) * qrModuleSize,
+                qrTop + (r + qrQuietZoneModules) * qrModuleSize,
+                qrModuleSize,
+                qrModuleSize
+              );
+            }
+          }
+        });
+
+        linkRegions.push({
+          x: qrLeft,
+          y: qrTop,
+          width: qrSize,
+          height: qrSize,
+          url: 'https://investingbuffalo.com/',
+        });
       }
 
       renderSheet();
