@@ -309,7 +309,14 @@
         return size;
       }
 
+      // Rebuilt fresh on every renderSheet() call below — records each
+      // section's button as a pixel-space rect (canvas coordinates,
+      // top-left origin) so the PDF export can turn it into a real
+      // clickable link annotation over the same area.
+      let linkRegions = [];
+
       function renderSheet() {
+        linkRegions = [];
         ctx.clearRect(0, 0, W, H);
         ctx.fillStyle = CARD_COLORS.bg;
         ctx.fillRect(0, 0, W, H);
@@ -461,6 +468,10 @@
             ctx.roundRect(btnX, btnTop, btnWidth, btnHeight, 16);
             ctx.fill();
 
+            if (section.linkUrl) {
+              linkRegions.push({ x: btnX, y: btnTop, width: btnWidth, height: btnHeight, url: section.linkUrl });
+            }
+
             if (labelLines.length) {
               const textBlockHeight = labelLines.length * 44;
               const firstBaselineY = btnTop + (btnHeight - textBlockHeight) / 2 + 32;
@@ -514,6 +525,7 @@
           if (done) return;
           done = true;
           renderSheet();
+          canvas.linkRegions = linkRegions;
           resolve(canvas);
         }
         requestAnimationFrame(() => requestAnimationFrame(finish));
@@ -585,10 +597,19 @@
   // spec (a handful of indirect objects + an xref table). JPEG (not
   // PNG) so the stream can be embedded as-is via /DCTDecode with no
   // need to implement zlib/deflate in the browser.
-  function buildSingleImagePdf(jpegBytes, pixelWidth, pixelHeight) {
+  function pdfEscapeString(str) {
+    return str.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  }
+
+  function normalizeLinkUrl(url) {
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  }
+
+  function buildSingleImagePdf(jpegBytes, pixelWidth, pixelHeight, linkRegions) {
     const PRINT_DPI = 150; // physical page size only — the embedded image keeps its full pixel detail
-    const pageWidth = (pixelWidth * 72) / PRINT_DPI;
-    const pageHeight = (pixelHeight * 72) / PRINT_DPI;
+    const ptPerPx = 72 / PRINT_DPI;
+    const pageWidth = pixelWidth * ptPerPx;
+    const pageHeight = pixelHeight * ptPerPx;
     const enc = new TextEncoder();
     const chunks = [];
     let offset = 0;
@@ -603,6 +624,15 @@
       write(`${n} 0 obj\n`);
     }
 
+    // Each button drawn on the sheet becomes a real clickable /Link
+    // annotation over the same area — object numbers 6+, one per link,
+    // referenced from the page's /Annots array. Rects convert from
+    // canvas pixels (top-left origin, y down) to PDF points (bottom-
+    // left origin, y up).
+    const links = (linkRegions || []).filter((r) => r.url);
+    const annotNums = links.map((_, i) => 6 + i);
+    const totalObjects = 5 + links.length;
+
     write('%PDF-1.4\n');
 
     startObj(1);
@@ -612,9 +642,10 @@
     write('<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
 
     startObj(3);
+    const annotsEntry = annotNums.length ? ` /Annots [${annotNums.map((n) => `${n} 0 R`).join(' ')}]` : '';
     write(
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] ` +
-      `/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`
+      `/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R${annotsEntry} >>\nendobj\n`
     );
 
     startObj(4);
@@ -629,12 +660,25 @@
     startObj(5);
     write(`<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`);
 
+    links.forEach((region, i) => {
+      const x1 = region.x * ptPerPx;
+      const x2 = (region.x + region.width) * ptPerPx;
+      const y2 = pageHeight - region.y * ptPerPx;
+      const y1 = pageHeight - (region.y + region.height) * ptPerPx;
+      const uri = pdfEscapeString(normalizeLinkUrl(region.url));
+      startObj(annotNums[i]);
+      write(
+        `<< /Type /Annot /Subtype /Link /Rect [${x1} ${y1} ${x2} ${y2}] /Border [0 0 0] ` +
+        `/A << /Type /Action /S /URI /URI (${uri}) >> >>\nendobj\n`
+      );
+    });
+
     const xrefStart = offset;
-    write(`xref\n0 6\n0000000000 65535 f \n`);
-    for (let n = 1; n <= 5; n++) {
+    write(`xref\n0 ${totalObjects + 1}\n0000000000 65535 f \n`);
+    for (let n = 1; n <= totalObjects; n++) {
       write(`${String(offsets[n]).padStart(10, '0')} 00000 n \n`);
     }
-    write(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+    write(`trailer\n<< /Size ${totalObjects + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
 
     return new Blob(chunks, { type: 'application/pdf' });
   }
@@ -651,7 +695,7 @@
           return;
         }
         blob.arrayBuffer().then((buf) => {
-          const pdfBlob = buildSingleImagePdf(new Uint8Array(buf), lastCanvas.width, lastCanvas.height);
+          const pdfBlob = buildSingleImagePdf(new Uint8Array(buf), lastCanvas.width, lastCanvas.height, lastCanvas.linkRegions);
           triggerDownload(pdfBlob, 'uk-investing-starter-sheet.pdf');
           setStatus('Downloaded PDF');
           downloadPdfBtn.disabled = false;
