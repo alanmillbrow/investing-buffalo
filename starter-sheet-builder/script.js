@@ -504,7 +504,7 @@
         let introBottom = introStartY - 90;
         if (data.intro) {
           ctx.font = `400 44px ${bodyFont}`;
-          const introLines = wrapText(ctx, data.intro, W * 0.66).slice(0, 4);
+          const introLines = wrapText(ctx, data.intro, W * 0.85).slice(0, 4);
           ctx.fillStyle = CARD_COLORS.inkSecondary;
           introLines.forEach((line, li) => {
             ctx.fillText(line, W / 2, introStartY + li * introLineHeight);
