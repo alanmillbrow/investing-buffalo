@@ -333,6 +333,7 @@ body {
   gap: 24px;
 }
 .tools-row-3 { grid-template-columns: repeat(3, 1fr); }
+.tools-row-4 { grid-template-columns: repeat(4, 1fr); }
 
 .tool-box {
   display: flex;
@@ -1727,6 +1728,15 @@ tbody tr:hover { background: var(--accent-soft); }
    the same Chaparral treatment as About Me's story copy rather than
    sitting in Shackleton like the surrounding tables. */
 .page-lookout .story-p {
+  font-family: var(--body-font);
+  font-weight: 600; /* Semibold */
+  color: var(--text-primary);
+}
+/* Same font trial again — UK Platforms is just an opening line and a
+   tailpiece for now (no tables), both .rf-p like UK Tax Tables' own
+   intro/outro, so it gets that page's same Semibold/--text-primary
+   treatment rather than the default lighter .rf-p. */
+.page-uk-platforms .rf-p {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
