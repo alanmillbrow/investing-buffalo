@@ -1733,7 +1733,7 @@ tbody tr:hover { background: var(--accent-soft); }
   color: var(--text-primary);
 }
 /* Same font trial again — UK Platforms is just an opening line and a
-   tailpiece for now (no tables), both .rf-p like UK Tax Tables' own
+   tailpiece for now (no tables), both .rf-p like UK Accounts' own
    intro/outro, so it gets that page's same Semibold/--text-primary
    treatment rather than the default lighter .rf-p. */
 .page-uk-platforms .rf-p {
@@ -1906,14 +1906,14 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-map-your-path .rm-lede {
   text-wrap: balance;
 }
-/* UK Tax Tables — every .rf-p on this page is a substantial explanatory
+/* UK Accounts — every .rf-p on this page is a substantial explanatory
    paragraph rather than a short intro/outro line, so (per the "large body
    of reading text" rule used elsewhere, e.g. Roadmap's .rf-p-regular)
    it's Regular weight + the darker --text-primary throughout, rather than
    Roadmap's Semibold-intro/Regular-story split. Tables stay in the default
    font, consistent with treating tabular content as UI rather than
    reading prose (same reasoning as the calculator field labels above). */
-.page-tax-tables .rf-p {
+.page-uk-accounts .rf-p {
   font-family: var(--body-font);
   font-weight: 400; /* Regular */
   color: var(--text-primary);
@@ -1925,7 +1925,7 @@ tbody tr:hover { background: var(--accent-soft); }
    — they're the page's intro/outro, so they get the same Semibold
    weight as About Me's .story-p rather than this page's default
    Regular. */
-.page-tax-tables .rf-p:not(.rf-p-regular) {
+.page-uk-accounts .rf-p:not(.rf-p-regular) {
   font-weight: 600; /* Semibold, matching About Me's .story-p */
 }
 /* Income tax band table's intro sentence — plain .section-note (pulled up
@@ -1943,7 +1943,7 @@ tbody tr:hover { background: var(--accent-soft); }
    better in a wider rectangle than a square stretched to fit, so this
    widens the box and drops the font size a step to match (2.4rem
    overflowed a 76px-wide box by 2px once there were three characters). */
-.page-tax-tables .mob-letter {
+.page-uk-accounts .mob-letter {
   width: 104px;
   height: 64px;
   font-size: 2rem;
