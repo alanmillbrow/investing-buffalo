@@ -1303,17 +1303,28 @@ select#frequency:focus {
 /* Yearly breakdown tables (Freedom Runway, Liquid Asset Forecaster) —
    default auto layout sized each column by its content, so "Investment
    return" (the longest header) ballooned wide while "Balance" stayed
-   narrow. Fix the layout so all three right-hand columns are genuinely
-   equal width. */
+   narrow. Fix the layout so the right-hand data columns are genuinely
+   equal width. Only the first column gets an explicit width — the rest
+   are left unset so table-layout: fixed splits the remaining space
+   evenly between however many data columns a given table has (3 on
+   Liquid Asset Forecaster, 4 on Freedom Runway), rather than a fixed
+   width per column that assumed one specific column count. */
 .yearly-table {
   table-layout: fixed;
-  /* Fixed % widths on their own just shrink to fit any container instead
+  /* Fixed widths on their own just shrink to fit any container instead
      of overflowing, which silently defeated .table-wrap's horizontal
      scroll on narrow screens — same fix as .stock-table's min-width. */
   min-width: 480px;
 }
 .yearly-table th:first-child, .yearly-table td:first-child { width: 16%; }
-.yearly-table th:not(:first-child), .yearly-table td:not(:first-child) { width: 28%; }
+/* Belt and braces alongside the mobile min-width bump below (search
+   "Freedom Runway's table has one more column") — a currency figure
+   should never wrap regardless of exactly how tight a column gets, so
+   a minus sign can't end up stranded on its own line above the number
+   the way it did in Freedom Runway's Lifestyle expenses column. */
+.yearly-table tbody td {
+  white-space: nowrap;
+}
 
 table {
   width: 100%;
@@ -2806,6 +2817,16 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   .freedoms { grid-template-columns: 1fr; }
   .mob-grid { grid-template-columns: 1fr; }
   .platform-columns { grid-template-columns: 1fr; gap: 20px; }
+  /* Freedom Runway's yearly table has one more column than Liquid
+     Asset Forecaster's (5 vs 4) — at the shared 480px min-width each
+     of its data columns is visibly narrower, cramped enough that a
+     signed figure like "-£36,000" in the Lifestyle expenses column
+     could wrap its minus sign onto its own line. Widened, mobile-only,
+     so each data column keeps roughly the same ~134px it gets on
+     Liquid Asset Forecaster (480px × 84% ÷ 3) — kept inside this
+     breakpoint rather than applied everywhere so desktop, where the
+     table already has room to breathe, is untouched. */
+  .page-freedom-runway .yearly-table { min-width: 620px; }
   .rf-income-grid { grid-template-columns: 1fr; }
   .stages-grid { grid-template-columns: 1fr; }
   .sankey-controls { grid-template-columns: 1fr; gap: 8px; }
