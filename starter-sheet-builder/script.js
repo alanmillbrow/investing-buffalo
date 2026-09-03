@@ -53,12 +53,21 @@
         ${index === SECTION_COUNT - 1 ? `
         <div class="field">
           <label for="s${index}-link2-label">Second link label</label>
-          <span class="field-hint">Appears above the main link below, as a blue button instead of red — e.g. an external account sign-up</span>
+          <span class="field-hint">Appears above the main link below, as a blue button instead of red — e.g. an external account sign-up. Sits side by side with the third link below, as two smaller buttons the same combined width as the main link.</span>
           <input type="text" id="s${index}-link2-label" data-section="${index}" data-role="linkLabel2">
         </div>
         <div class="field">
           <label for="s${index}-link2-url">Second link URL</label>
           <input type="text" id="s${index}-link2-url" data-section="${index}" data-role="linkUrl2" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="s${index}-link3-label">Third link label</label>
+          <span class="field-hint">Sits beside the second link above, as a matching blue button</span>
+          <input type="text" id="s${index}-link3-label" data-section="${index}" data-role="linkLabel3">
+        </div>
+        <div class="field">
+          <label for="s${index}-link3-url">Third link URL</label>
+          <input type="text" id="s${index}-link3-url" data-section="${index}" data-role="linkUrl3" placeholder="https://...">
         </div>` : ''}
         <div class="field">
           <label for="s${index}-link-label">Link label</label>
@@ -113,6 +122,8 @@
         postBlurb: get('postBlurb'),
         linkLabel2: get('linkLabel2'),
         linkUrl2: get('linkUrl2'),
+        linkLabel3: get('linkLabel3'),
+        linkUrl3: get('linkUrl3'),
         linkLabel: get('linkLabel'),
         linkUrl: get('linkUrl'),
       };
@@ -147,6 +158,8 @@
       setVal('postBlurb', undefined, section.postBlurb);
       setVal('linkLabel2', undefined, section.linkLabel2);
       setVal('linkUrl2', undefined, section.linkUrl2);
+      setVal('linkLabel3', undefined, section.linkLabel3);
+      setVal('linkUrl3', undefined, section.linkUrl3);
       setVal('linkLabel', undefined, section.linkLabel);
       setVal('linkUrl', undefined, section.linkUrl);
     });
@@ -185,7 +198,7 @@
     introInput.value = '';
     disclaimerInput.value = '';
     applyData({ sections: DEFAULT_SECTIONS.map((s) => ({ heading: s.heading, items: [], linkLabel: '', linkUrl: '' })) });
-    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel2"], [data-role="linkUrl2"], [data-role="linkLabel"], [data-role="linkUrl"]')
+    document.querySelectorAll('[data-role="blurb"], [data-role="subheading"], [data-role="body"], [data-role="postBlurb"], [data-role="linkLabel2"], [data-role="linkUrl2"], [data-role="linkLabel3"], [data-role="linkUrl3"], [data-role="linkLabel"], [data-role="linkUrl"]')
       .forEach((el) => { el.value = ''; });
     setStatus('Text cleared');
   });
@@ -447,21 +460,32 @@
       // second block above it without the URL text landing on/under
       // whatever comes next.
       function measureLinkBlockHeight(label, url, width) {
-        const btnHeight = measureLinkButtonHeight(label, width);
-        if (!url) return btnHeight;
-        ctx.font = `400 28px ${bodyFont}`;
-        const urlLines = wrapUrlText(ctx, url, width).slice(0, 2);
-        return btnHeight + 46 + (urlLines.length - 1) * 34 + 20;
+        return measureLinkButtonHeight(label, width) + measureLinkUrlExtra(url, width);
       }
 
-      function drawLinkButton(x, width, centerX, top, label, url, fillColor) {
+      // Just the URL caption's own height (button height not included) —
+      // pulled out of measureLinkBlockHeight so section 4's two split
+      // buttons can each measure their own URL length while still
+      // sharing one common button height (see below).
+      function measureLinkUrlExtra(url, width) {
+        if (!url) return 0;
+        ctx.font = `400 28px ${bodyFont}`;
+        const urlLines = wrapUrlText(ctx, url, width).slice(0, 2);
+        return 46 + (urlLines.length - 1) * 34 + 20;
+      }
+
+      // heightOverride lets two buttons share one common height (section
+      // 4's split pair) rather than each sizing to its own label — kept
+      // optional so every other call site (a single full-width button)
+      // is unaffected and just sizes to its own content as before.
+      function drawLinkButton(x, width, centerX, top, label, url, fillColor, heightOverride) {
         ctx.textAlign = 'center';
         let labelLines = [];
         if (label) {
           ctx.font = `600 44px ${bodyFont}`;
           labelLines = wrapText(ctx, label, width - 130).slice(0, 2);
         }
-        const height = measureLinkButtonHeight(label, width);
+        const height = heightOverride !== undefined ? heightOverride : measureLinkButtonHeight(label, width);
 
         ctx.fillStyle = fillColor;
         ctx.beginPath();
@@ -650,16 +674,39 @@
             y += postBlurbLines.length * 52 + 30;
           }
 
-          // Second link — section 4 only, a blue button sitting directly
-          // above the main red one. Positioned by its own height so the
-          // main button's Y stays exactly where every other section's
-          // main button is (still pinned/aligned across all four
-          // columns); the second button just grows upward from there.
-          if (i === SECTION_COUNT - 1 && (section.linkLabel2 || section.linkUrl2)) {
+          // Second and third links — section 4 only, a pair of smaller
+          // blue buttons sitting side by side directly above the main
+          // red one, together the same width as it (split by one gap).
+          // Positioned by their own block height so the main button's Y
+          // stays exactly where every other section's main button is
+          // (still pinned/aligned across all four columns); the pair
+          // just grows upward from there. Both share one button height
+          // (the taller of the two labels) so they line up evenly even
+          // when one label wraps to more lines than the other.
+          if (i === SECTION_COUNT - 1 && (section.linkLabel2 || section.linkUrl2 || section.linkLabel3 || section.linkUrl3)) {
             const secondaryGap = 40;
-            const secondaryBlockHeight = measureLinkBlockHeight(section.linkLabel2, section.linkUrl2, colWidth);
-            const secondaryTop = linkTop - secondaryGap - secondaryBlockHeight;
-            drawLinkButton(colX, colWidth, centerX, secondaryTop, section.linkLabel2, section.linkUrl2, '#5C7A8A');
+            const splitGap = 32;
+            const halfWidth = (colWidth - splitGap) / 2;
+            const rightX = colX + halfWidth + splitGap;
+            const leftCenterX = colX + halfWidth / 2;
+            const rightCenterX = rightX + halfWidth / 2;
+
+            const sharedButtonHeight = Math.max(
+              measureLinkButtonHeight(section.linkLabel2, halfWidth),
+              measureLinkButtonHeight(section.linkLabel3, halfWidth)
+            );
+            const blockHeight = sharedButtonHeight + Math.max(
+              measureLinkUrlExtra(section.linkUrl2, halfWidth),
+              measureLinkUrlExtra(section.linkUrl3, halfWidth)
+            );
+            const secondaryTop = linkTop - secondaryGap - blockHeight;
+
+            if (section.linkLabel2 || section.linkUrl2) {
+              drawLinkButton(colX, halfWidth, leftCenterX, secondaryTop, section.linkLabel2, section.linkUrl2, '#5C7A8A', sharedButtonHeight);
+            }
+            if (section.linkLabel3 || section.linkUrl3) {
+              drawLinkButton(rightX, halfWidth, rightCenterX, secondaryTop, section.linkLabel3, section.linkUrl3, '#5C7A8A', sharedButtonHeight);
+            }
           }
 
           // Main link — pinned to the same Y in every column regardless
