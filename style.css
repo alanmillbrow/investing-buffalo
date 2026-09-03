@@ -1732,14 +1732,138 @@ tbody tr:hover { background: var(--accent-soft); }
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
 }
-/* Same font trial again — UK Platforms is just an opening line and a
-   tailpiece for now (no tables), both .rf-p like UK Accounts' own
-   intro/outro, so it gets that page's same Semibold/--text-primary
-   treatment rather than the default lighter .rf-p. */
+/* Same font trial again — UK Platforms' opening line and tailpiece are
+   both .rf-p like UK Accounts' own intro/outro, so they get that page's
+   same Semibold/--text-primary treatment rather than the default
+   lighter .rf-p. The platform-card pros/cons lists in between are
+   deliberately left out — treated as UI/comparison content rather than
+   reading prose, same reasoning as the calculator field labels. */
 .page-uk-platforms .rf-p {
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
   color: var(--text-primary);
+}
+
+/* UK Platforms — one .card per provider, each with a linked name and a
+   two-column pros/cons breakdown underneath. Tighter than the default
+   48px narrow-layout gap (matching .rf-story's 36px) since these five
+   cards read as one comparison list rather than five separate sections. */
+.platform-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+/* Flex row (not absolute positioning) so a long name like "Scottish
+   Widows Share Dealing" wrapping on a narrow card pushes the visit
+   link down with it rather than the two ever overlapping. */
+.platform-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 20px;
+}
+.platform-card h2 {
+  margin: 0;
+}
+.platform-card h2 a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px solid var(--interest);
+}
+.platform-card h2 a:hover {
+  color: var(--interest);
+}
+/* Same small-caps treatment as .platform-col-label, so it reads as a
+   quiet UI affordance rather than competing with the platform name.
+   inline-flex + align-items: center centres the arrow icon against the
+   text's line box — needed because the Unicode → glyph this replaced
+   sat visibly off the cap-height baseline in Shackleton at this size. */
+.platform-visit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.platform-visit-link:hover {
+  color: var(--interest);
+}
+.platform-visit-arrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.platform-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+.platform-col {
+  display: flex;
+  flex-direction: column;
+}
+/* Same small-caps treatment as .field label, so Pros/Cons read as UI
+   labels rather than body copy. */
+.platform-col-label {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+.platform-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.platform-list li {
+  position: relative;
+  padding-left: 24px;
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+  color: var(--text-secondary);
+}
+/* Same treatment as Roadmap's "large body of text inside a box" rule
+   (.rf-p.rf-p-regular etc.) — Chaparral Pro Regular + the darker
+   --text-primary, matching the pros/cons list to that page's own
+   in-card body copy rather than this page's lighter default. */
+.page-uk-platforms .platform-list li {
+  font-family: var(--body-font);
+  font-weight: 400; /* Regular */
+  color: var(--text-primary);
+}
+/* Check/cross glyphs instead of a second colour system (this palette has
+   no red/green convention) — same warm --interest tone used for bullets
+   elsewhere marks a pro, the badge's rust tone used for "free"/emphasis
+   elsewhere marks a con, so the distinction reads without leaving the
+   site's existing colours. */
+.platform-list-pros li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+  color: var(--interest);
+}
+.platform-list-cons li::before {
+  content: '\2013'; /* en dash */
+  position: absolute;
+  left: 2px;
+  top: 0;
+  font-weight: 600;
+  color: var(--badge-free-bg);
 }
 /* Same font trial, rolled out to the Roadmap page's body copy — every
    reading-length paragraph, not just .rf-p, so the page doesn't end up
@@ -2681,6 +2805,7 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   .tools-row { grid-template-columns: 1fr; }
   .freedoms { grid-template-columns: 1fr; }
   .mob-grid { grid-template-columns: 1fr; }
+  .platform-columns { grid-template-columns: 1fr; gap: 20px; }
   .rf-income-grid { grid-template-columns: 1fr; }
   .stages-grid { grid-template-columns: 1fr; }
   .sankey-controls { grid-template-columns: 1fr; gap: 8px; }
