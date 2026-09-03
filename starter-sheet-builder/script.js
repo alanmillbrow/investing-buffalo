@@ -407,11 +407,38 @@
       // carry the "this is a link" meaning. Shared by the main link
       // button (every section) and the second, blue link button
       // (section 4 only) so both stay pixel-identical in format.
+      // Small stroke-drawn arrow — same shape/proportions as the chevron
+      // SVG used for the "Visit site" links on the UK Platforms page
+      // (viewBox 0 0 24 24, path "M5 12h14M13 6l6 6-6 6"), redrawn here
+      // with Canvas path commands since a button label is baked into a
+      // static image rather than real HTML. Replaces the plain "→"
+      // character that used to be appended to the label text — that
+      // glyph sat visibly off-centre against the bold button label at
+      // this size, the same misalignment the SVG swap fixed there.
+      function drawArrowIcon(centerX, centerY, size, color) {
+        const s = size / 24;
+        const x0 = centerX - 12 * s;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5 * s;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x0 + 5 * s, centerY);
+        ctx.lineTo(x0 + 19 * s, centerY);
+        ctx.moveTo(x0 + 13 * s, centerY - 6 * s);
+        ctx.lineTo(x0 + 19 * s, centerY);
+        ctx.lineTo(x0 + 13 * s, centerY + 6 * s);
+        ctx.stroke();
+      }
+
+      // Reserved wrap width leaves room for drawArrowIcon() to sit after
+      // the last line without ever crowding the button's own edge — wider
+      // than plain text wrapping would need on its own, since the arrow
+      // is drawn separately rather than measured as part of the label.
       function measureLinkButtonHeight(label, width) {
         if (!label) return 110;
         ctx.font = `600 44px ${bodyFont}`;
-        const labelText = `${label}  →`;
-        const lines = wrapText(ctx, labelText, width - 90).slice(0, 2);
+        const lines = wrapText(ctx, label, width - 130).slice(0, 2);
         return lines.length * 54 + 56;
       }
 
@@ -432,8 +459,7 @@
         let labelLines = [];
         if (label) {
           ctx.font = `600 44px ${bodyFont}`;
-          const labelText = `${label}  →`;
-          labelLines = wrapText(ctx, labelText, width - 90).slice(0, 2);
+          labelLines = wrapText(ctx, label, width - 130).slice(0, 2);
         }
         const height = measureLinkButtonHeight(label, width);
 
@@ -453,6 +479,18 @@
           labelLines.forEach((line, li) => {
             ctx.fillText(line, centerX, firstBaselineY + li * 54);
           });
+          // Arrow sits after the last line only, vertically centred on
+          // that line's actual ink (not its baseline) using the font's
+          // real ascent/descent for this specific piece of text, the
+          // same way flexbox centred the SVG version against the text.
+          const lastLine = labelLines[labelLines.length - 1];
+          const lastLineY = firstBaselineY + (labelLines.length - 1) * 54;
+          const metrics = ctx.measureText(lastLine);
+          const inkCenterY = lastLineY - (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+          const arrowSize = 30;
+          const arrowGap = 15;
+          const arrowX = centerX + metrics.width / 2 + arrowGap + arrowSize / 2;
+          drawArrowIcon(arrowX, inkCenterY, arrowSize, CARD_COLORS.accentText);
         }
 
         let linkY = top + height + 46;
