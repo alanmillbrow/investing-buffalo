@@ -383,10 +383,28 @@ body {
 /* Thanks for Signing Up — the homepage link sits directly under the
    intro text here, with no signup box in between the way Starter
    Sheet has, so the -32px pull-up (tuned for sitting close under that
-   box) reads as too tight. Reset to the default 48px narrow-layout
-   gap, matching the gap used everywhere else on this page. */
+   box) reads as too tight, but resetting it to the full 48px narrow-
+   layout gap read as too loose. Same -20px pull-up already used for
+   .rm-intro + .newsletter-signup elsewhere, landing on the same 28px
+   in-between value. */
 .page-thanks-for-signing-up .tool-box-single {
-  margin-top: 0;
+  margin-top: -20px;
+}
+/* Pulls the title in closer under the photo than the default 48px
+   narrow-layout gap — landing on the same 20px already used between
+   the title and the line below it (rm-quote's own margin-bottom). */
+.page-thanks-for-signing-up .thanks-photo + .rm-intro {
+  margin-top: -28px;
+}
+/* Portrait photo above the intro text — plain bordered rectangle like
+   About Me's .about-photo, just centred and smaller since it's a
+   friendly touch here rather than a feature photo. */
+.thanks-photo {
+  width: 160px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid var(--card-border);
 }
 
 .card.tool-box-featured {
