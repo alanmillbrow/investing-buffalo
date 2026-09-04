@@ -315,8 +315,11 @@ body {
 .theme-toggle svg { width: 19px; height: 19px; position: absolute; transition: opacity 0.25s ease, transform 0.4s ease; }
 /* Just one icon (no sun/moon cross-fade to stack), so it sits in
    normal flow centred by the flex button around it rather than needing
-   .theme-toggle svg's absolute positioning. */
-.home-toggle svg { width: 19px; height: 19px; }
+   .theme-toggle svg's absolute positioning. The house shape's own
+   bounding box is mathematically centred in its viewBox, but a
+   pointed roof over a flat-bottomed base reads as bottom-heavy — a
+   measured pixel centroid put it about 1.5px low, hence the nudge. */
+.home-toggle svg { width: 19px; height: 19px; transform: translateY(-1.5px); }
 .icon-moon { opacity: 1; }
 .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.7); }
 [data-theme="dark"] .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.7); }
