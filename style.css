@@ -281,7 +281,19 @@ body {
   white-space: nowrap;
 }
 
-.theme-toggle {
+/* Groups the new home link with the theme toggle in the header's
+   top-right corner — was just the toggle button on its own before, so
+   this wrapper (and its 12px gap) is what actually spaces the two
+   circular buttons apart now. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.theme-toggle,
+.home-toggle {
   flex-shrink: 0;
   width: 46px;
   height: 46px;
@@ -295,10 +307,16 @@ body {
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
   position: relative;
+  text-decoration: none;
 }
 
-.theme-toggle:hover { transform: translateY(-2px); }
+.theme-toggle:hover,
+.home-toggle:hover { transform: translateY(-2px); }
 .theme-toggle svg { width: 19px; height: 19px; position: absolute; transition: opacity 0.25s ease, transform 0.4s ease; }
+/* Just one icon (no sun/moon cross-fade to stack), so it sits in
+   normal flow centred by the flex button around it rather than needing
+   .theme-toggle svg's absolute positioning. */
+.home-toggle svg { width: 19px; height: 19px; }
 .icon-moon { opacity: 1; }
 .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.7); }
 [data-theme="dark"] .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.7); }
