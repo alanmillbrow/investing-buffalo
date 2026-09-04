@@ -380,6 +380,14 @@ body {
 .tool-box-single {
   margin-top: -32px;
 }
+/* Thanks for Signing Up — the homepage link sits directly under the
+   intro text here, with no signup box in between the way Starter
+   Sheet has, so the -32px pull-up (tuned for sitting close under that
+   box) reads as too tight. Reset to the default 48px narrow-layout
+   gap, matching the gap used everywhere else on this page. */
+.page-thanks-for-signing-up .tool-box-single {
+  margin-top: 0;
+}
 
 .card.tool-box-featured {
   background: var(--card-border);
