@@ -1,9 +1,0 @@
-# Old UK Accounts path — the page was renamed to /uk-account-types (42c58fe).
-# Kept because the UK Investing Starter Sheet PDF links to /uk-accounts and
-# copies of that PDF are already downloaded and can't be recalled.
-/uk-accounts              /uk-account-types            301
-/uk-accounts/*            /uk-account-types/:splat     301
-
-# Old calculator paths documented in DEPLOY.md (were 404ing — the file was missing).
-/investment-return-calculator/*   /liquid-asset-forecaster/:splat   301
-/liquid-asset-calculator/*        /liquid-asset-forecaster/:splat   301

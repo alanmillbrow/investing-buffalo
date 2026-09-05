@@ -11,21 +11,24 @@
 
 This is a multi-page static site — plain HTML/CSS/JS, no framework, no build step:
 
-- `index.html` — homepage, lists available tools
-- `liquid-asset-forecaster/index.html` + `liquid-asset-forecaster/script.js` — the
-  calculator, served at `/liquid-asset-forecaster/` (the old `/investment-return-calculator/`
-  and `/liquid-asset-calculator/` paths 301-redirect here via `_redirects`)
-- `_redirects` — Netlify redirect rules (keeps old calculator URLs working)
+- `index.html` — homepage, links out to every tool/page in a `.tools-row` grid
+- `liquid-asset-forecaster/index.html` + `liquid-asset-forecaster/script.js` — the calculator,
+  served at `/liquid-asset-forecaster/`
 - `style.css` — shared design system (paper/ink theme) used by every page. Referenced via the
   root-relative path `/style.css` so it resolves correctly no matter how deep a page's URL is.
 - `theme.js` — shared dark/light toggle logic (a small subset of what the calculator's own
   `script.js` does), used by pages that don't need the calculator's logic. Both pages read/write
   the same `localStorage` key so the theme choice persists across the whole site.
-- `TableV2Background.jpg` — shared background texture, referenced from `style.css`.
+- `WebsiteBackgroundv5.jpg` — shared background texture, referenced from `style.css`.
 
 To add a new page/tool: create a new folder (e.g. `retirement-calculator/index.html`), link
-`/style.css` and either `/theme.js` (if it's a simple page) or its own script, and add a row to
-the "Tools" table on the homepage (`index.html`) linking to it.
+`/style.css` and either `/theme.js` (if it's a simple page) or its own script, and add a link to
+the homepage's `.tools-row` (`index.html`) or the Calculators hub page, whichever fits.
+
+Renaming or removing a page currently doesn't add a redirect from the old URL — the site is
+still pre-promotion, so nothing external depends on today's URLs yet. Once the site is actively
+promoted, add a `_redirects` file (Netlify's redirect-rules format) for any URL that's likely to
+be bookmarked or linked externally before renaming/removing it.
 
 ## Why this setup
 
