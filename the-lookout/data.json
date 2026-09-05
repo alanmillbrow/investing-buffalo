@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-09-05T09:41:11.077Z",
+  "savedAt": "2026-09-05T13:07:55.898Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -446,15 +446,15 @@
   "ftseDividends": {
     "SDLF": {
       "symbol": "SDLF",
-      "price": 930,
+      "price": 932.5,
       "pe": null,
       "athPrice": 948.5,
       "athDate": "2026-08-07",
       "daysSinceAth": 29,
-      "vsAth": -1.9504480759093306,
+      "vsAth": -1.686874011597259,
       "change12mo": null,
       "dividendYield": 5.9093333333333335,
-      "change1mo": -0.4282655246252677,
+      "change1mo": -0.16059957173447537,
       "change3yr": null,
       "change5yr": null,
       "dividendPaid": 55.400000000000006
@@ -597,39 +597,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 79692.51,
+      "price": 79711.8,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 334,
-      "vsAth": -36.85202563589133,
-      "change1mo": 23.893093064894824,
-      "change12mo": -27.98435098358495,
-      "change3yr": 209.3659436957539,
-      "change5yr": 51.322846125403544
+      "vsAth": -36.836740329587336,
+      "change1mo": 23.923082053386,
+      "change12mo": -27.966919209011316,
+      "change3yr": 209.44082738374283,
+      "change5yr": 51.35947463292276
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4429.01153,
+      "price": 4428.91781,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 219,
-      "vsAth": -20.871366283780365,
-      "change1mo": 4.437631112627379,
-      "change12mo": 23.37045105723938,
-      "change3yr": 131.12598641068317,
-      "change5yr": 142.93811509628657
+      "vsAth": -20.87304068347466,
+      "change1mo": 4.43542116245643,
+      "change12mo": 23.367840479552974,
+      "change3yr": 131.12109567438694,
+      "change5yr": 142.93297440970386
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 66.15949,
+      "price": 66.16113,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 219,
-      "vsAth": -45.5825406783103,
-      "change1mo": 7.514589985335274,
-      "change12mo": 61.68008308895406,
-      "change3yr": 185.52712442276987,
-      "change5yr": 168.177908390758
+      "vsAth": -45.58119174661075,
+      "change1mo": 7.517255119658035,
+      "change12mo": 61.684090909090905,
+      "change3yr": 185.53420223555307,
+      "change5yr": 168.184556141062
     }
   },
   "reits": {
