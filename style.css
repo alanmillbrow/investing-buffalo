@@ -410,10 +410,10 @@ body {
   text-wrap: balance;
 }
 /* Portrait photo above the intro text — plain bordered rectangle like
-   About Me's .about-photo, just centred and smaller since it's a
-   friendly touch here rather than a feature photo. */
+   About Me's .about-photo, just centred and a bit smaller since it's
+   a friendly touch here rather than a feature photo. */
 .thanks-photo {
-  width: 160px;
+  width: 220px;
   height: auto;
   display: block;
   margin: 0 auto;
