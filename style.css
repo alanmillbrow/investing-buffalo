@@ -396,6 +396,19 @@ body {
 .page-thanks-for-signing-up .thanks-photo + .rm-intro {
   margin-top: -28px;
 }
+/* Thanks for Signing Up's title is one short sentence, not the
+   two-line headline .rm-quote's 20ch cap is tuned for elsewhere (those
+   use an explicit <br> to control exactly where the break falls) —
+   left to wrap on its own it broke unevenly (one line of four words,
+   the last word alone on its own line). Widened so it reads as a
+   single line whenever there's room; text-wrap: balance (same
+   progressive enhancement as Map Your Path's .rm-lede) evens out the
+   two lines it's forced into on narrower widths instead of the
+   lopsided default wrap. */
+.page-thanks-for-signing-up .rm-quote {
+  max-width: none;
+  text-wrap: balance;
+}
 /* Portrait photo above the intro text — plain bordered rectangle like
    About Me's .about-photo, just centred and smaller since it's a
    friendly touch here rather than a feature photo. */
