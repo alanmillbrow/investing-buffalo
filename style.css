@@ -2780,6 +2780,14 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
 .page-game #screenEmail .newsletter-signup {
   margin-bottom: 0;
 }
+/* Same fix, same reasoning, for Map Your Path's own email screen —
+   it reuses the same .game-screen.active 24px-gap layout. */
+.page-map-your-path #screenEmail .rm-intro + .newsletter-signup {
+  margin-top: 0;
+}
+.page-map-your-path #screenEmail .newsletter-signup {
+  margin-bottom: 0;
+}
 /* Same story again where each of the other two screens' last card sits
    right above the footer — .disclaimer-card and .newsletter-signup both
    carry their own 24px margin-bottom (tuned for pages where more content

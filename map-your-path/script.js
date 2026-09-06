@@ -4,7 +4,7 @@
   const $ = (id) => document.getElementById(id);
 
   // ---------- Elements ----------
-  const screens = { intake: $('screenIntake'), loading: $('screenLoading'), results: $('screenResults') };
+  const screens = { intake: $('screenIntake'), email: $('screenEmail'), loading: $('screenLoading'), results: $('screenResults') };
   const appFooter = document.querySelector('.app-footer');
 
   const incomeInput = $('income');
@@ -49,6 +49,7 @@
   const leveragedSymbol = $('leveragedSymbol');
 
   const mapPathBtn = $('mapPathBtn');
+  const continueToLoadingBtn = $('continueToLoadingBtn');
   const startOverBtn = $('startOverBtn');
   const loadingMessageEl = $('loadingMessage');
   const loadingBarFill = $('loadingBarFill');
@@ -811,7 +812,15 @@
   }
 
   // ---------- Navigation ----------
+  // Soft email gate between the questions and the build-up, same
+  // pattern as the Tipping Point Game — mapPathBtn just moves to the
+  // email screen now; continueToLoadingBtn (its "skip" as much as its
+  // "continue") is what actually kicks off the loading sequence below.
   mapPathBtn.addEventListener('click', () => {
+    showScreen('email');
+  });
+
+  continueToLoadingBtn.addEventListener('click', () => {
     showScreen('loading');
     runLoadingSequence(() => {
       // Show the results screen before rendering, not after — the
