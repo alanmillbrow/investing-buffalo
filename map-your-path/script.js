@@ -758,8 +758,8 @@
     params.set('assets', Math.round(parseNumber(assetsInput.value)));
     params.set('returnRate', parseNumber(returnRateInput.value));
     params.set('inflation', parseNumber(inflationInput.value));
-    params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
     params.set('withdrawalRate', parseNumber(withdrawalRateInput.value));
+    params.set('leveraged', Math.round(parseNumber(leveragedInput.value)));
     // Omitted entirely when blank, rather than a bare "name=" — keeps the
     // URL clean for the common case of nobody having typed a name.
     const name = reportNameInput.value.trim();
