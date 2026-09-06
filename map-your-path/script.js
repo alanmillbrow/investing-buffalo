@@ -6,6 +6,7 @@
   // ---------- Elements ----------
   const screens = { intake: $('screenIntake'), email: $('screenEmail'), loading: $('screenLoading'), results: $('screenResults') };
   const appFooter = document.querySelector('.app-footer');
+  const calcAssumptionsNote = $('calcAssumptionsNote');
 
   const incomeInput = $('income');
   const incomeRange = $('incomeRange');
@@ -290,11 +291,13 @@
   // ---------- Screens ----------
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
-    // The footer's calculator-assumptions disclaimer has no place next
-    // to the fun build-up screen or the plain email sign-up screen —
-    // hidden on both, back on the intake and results screens either
-    // side of them.
-    appFooter.classList.toggle('is-hidden', name === 'loading' || name === 'email');
+    // The footer's calculator-assumptions line has no place next to
+    // the fun build-up screen (whole footer hidden there) or the plain
+    // email sign-up screen — that screen keeps the standard site-wide
+    // disclaimer visible (matching the Tipping Point Game's own email
+    // screen) but not this page-specific line.
+    appFooter.classList.toggle('is-hidden', name === 'loading');
+    calcAssumptionsNote.classList.toggle('is-hidden', name === 'email');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

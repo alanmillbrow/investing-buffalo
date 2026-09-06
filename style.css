@@ -1437,6 +1437,13 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-map-your-path .app-footer.is-hidden {
   display: none;
 }
+/* Hides just the calculator-assumptions line (not the whole footer)
+   while the email sign-up screen is active, so that screen's footer
+   matches the standard sitewide disclaimer used everywhere else — see
+   showScreen() in map-your-path/script.js. */
+#calcAssumptionsNote.is-hidden {
+  display: none;
+}
 
 /* ---------- Financial Freedom Roadmap page ---------- */
 .narrow-layout {
@@ -2795,6 +2802,12 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
    footer gap instead of just being it. */
 .page-game #screenChoice .disclaimer-card,
 .page-game #screenResult .newsletter-signup {
+  margin-bottom: 0;
+}
+/* Same fix, same reasoning, for Map Your Path's results screen —
+   its own last-card newsletter-signup was stacking the same way,
+   widening the gap above the footer to 60px instead of 36px. */
+.page-map-your-path #screenResults .newsletter-signup {
   margin-bottom: 0;
 }
 
