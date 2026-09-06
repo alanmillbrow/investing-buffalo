@@ -1437,10 +1437,11 @@ tbody tr:hover { background: var(--accent-soft); }
 .page-map-your-path .app-footer.is-hidden {
   display: none;
 }
-/* Hides just the calculator-assumptions line (not the whole footer)
-   while the email sign-up screen is active, so that screen's footer
-   matches the standard sitewide disclaimer used everywhere else — see
-   showScreen() in map-your-path/script.js. */
+/* Hides just the calculator-assumptions line (not the whole footer) —
+   on by default in the markup, shown again only once the results
+   screen is up, so every other screen's footer matches the standard
+   sitewide disclaimer used everywhere else — see showScreen() in
+   map-your-path/script.js. */
 #calcAssumptionsNote.is-hidden {
   display: none;
 }

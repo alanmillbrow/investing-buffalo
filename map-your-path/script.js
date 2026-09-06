@@ -291,13 +291,13 @@
   // ---------- Screens ----------
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
-    // The footer's calculator-assumptions line has no place next to
-    // the fun build-up screen (whole footer hidden there) or the plain
-    // email sign-up screen — that screen keeps the standard site-wide
-    // disclaimer visible (matching the Tipping Point Game's own email
-    // screen) but not this page-specific line.
+    // The footer's calculator-assumptions line only belongs next to the
+    // results it actually describes — hidden by default (see its
+    // is-hidden class in the markup, since the intake screen starts
+    // active without ever going through here) and on every other
+    // screen, shown only once results are up.
     appFooter.classList.toggle('is-hidden', name === 'loading');
-    calcAssumptionsNote.classList.toggle('is-hidden', name === 'email');
+    calcAssumptionsNote.classList.toggle('is-hidden', name !== 'results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
