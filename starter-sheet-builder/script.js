@@ -711,8 +711,11 @@
 
           // Main link — pinned to the same Y in every column regardless
           // of how much (or little) sits above it, so all four line up.
+          // Same muted blue as the section 4 split buttons — every
+          // button on the sheet links through to the site, so they all
+          // match now rather than just those two.
           if (section.linkLabel || section.linkUrl) {
-            drawLinkButton(colX, colWidth, centerX, linkTop, section.linkLabel, section.linkUrl, CARD_COLORS.accent);
+            drawLinkButton(colX, colWidth, centerX, linkTop, section.linkLabel, section.linkUrl, '#5C7A8A');
           }
         });
 
@@ -742,7 +745,7 @@
         const brandWidth = ctx.measureText(brandLabel).width;
         const brandStartX = W / 2 - (prefixWidth + brandWidth) / 2;
 
-        ctx.fillStyle = CARD_COLORS.ink;
+        ctx.fillStyle = CARD_COLORS.accent;
         ctx.fillText(brandPrefix, brandStartX, brandY);
         boldText(brandLabel, brandStartX + prefixWidth, brandY, brandSize, CARD_COLORS.accent, 1.2);
         ctx.textAlign = 'center';
