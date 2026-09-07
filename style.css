@@ -997,6 +997,21 @@ select#frequency:focus {
   padding-bottom: 12px;
 }
 .ledger-head span:last-child { font-weight: 400; }
+/* Two-row grouped header (Liquid Asset Forecaster's future income
+   table, Map Your Path's income required table) — "Annual"/"Monthly"
+   on top, "Today's PP"/"Future value" underneath. The group row is
+   just the top half of one combined header, so no border/bottom
+   padding of its own; the sub-label row right below keeps the
+   standard .ledger-head border to divide header from data. */
+.ledger-head-group {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.ledger-head-span2 {
+  grid-column: span 2;
+  justify-self: stretch;
+  text-align: center;
+}
 
 .headline-title {
   text-transform: none;
