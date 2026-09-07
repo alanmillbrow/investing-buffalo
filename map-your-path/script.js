@@ -1353,7 +1353,7 @@
         const assumeCols = [
           { label: 'Expected annual return', value: fmtPercentForCard(result.annualReturn) },
           { label: 'Expected annual inflation', value: fmtPercentForCard(result.inflation) },
-          { label: 'Safe withdrawal rate', value: fmtPercentForCard(result.withdrawalRate) },
+          { label: 'Withdrawal rate', value: fmtPercentForCard(result.withdrawalRate) },
           { label: 'Leveraged income assumed', value: fmt(result.leveraged) + '/mo' },
         ];
         assumeCols.forEach((col, i) => statBox(statXs[i], assumeY, col.label, col.value, 15));
@@ -1835,7 +1835,7 @@
         const assumeItems = [
           { label: 'Expected annual return', value: fmtPercentForWallpaper(result.annualReturn) },
           { label: 'Expected annual inflation', value: fmtPercentForWallpaper(result.inflation) },
-          { label: 'Safe withdrawal rate', value: fmtPercentForWallpaper(result.withdrawalRate) },
+          { label: 'Withdrawal rate', value: fmtPercentForWallpaper(result.withdrawalRate) },
           { label: 'Leveraged income assumed', value: fmt(result.leveraged) + '/mo' },
         ];
         assumeItems.forEach((item, i) => {
