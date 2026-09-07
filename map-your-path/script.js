@@ -1773,7 +1773,7 @@
         ctx.lineWidth = 4;
         ctx.strokeRect(rightX, boxY, rightW, boxH);
         ctx.textAlign = 'left';
-        boldText('LEVERAGED INCOME', rightX + 40, boxY + 66, 44, CARD_COLORS.accent, 1.2);
+        boldText('LEVERAGED INCOME', rightX + 64, boxY + 92, 44, CARD_COLORS.accent, 1.2);
 
         const bodyFont = "'chaparral-pro', Georgia, serif";
         ctx.font = `400 46px ${bodyFont}`;
