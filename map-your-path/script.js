@@ -59,6 +59,8 @@
   const potRequiredValueEl = $('potRequiredValue');
   const reqIncomeAnnual = $('reqIncomeAnnual');
   const reqIncomeMonthly = $('reqIncomeMonthly');
+  const reqIncomeAnnualReal = $('reqIncomeAnnualReal');
+  const reqIncomeMonthlyReal = $('reqIncomeMonthlyReal');
   const reqPassiveAnnual = $('reqPassiveAnnual');
   const reqPassiveMonthly = $('reqPassiveMonthly');
   const potRequiredEl = $('potRequired');
@@ -377,8 +379,11 @@
     const futureMonthlyIncome = incomeBasis === 'future' ? desiredIncome : desiredIncome * inflationFactor;
     const todayMonthlyIncome = incomeBasis === 'future' ? desiredIncome / inflationFactor : desiredIncome;
     const futureAnnualIncome = futureMonthlyIncome * 12;
+    const todayAnnualIncome = todayMonthlyIncome * 12;
     reqIncomeAnnual.textContent = fmtCurrency(futureAnnualIncome);
     reqIncomeMonthly.textContent = fmtCurrency(futureMonthlyIncome);
+    reqIncomeAnnualReal.textContent = fmtCurrency(todayAnnualIncome);
+    reqIncomeMonthlyReal.textContent = fmtCurrency(todayMonthlyIncome);
 
     const passiveMonthly = Math.max(0, futureMonthlyIncome - leveraged);
     const passiveAnnual = passiveMonthly * 12;
