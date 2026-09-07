@@ -64,6 +64,7 @@
   const reqPassiveAnnual = $('reqPassiveAnnual');
   const reqPassiveMonthly = $('reqPassiveMonthly');
   const potRequiredEl = $('potRequired');
+  const potRequiredLabelEl = $('potRequiredLabel');
   const currentAssetsValueEl = $('currentAssetsValue');
   const assetsReturnEl = $('assetsReturn');
   const totalSavedEl = $('totalSaved');
@@ -397,6 +398,7 @@
     const potRequired = withdrawalRate > 0 ? passiveAnnual / withdrawalRate : Infinity;
     potRequiredValueEl.textContent = fmtCurrency(potRequired);
     potRequiredEl.textContent = fmtCurrency(potRequired);
+    potRequiredLabelEl.textContent = `Pot required (${(withdrawalRate * 100).toFixed(1).replace(/\.0$/, '')}% withdrawal rate)`;
 
     const pmt = requiredMonthlySavings(potRequired, assets, monthlyRate, months);
     let pmtForChart = 0;
@@ -1241,7 +1243,7 @@
           });
         }
         drawLedgerBox(64, 915, W - 128, [
-          { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
+          { label: `Pot required (${(result.withdrawalRate * 100).toFixed(1).replace(/\.0$/, '')}% withdrawal rate)`, value: fmt(result.potRequired), accent: true },
           { label: 'Current assets', value: fmt(result.principal) },
           { label: 'Return on current assets', value: fmt(result.futureAssets - result.principal) },
           { label: 'Still to be saved', value: fmt(result.savingsContributed) },
@@ -1738,7 +1740,7 @@
         boldText('YOUR POT', rightX + rightW / 2, ry + 40, 44, CARD_COLORS.inkSecondary, 1.2);
         ry += 90;
         drawLedgerBox(rightX, ry, rightW, [
-          { label: 'Pot required (4% rule)', value: fmt(result.potRequired), accent: true },
+          { label: `Pot required (${(result.withdrawalRate * 100).toFixed(1).replace(/\.0$/, '')}% withdrawal rate)`, value: fmt(result.potRequired), accent: true },
           { label: 'Current assets', value: fmt(result.principal) },
           { label: 'Return on current assets', value: fmt(result.futureAssets - result.principal) },
           { label: 'Still to be saved', value: fmt(result.savingsContributed) },
