@@ -985,6 +985,14 @@ select#frequency:focus {
 .ledger-row.cols-5 span:nth-child(4) {
   font-variant-numeric: tabular-nums;
 }
+/* Map Your Path's income required table — "Passive income required"
+   doesn't fit the shared 100px label column on one line the way the
+   short "3%/4%/5% rule" labels elsewhere do. Widened just for this
+   table (measured: ~193px at this font/size) rather than the shared
+   .cols-5 rule, so Liquid Asset Forecaster's own table is unaffected. */
+.income-required-table .ledger-row.cols-5 {
+  grid-template-columns: 220px repeat(4, 1fr);
+}
 
 .ledger-head {
   background: transparent;
