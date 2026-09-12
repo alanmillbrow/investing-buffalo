@@ -312,7 +312,7 @@ body {
 
 .theme-toggle:hover,
 .home-toggle:hover { transform: translateY(-2px); }
-.theme-toggle svg { width: 19px; height: 19px; position: absolute; transition: opacity 0.25s ease, transform 0.4s ease; }
+.theme-toggle svg { width: 19px; height: 19px; position: absolute; inset: 0; margin: auto; transition: opacity 0.25s ease, transform 0.4s ease; }
 /* Just one icon (no sun/moon cross-fade to stack), so it sits in
    normal flow centred by the flex button around it rather than needing
    .theme-toggle svg's absolute positioning. The house shape's own
