@@ -19,7 +19,7 @@ This is a multi-page static site — plain HTML/CSS/JS, no framework, no build s
 - `theme.js` — shared dark/light toggle logic (a small subset of what the calculator's own
   `script.js` does), used by pages that don't need the calculator's logic. Both pages read/write
   the same `localStorage` key so the theme choice persists across the whole site.
-- `WebsiteBackgroundv5.jpg` — shared background texture, referenced from `style.css`.
+- `WebsiteBackgroundv6c.jpg` — shared background texture, referenced from `style.css`.
 
 To add a new page/tool: create a new folder (e.g. `retirement-calculator/index.html`), link
 `/style.css` and either `/theme.js` (if it's a simple page) or its own script, and add a link to
