@@ -2269,6 +2269,10 @@ tbody tr:hover { background: var(--accent-soft); }
   align-items: flex-start;
   gap: 28px;
 }
+/* For a row whose picture is taller than its text and carries most of its
+   weight low down (the engine drawing) — centres the text against it
+   instead of top-aligning, so the picture doesn't read as sitting low. */
+.story-photo-row-middle { align-items: center; }
 .story-photo {
   width: 280px;
   flex-shrink: 0;
@@ -2281,16 +2285,28 @@ tbody tr:hover { background: var(--accent-soft); }
 .story-drawing {
   width: 280px;
   max-width: 100%;
-  aspect-ratio: 640 / 603;
   background-color: var(--text-primary);
-  -webkit-mask-image: url(/this-way.png);
-  mask-image: url(/this-way.png);
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+.story-drawing-signpost {
+  aspect-ratio: 640 / 603;
+  -webkit-mask-image: url(/this-way.png);
+  mask-image: url(/this-way.png);
+}
+.story-drawing-flat {
+  aspect-ratio: 800 / 603;
+  -webkit-mask-image: url(/my-first-flat.png);
+  mask-image: url(/my-first-flat.png);
+}
+.story-drawing-engine {
+  aspect-ratio: 640 / 517;
+  -webkit-mask-image: url(/investment-engine.png);
+  mask-image: url(/investment-engine.png);
 }
 .story-photo-row .story-p { flex: 1; }
 .story-text-group {
