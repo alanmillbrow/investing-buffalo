@@ -458,9 +458,8 @@ body {
 .follow-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
-.follow-bar h2 { margin: 0; }
 .follow-links {
   display: flex;
   align-items: center;
