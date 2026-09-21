@@ -2981,6 +2981,20 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   .about-photo { width: 230px; margin: 0 auto; }
   .story-photo-row { flex-direction: column; align-items: center; gap: 16px; }
   .story-text-group { width: 100%; }
+  /* Stacked, the picture would land wholly before or after its text. On
+     these rows it's slotted in after the Nth paragraph instead (the
+     paragraph group is flattened so its paragraphs and the figure can
+     be ordered together). Desktop keeps the side-by-side layout. */
+  .story-photo-row-after-1,
+  .story-photo-row-after-2 { gap: 20px; }
+  .story-photo-row-after-1 .story-text-group,
+  .story-photo-row-after-2 .story-text-group { display: contents; }
+  .story-photo-row-after-1 .story-p,
+  .story-photo-row-after-2 .story-p { flex: 0 0 auto; align-self: stretch; }
+  .story-photo-row-after-1 .story-figure,
+  .story-photo-row-after-2 .story-figure { order: 1; }
+  .story-photo-row-after-1 .story-p:nth-child(n+2),
+  .story-photo-row-after-2 .story-p:nth-child(n+3) { order: 2; }
   .story-photo { width: 200px; margin: 0 auto; }
   .narrow-layout { gap: 40px; }
   .rm-lede { font-size: 1.25rem; }
