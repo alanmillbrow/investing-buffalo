@@ -2308,6 +2308,25 @@ tbody tr:hover { background: var(--accent-soft); }
   -webkit-mask-image: url(/investment-engine.png);
   mask-image: url(/investment-engine.png);
 }
+/* Standalone centred drawing between blocks on the Roadmap and Calculators
+   pages (rather than sitting beside a paragraph as on About Me). */
+.rf-figure {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+.story-drawing-mob-calculator {
+  width: 320px;
+  aspect-ratio: 720 / 633;
+  -webkit-mask-image: url(/mob-calculator.png);
+  mask-image: url(/mob-calculator.png);
+}
+.story-drawing-abacus {
+  width: 600px;
+  aspect-ratio: 1200 / 594;
+  -webkit-mask-image: url(/abacus-drawing.png);
+  mask-image: url(/abacus-drawing.png);
+}
 .story-photo-row .story-p { flex: 1; }
 .story-text-group {
   display: flex;
