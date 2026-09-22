@@ -2322,7 +2322,7 @@ tbody tr:hover { background: var(--accent-soft); }
   mask-image: url(/mob-calculator.png);
 }
 .story-drawing-abacus {
-  width: 600px;
+  width: 460px;
   aspect-ratio: 1200 / 594;
   -webkit-mask-image: url(/abacus-drawing.png);
   mask-image: url(/abacus-drawing.png);
