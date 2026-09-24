@@ -459,6 +459,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 96px; /* same as .tool-box, so it matches its neighbours when tiles stack */
 }
 .follow-links {
   display: flex;
