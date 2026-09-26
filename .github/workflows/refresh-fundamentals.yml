@@ -4,10 +4,11 @@ on:
   schedule:
     # Earnings + dividends cost 20 credits each (confirmed via Twelve
     # Data's response headers) — refreshing P/E and dividend yield for all
-    # 32 symbols needs ~920 credits, which the script's credit-aware pacer
-    # legitimately spreads across several real minutes to respect the
-    # 144-credit/minute budget. P/E and yield barely change hour to hour,
-    # so weekly is plenty; Sunday 03:00 UTC is a quiet time for the site.
+    # 63 symbols needs ~1500 credits (75 calls), which the script's
+    # credit-aware pacer legitimately spreads across ~40 real minutes to
+    # respect the 55-credit/minute plan limit (at most two 20-credit calls
+    # fit in any minute). P/E and yield barely change hour to hour, so
+    # weekly is plenty; Sunday 03:00 UTC is a quiet time for the site.
     - cron: '0 3 * * 0'
   workflow_dispatch: {}
 
@@ -23,9 +24,11 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    # A full run can take several minutes since it has to pace ~920
-    # credits' worth of calls against a 144-credit/minute budget.
-    timeout-minutes: 30
+    # A full run takes ~40 minutes since it has to pace ~1500 credits'
+    # worth of calls against a 55-credit/minute plan limit — results are only
+    # committed at the very end, so a timeout mid-run would lose all of it.
+    # 60 leaves headroom for API latency and the odd rate-limit retry.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

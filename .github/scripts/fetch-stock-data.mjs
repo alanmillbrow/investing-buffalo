@@ -8,15 +8,18 @@
 // quote and time_series cost 1 credit each, but earnings and dividends cost
 // 20 credits each (confirmed via the api-credits-used response header).
 // Fetching everything for every symbol every run blew well past the
-// 144-credit/minute budget — a single 10-company table needed 420 credits.
+// per-minute credit budget — a single 10-company table needed 420 credits.
+// Every call in both modes is paced against that budget (55 credits/minute
+// on the current plan — see CREDIT_BUDGET_PER_MINUTE below), so a run's
+// length is set by its total credit cost, not by how fast it could go.
 //   - REFRESH_MODE=price: quote + time_series for every symbol, every run.
-//     Cheap (~90 credits total for all 45 symbols), so it just runs hourly
-//     covering everything in one go — no staggering needed.
+//     Cheap (2 credits per symbol — 126 for all 63 symbols), so it runs
+//     hourly covering everything in one go, paced across roughly 3 minutes.
 //   - REFRESH_MODE=fundamentals: earnings + dividends, on a much slower
 //     weekly cadence, since P/E and dividend yield barely change hour to
 //     hour. Paced by real credit cost (see waitForCreditBudget) since even
-//     one run needs ~1140 credits total and has to legitimately spread
-//     across several real minutes to respect the budget. (Earnings is only
+//     one run needs ~1500 credits total and has to legitimately spread
+//     across ~40 real minutes to respect the budget. (Earnings is only
 //     fetched for US companies — see loadFundamentals for why LSE
 //     companies don't get a P/E at all. Commodities/crypto skip this tier
 //     entirely — see the noFundamentals flag on COMMODITIES below — neither
@@ -205,9 +208,11 @@ const ALL_SYMBOLS = [
 // Real per-call cost, confirmed via Twelve Data's api-credits-used response
 // header — quote and time_series are cheap; earnings and dividends are not.
 const CREDIT_COST = { quote: 1, time_series: 1, earnings: 20, dividends: 20 };
-// Kept under the real 144/minute ceiling for some margin (concurrent
-// in-flight calls can land a little past the threshold before it bites).
-const CREDIT_BUDGET_PER_MINUTE = 120;
+// Kept under the real 55/minute ceiling of the current Twelve Data plan for
+// some margin (concurrent in-flight calls can land a little past the
+// threshold before it bites). The window below is a rolling 60 seconds, so
+// this also holds for any fixed clock-minute the API might count instead.
+const CREDIT_BUDGET_PER_MINUTE = 50;
 const RATE_WINDOW_MS = 60 * 1000;
 const creditLog = []; // [{ ts, cost }, ...]
 
