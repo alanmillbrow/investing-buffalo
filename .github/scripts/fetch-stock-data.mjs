@@ -64,23 +64,12 @@ const INDICES_GBP = [
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', exchange: 'LSE' },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)', exchange: 'LSE' },
-  // Not an All-World tracker like the four above — this fund tracks the
-  // FTSE Global All Cap index instead (same idea, but ~10,000 holdings
-  // including small caps, vs. ~4,000 for All-World). Same fund as Xetra's
-  // VGLA, just under its LSE ticker — added here rather than duplicating
-  // both listings of the same holding. Every public source describes the
-  // fund itself as a USD Acc share class, but this LSE-listed quote trades
-  // in pounds — confirmed live against a real quote (£3.764, essentially
-  // identical to this entry's own fetched price), so it needs no different
-  // currency handling from any other entry here.
-  // firstTradeDate: this fund only listed on the LSE on 20 Aug 2026, but
-  // its time_series carried a bar dated two days earlier (18 Aug) with
-  // high=5.00 — well above anything it's actually traded at since, and
-  // confirmed live that the fund has never really been £5. Presumably a
-  // seed/reference NAV rather than a genuine trade. Without this, that one
-  // bar was winning the ATH scan in loadPrice outright. See loadPrice's
-  // firstTradeDate comment for how this is excluded.
-  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', exchange: 'LSE', firstTradeDate: '2026-08-20' },
+  // VALL (FTSE Global All Cap Vanguard, LSE) was briefly added here, then
+  // removed on request — not confident in its numbers. It's a newly-listed
+  // fund (20 Aug 2026) with thin trading history; one bad data point was
+  // already caught and corrected (see firstTradeDate on loadPrice), and
+  // rather than chase any more of those on a fund this new, it's dropped
+  // entirely for now.
   { symbol: 'VUSA', name: 'S&P 500 Vanguard (Dist)', exchange: 'LSE' },
   { symbol: 'VUAG', name: 'S&P 500 Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'SPXP', name: 'S&P 500 Invesco (Acc)', exchange: 'LSE' },

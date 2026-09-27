@@ -9,20 +9,19 @@
 // hour. Dividend yield and P/E aren't shown on this page (removed on
 // request) even though the underlying data still has them.
 
-// GBP-denominated LSE-listed global tracker funds — three of the full
-// Lookout's four FTSE All-World entries (VWRL dropped on request; see
-// the comment in .github/scripts/fetch-stock-data.mjs for why these
-// specific symbols), plus VALL (see that same file for what it is and
-// why it's here despite tracking a different index). VALL's marketing
-// material describes it as a USD Acc share class, but its LSE-listed
-// quote itself trades in pounds — confirmed live against a real quote
-// (£3.764, matching this page's own fetched price and ATH almost
-// exactly) — so it needs no different formatting from the rest.
+// GBP-denominated LSE-listed FTSE All-World trackers — three of the full
+// Lookout's four entries for this index (VWRL dropped on request; see the
+// comment in .github/scripts/fetch-stock-data.mjs for why these specific
+// symbols). VALL (Global All Cap, not All-World) was briefly added here
+// too, then removed on request — not confident in its numbers, likely
+// down to it being a newly-listed fund with thin trading history (see
+// the firstTradeDate comment on loadPrice in fetch-stock-data.mjs for one
+// bad data point already caught and corrected). No longer fetched at all,
+// since nothing displays it any more.
 const INDICES_GBP = [
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', quoteInPence: true },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)' },
-  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)' },
 ];
 
 function fmtGbp(n) {
