@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-09-27T12:37:34.195Z",
+  "savedAt": "2026-09-27T13:59:57.112Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -319,6 +319,18 @@
       "pe": null,
       "dividendYield": null,
       "dividendPaid": null
+    },
+    "VALL": {
+      "symbol": "VALL",
+      "price": 3.764,
+      "athPrice": 5,
+      "athDate": "2026-08-18",
+      "daysSinceAth": 40,
+      "vsAth": -24.720000000000002,
+      "change1mo": 0.9250569781472042,
+      "change12mo": null,
+      "change3yr": null,
+      "change5yr": null
     }
   },
   "spaceForce": {
@@ -597,39 +609,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 84980,
+      "price": 84933.47,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 356,
-      "vsAth": -32.66224314603775,
-      "change1mo": 9.164429660815667,
-      "change12mo": -22.48885743121434,
-      "change3yr": 214.49158629571673,
-      "change5yr": 107.18465688596355
+      "vsAth": -32.699113301679255,
+      "change1mo": 9.104657703742031,
+      "change12mo": -22.53129792855166,
+      "change3yr": 214.31938938455718,
+      "change5yr": 107.07121487507976
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4286.23933,
+      "price": 4286.23675,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 241,
-      "vsAth": -23.42213162772581,
-      "change1mo": -3.8192202004908875,
-      "change12mo": 13.292170430967277,
-      "change3yr": 129.879512855125,
-      "change5yr": 147.23327068729003
+      "vsAth": -23.42217772195556,
+      "change1mo": -3.819278094227753,
+      "change12mo": 13.29210223743508,
+      "change3yr": 129.87937448461005,
+      "change5yr": 147.23312187109258
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 64.29667,
+      "price": 64.29652,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 241,
-      "vsAth": -47.11474613475548,
-      "change1mo": -3.156624934499307,
-      "change12mo": 39.562991100499254,
-      "change3yr": 184.2155818322467,
-      "change5yr": 186.61645789684843
+      "vsAth": -47.114869512654835,
+      "change1mo": -3.156850863871082,
+      "change12mo": 39.562665509008035,
+      "change3yr": 184.2149187755553,
+      "change5yr": 186.61578923906745
     }
   },
   "reits": {
