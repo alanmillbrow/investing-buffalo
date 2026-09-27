@@ -458,9 +458,10 @@ body {
 .follow-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   min-height: 96px; /* same as .tool-box, so it matches its neighbours when tiles stack */
 }
+.follow-bar h2 { margin: 0; }
 .follow-links {
   display: flex;
   align-items: center;
@@ -2426,6 +2427,13 @@ tbody tr:hover { background: var(--accent-soft); }
 }
 .newsletter-signup { margin-bottom: 24px; }
 main > .newsletter-signup:last-child { margin-bottom: 0; }
+/* On the homepage the signup card sits mid-flow (About Me/Roadmap/
+   Calculators above it, Account Types/Platforms/Lookout below), not as
+   the last thing on the page like everywhere else that :last-child
+   exception covers — so this margin-bottom was stacking on top of
+   .home-layout's own 24px gap, doubling the space under just this one
+   card to 48px versus 24px everywhere else on the page. */
+.page-home .newsletter-signup { margin-bottom: 0; }
 .formula-card h2 {
   font-family: 'shackleton', Georgia, serif;
   font-size: 1.5rem;

@@ -1,23 +1,24 @@
-// This page shows only the first four FTSE All-World trackers from the
-// full Lookout — see /the-lookout-all/ (unlinked, not on the homepage) for
-// every table. Both pages read the same data.json, fetched from GitHub's
-// raw CDN rather than calling Twelve Data directly from every visitor's
-// browser: refresh-prices.yml (hourly — price, all-time high, drawdown,
-// price change over several lookback windows) and refresh-fundamentals.yml
-// (weekly — P/E, dividend yield), since those cost far more API credits
-// and barely change hour to hour.
+// This page shows a short hand-picked list of GBP-denominated global
+// tracker funds from the full Lookout — see /the-lookout-all/ (unlinked,
+// not on the homepage) for every table. Both pages read the same
+// data.json, fetched from GitHub's raw CDN rather than calling Twelve
+// Data directly from every visitor's browser: refresh-prices.yml
+// (hourly — price, all-time high, drawdown, price change over several
+// lookback windows) and refresh-fundamentals.yml (weekly — P/E, dividend
+// yield), since those cost far more API credits and barely change hour to
+// hour. Dividend yield and P/E aren't shown on this page (removed on
+// request) even though the underlying data still has them.
 
-// GBP-denominated LSE-listed FTSE All-World trackers — the first four
-// entries of the full Lookout's INDICES_GBP list (see the comment in
-// .github/scripts/fetch-stock-data.mjs for why these specific symbols),
-// plus VALL (see that same file for what it is and why it's here despite
-// not being an All-World tracker like the rest). VALL's marketing
+// GBP-denominated LSE-listed global tracker funds — three of the full
+// Lookout's four FTSE All-World entries (VWRL dropped on request; see
+// the comment in .github/scripts/fetch-stock-data.mjs for why these
+// specific symbols), plus VALL (see that same file for what it is and
+// why it's here despite tracking a different index). VALL's marketing
 // material describes it as a USD Acc share class, but its LSE-listed
 // quote itself trades in pounds — confirmed live against a real quote
 // (£3.764, matching this page's own fetched price and ATH almost
-// exactly) — so it needs no different formatting from the other four.
+// exactly) — so it needs no different formatting from the rest.
 const INDICES_GBP = [
-  { symbol: 'VWRL', name: 'FTSE All-World Vanguard (Dist)' },
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', quoteInPence: true },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)' },
@@ -58,13 +59,6 @@ function fmtDrawdown(n) {
   return `${Math.abs(n).toFixed(1)}%`;
 }
 
-// Dividend yield is never negative, so (unlike fmtPercent) this never
-// prefixes a sign.
-function fmtYield(n) {
-  if (n === null || n === undefined || Number.isNaN(n)) return '—';
-  return `${n.toFixed(1)}%`;
-}
-
 function fmtDays(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n === 0 ? 'Today' : n.toLocaleString('en-US');
@@ -87,9 +81,10 @@ function fmtRefreshedAt(date) {
 // different cadences, so a symbol can legitimately have some fields present
 // and others still missing — each field just renders "—" independently
 // (via the fmt* helpers) rather than blanking the whole row on any gap.
-// No P/E column to fill in here — these are ETFs, not individual
-// companies, so (like every index tracker) there's no per-share earnings to
-// compute a P/E from; that column stays a static dash (see buildRows).
+// No dividend yield or P/E column on this page (removed on request) —
+// dividend yield is still in data.json (the full Lookout still shows it),
+// just not read here; P/E was always a static dash anyway, since these are
+// ETFs with no per-share earnings to compute one from.
 function renderIndexRow(index, result) {
   const row = document.getElementById(`idxgbp-${index.symbol}`);
   if (!row) return;
@@ -104,7 +99,6 @@ function renderIndexRow(index, result) {
   row.querySelector('[data-col="change12mo"]').textContent = fmtPercent(r.change12mo);
   row.querySelector('[data-col="change3yr"]').textContent = fmtPercent(r.change3yr);
   row.querySelector('[data-col="change5yr"]').textContent = fmtPercent(r.change5yr);
-  row.querySelector('[data-col="dividendYield"]').textContent = fmtYield(r.dividendYield);
 }
 
 function buildRows() {
@@ -120,8 +114,6 @@ function buildRows() {
       <td data-col="change12mo">&hellip;</td>
       <td data-col="change3yr">&hellip;</td>
       <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td>&mdash;</td>
     </tr>
   `).join('');
 }
