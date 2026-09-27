@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-09-27T13:59:57.112Z",
+  "savedAt": "2026-09-27T14:09:16.980Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -323,10 +323,10 @@
     "VALL": {
       "symbol": "VALL",
       "price": 3.764,
-      "athPrice": 5,
-      "athDate": "2026-08-18",
-      "daysSinceAth": 40,
-      "vsAth": -24.720000000000002,
+      "athPrice": 4.025,
+      "athDate": "2026-08-24",
+      "daysSinceAth": 34,
+      "vsAth": -6.484472049689455,
       "change1mo": 0.9250569781472042,
       "change12mo": null,
       "change3yr": null,
@@ -609,39 +609,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 84933.47,
+      "price": 84982.01,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 356,
-      "vsAth": -32.699113301679255,
-      "change1mo": 9.104657703742031,
-      "change12mo": -22.53129792855166,
-      "change3yr": 214.31938938455718,
-      "change5yr": 107.07121487507976
+      "vsAth": -32.660650431384,
+      "change1mo": 9.167011686040635,
+      "change12mo": -22.487024089291967,
+      "change3yr": 214.4990248470047,
+      "change5yr": 107.18955734678187
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 4286.23675,
+      "price": 4286.1126,
       "athPrice": 5597.22988,
       "athDate": "2026-01-29",
       "daysSinceAth": 241,
-      "vsAth": -23.42217772195556,
-      "change1mo": -3.819278094227753,
-      "change12mo": 13.29210223743508,
-      "change3yr": 129.87937448461005,
-      "change5yr": 147.23312187109258
+      "vsAth": -23.424395783437067,
+      "change1mo": -3.8220639498211395,
+      "change12mo": 13.288820754093608,
+      "change3yr": 129.8727160739793,
+      "change5yr": 147.2259608125999
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 64.29652,
+      "price": 64.29506,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 241,
-      "vsAth": -47.114869512654835,
-      "change1mo": -3.156850863871082,
-      "change12mo": 39.562665509008035,
-      "change3yr": 184.2149187755553,
-      "change5yr": 186.61578923906745
+      "vsAth": -47.116070390875166,
+      "change1mo": -3.1590499097562743,
+      "change12mo": 39.55949641849361,
+      "change3yr": 184.20846502375957,
+      "change5yr": 186.6092809699996
     }
   },
   "reits": {
