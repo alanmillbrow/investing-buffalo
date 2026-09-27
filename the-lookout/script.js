@@ -1,146 +1,45 @@
-// Data is fetched by two separate scheduled GitHub Actions and committed to
-// data.json, so this page just reads that static file instead of calling
-// Twelve Data directly from every visitor's browser: refresh-prices.yml
-// (hourly — price, all-time high, drawdown, price change over several
-// lookback windows) and
-// refresh-fundamentals.yml (weekly — P/E, dividend yield), since those cost
-// far more API credits and barely change hour to hour.
+// This page shows only the first four FTSE All-World trackers from the
+// full Lookout — see /the-lookout-all/ (unlinked, not on the homepage) for
+// every table. Both pages read the same data.json, fetched from GitHub's
+// raw CDN rather than calling Twelve Data directly from every visitor's
+// browser: refresh-prices.yml (hourly — price, all-time high, drawdown,
+// price change over several lookback windows) and refresh-fundamentals.yml
+// (weekly — P/E, dividend yield), since those cost far more API credits
+// and barely change hour to hour.
 
-const STOCKS = [
-  { symbol: 'AAPL', name: 'Apple' },
-  { symbol: 'NVDA', name: 'Nvidia' },
-  { symbol: 'GOOGL', name: 'Alphabet' },
-  { symbol: 'MSFT', name: 'Microsoft' },
-  { symbol: 'AMZN', name: 'Amazon' },
-  { symbol: 'META', name: 'Meta' },
-  { symbol: 'TSLA', name: 'Tesla' },
-];
-
-// Tracked via the ETFs that follow each index — see the comment in
-// .github/scripts/fetch-stock-data.mjs for why.
-const INDICES = [
-  { symbol: 'SPY', name: 'S&P 500' },
-  { symbol: 'QQQ', name: 'Nasdaq-100' },
-];
-
-// GBP-denominated LSE-listed index trackers — see the comment in
-// .github/scripts/fetch-stock-data.mjs for why these specific symbols.
+// GBP-denominated LSE-listed FTSE All-World trackers — the first four
+// entries of the full Lookout's INDICES_GBP list (see the comment in
+// .github/scripts/fetch-stock-data.mjs for why these specific symbols),
+// plus VALL (see that same file for what it is and why it's here despite
+// not being an All-World tracker or GBP-quoted like the rest).
 const INDICES_GBP = [
   { symbol: 'VWRL', name: 'FTSE All-World Vanguard (Dist)' },
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', quoteInPence: true },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)' },
-  { symbol: 'VUSA', name: 'S&P 500 Vanguard (Dist)' },
-  { symbol: 'VUAG', name: 'S&P 500 Vanguard (Acc)' },
-  { symbol: 'SPXP', name: 'S&P 500 Invesco (Acc)', quoteInPence: true },
-  { symbol: 'CSP1', name: 'S&P 500 iShares (Acc)' },
-  { symbol: 'VUKE', name: 'FTSE 100 Vanguard (Dist)' },
-  { symbol: 'VUKG', name: 'FTSE 100 Vanguard (Acc)' },
-  { symbol: 'S100', name: 'FTSE 100 Invesco (Acc)' },
-  { symbol: 'CUKX', name: 'FTSE 100 iShares (Acc)' },
+  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', quoteInUsd: true },
 ];
-
-const SPACE_FORCE = [
-  { symbol: 'SPCX', name: 'SpaceX' },
-  { symbol: 'RKLB', name: 'Rocket Lab' },
-  { symbol: 'ASTS', name: 'AST SpaceMobile' },
-  { symbol: 'PL', name: 'Planet Labs' },
-  { symbol: 'LMT', name: 'Lockheed Martin' },
-  { symbol: 'LHX', name: 'L3Harris' },
-  { symbol: 'NOC', name: 'Northrop Grumman' },
-  { symbol: 'BA', name: 'Boeing' },
-];
-
-// Neither P/E nor dividend yield is a meaningful concept for these, so
-// (unlike the indices tables, which still have a real dividend yield) both
-// columns are static dashes — see renderCommodityRow.
-const COMMODITIES = [
-  { symbol: 'BTC/USD', name: 'Bitcoin' },
-  { symbol: 'XAU/USD', name: 'Gold' },
-  { symbol: 'XAG/USD', name: 'Silver' },
-];
-
-const FTSE_DIVIDENDS = [
-  { symbol: 'LGEN', name: 'Legal & General' },
-  { symbol: 'SDLF', name: 'Standard Life' },
-  { symbol: 'MNG', name: 'M&G' },
-  { symbol: 'LMP', name: 'LondonMetric' },
-  { symbol: 'AV', name: 'Aviva' },
-  { symbol: 'IMB', name: 'Imperial Brands' },
-  { symbol: 'BATS', name: 'British American Tobacco' },
-  { symbol: 'NWG', name: 'NatWest Group' },
-  { symbol: 'SBRY', name: "Sainsbury's" },
-];
-
-// UK-listed REITs, broken out from FTSE_DIVIDENDS into their own table —
-// see the comment in .github/scripts/fetch-stock-data.mjs.
-const REITS = [
-  { symbol: 'LAND', name: 'Landsec' },
-  { symbol: 'BLND', name: 'British Land' },
-  { symbol: 'BBOX', name: 'Tritax Big Box REIT' },
-  { symbol: 'SGRO', name: 'Segro' },
-];
-
-// US-listed income-focused ETFs — see the comment in
-// .github/scripts/fetch-stock-data.mjs.
-const COVERED_CALL_ETFS = [
-  { symbol: 'SPYI', name: 'NEOS S&P 500 High Income' },
-  { symbol: 'GPIQ', name: 'GS S&P 500 Premium Income' },
-  { symbol: 'MLPI', name: 'ETRACS Alerian MLP Infrastructure' },
-  { symbol: 'IDVO', name: 'Amplify Int\'l Enhanced Dividend' },
-  { symbol: 'DIVO', name: 'Amplify Enhanced Dividend' },
-  { symbol: 'JEPI', name: 'JPM Equity Premium Income' },
-];
-
-// US-listed dividend-focused (non-covered-call) funds — plain dividend
-// growth/quality strategies rather than an options overlay.
-const US_DIVIDEND_FUNDS = [
-  { symbol: 'SCHD', name: 'Schwab US Dividend Equity' },
-  { symbol: 'NOBL', name: 'ProShares Dividend Aristocrats' },
-];
-
-// Vanguard LifeStrategy funds — see the comment in
-// .github/scripts/fetch-stock-data.mjs. displaySymbol is the ticker
-// people actually recognise (VGLS20A) — symbol itself is Twelve Data's
-// own internal fund code, used for the data lookup and row id.
-const LIFESTRATEGY_FUNDS = [
-  { symbol: '0P0000TKZG', name: 'LifeStrategy 20% Equity (Acc)', displaySymbol: 'VGLS20A' },
-  { symbol: '0P0000TKZH', name: 'LifeStrategy 20% Equity (Dist)', displaySymbol: 'VGLS20I' },
-  { symbol: '0P0000TKZI', name: 'LifeStrategy 40% Equity (Acc)', displaySymbol: 'VGLS40A' },
-  { symbol: '0P0000TKZJ', name: 'LifeStrategy 40% Equity (Dist)', displaySymbol: 'VGLS40I' },
-  { symbol: '0P0000TKZK', name: 'LifeStrategy 60% Equity (Acc)', displaySymbol: 'VGLS60A' },
-  { symbol: '0P0000TKZL', name: 'LifeStrategy 60% Equity (Dist)', displaySymbol: 'VGLS60I' },
-  { symbol: '0P0000TKZM', name: 'LifeStrategy 80% Equity (Acc)', displaySymbol: 'VGLS80A' },
-  { symbol: '0P0000TKZN', name: 'LifeStrategy 80% Equity (Dist)', displaySymbol: 'VGLS80I' },
-  { symbol: '0P0000TKZO', name: 'LifeStrategy 100% Equity (Acc)', displaySymbol: 'VGL100A' },
-  { symbol: '0P0000TKZP', name: 'LifeStrategy 100% Equity (Dist)', displaySymbol: 'VGL100I' },
-];
-
-function fmtUsd(n) {
-  if (n === null || n === undefined || Number.isNaN(n)) return '—';
-  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 function fmtGbp(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Individual LSE-listed companies (unlike the Vanguard ETF trackers, which
-// quote in whole pounds) are quoted by Twelve Data in pence — confirmed via
-// each symbol's own currency field (GBp vs GBP), not assumed. £3.04 would
-// otherwise render as "£303.80", 100x too high.
+function fmtUsd(n) {
+  if (n === null || n === undefined || Number.isNaN(n)) return '—';
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// A couple of Indices GBP entries (flagged quoteInPence) are commonly
+// quoted in pence on other sites (e.g. FWRG) and carry sub-penny precision
+// from Twelve Data that whole-pound formatting rounds away. data.json
+// stores these in pounds like every other index (for consistent maths), so
+// this just converts back to pence for display on those specific rows.
 function fmtGbx(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return `${n.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}p`;
 }
 
-// A couple of Indices GBP entries (flagged quoteInPence) are commonly
-// quoted in pence on other sites (e.g. FWRG, SPXP) and carry sub-penny
-// precision from Twelve Data that whole-pound formatting rounds away.
-// data.json stores these in pounds like every other index (for
-// consistent maths), so this just converts back to pence for display
-// on those specific rows.
 function fmtGbpAsPence(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return fmtGbx(n * 100);
@@ -167,11 +66,6 @@ function fmtYield(n) {
   return `${n.toFixed(1)}%`;
 }
 
-function fmtPe(n) {
-  if (n === null || n === undefined || Number.isNaN(n)) return '—';
-  return n.toFixed(1);
-}
-
 function fmtDays(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n === 0 ? 'Today' : n.toLocaleString('en-US');
@@ -190,14 +84,18 @@ function fmtRefreshedAt(date) {
 }
 
 // Price fields (quote/time_series) and fundamentals fields (earnings/
-// dividends) are now fetched by two entirely separate scheduled runs on
+// dividends) are fetched by two entirely separate scheduled runs on
 // different cadences, so a symbol can legitimately have some fields present
 // and others still missing — each field just renders "—" independently
 // (via the fmt* helpers) rather than blanking the whole row on any gap.
-function renderRow(stock, result, { idPrefix = 'row', fmt = fmtUsd } = {}) {
-  const row = document.getElementById(`${idPrefix}-${stock.symbol}`);
+// No P/E column to fill in here — these are ETFs, not individual
+// companies, so (like every index tracker) there's no per-share earnings to
+// compute a P/E from; that column stays a static dash (see buildRows).
+function renderIndexRow(index, result) {
+  const row = document.getElementById(`idxgbp-${index.symbol}`);
   if (!row) return;
   const r = result || {};
+  const fmt = index.quoteInUsd ? fmtUsd : (index.quoteInPence ? fmtGbpAsPence : fmtGbp);
 
   row.querySelector('[data-col="ath"]').textContent = fmt(r.athPrice);
   row.querySelector('[data-col="price"]').textContent = fmt(r.price);
@@ -208,235 +106,13 @@ function renderRow(stock, result, { idPrefix = 'row', fmt = fmtUsd } = {}) {
   row.querySelector('[data-col="change3yr"]').textContent = fmtPercent(r.change3yr);
   row.querySelector('[data-col="change5yr"]').textContent = fmtPercent(r.change5yr);
   row.querySelector('[data-col="dividendYield"]').textContent = fmtYield(r.dividendYield);
-  row.querySelector('[data-col="pe"]').textContent = fmtPe(r.pe);
-}
-
-function renderIndexRow(index, result, { idPrefix = 'idx', fmt = fmtUsd } = {}) {
-  const row = document.getElementById(`${idPrefix}-${index.symbol}`);
-  if (!row) return;
-  const r = result || {};
-
-  row.querySelector('[data-col="ath"]').textContent = fmt(r.athPrice);
-  row.querySelector('[data-col="price"]').textContent = fmt(r.price);
-  row.querySelector('[data-col="vsAth"]').textContent = fmtDrawdown(r.vsAth);
-  row.querySelector('[data-col="daysSinceAth"]').textContent = fmtDays(r.daysSinceAth);
-  row.querySelector('[data-col="change1mo"]').textContent = fmtPercent(r.change1mo);
-  row.querySelector('[data-col="change12mo"]').textContent = fmtPercent(r.change12mo);
-  row.querySelector('[data-col="change3yr"]').textContent = fmtPercent(r.change3yr);
-  row.querySelector('[data-col="change5yr"]').textContent = fmtPercent(r.change5yr);
-  row.querySelector('[data-col="dividendYield"]').textContent = fmtYield(r.dividendYield);
-}
-
-// No dividendYield/pe columns to fill in — both are static dashes in the
-// row template (see buildRows), since neither concept applies here.
-function renderCommodityRow(commodity, result) {
-  const row = document.getElementById(`commodity-${commodity.symbol}`);
-  if (!row) return;
-  const r = result || {};
-
-  row.querySelector('[data-col="ath"]').textContent = fmtUsd(r.athPrice);
-  row.querySelector('[data-col="price"]').textContent = fmtUsd(r.price);
-  row.querySelector('[data-col="vsAth"]').textContent = fmtDrawdown(r.vsAth);
-  row.querySelector('[data-col="daysSinceAth"]').textContent = fmtDays(r.daysSinceAth);
-  row.querySelector('[data-col="change1mo"]').textContent = fmtPercent(r.change1mo);
-  row.querySelector('[data-col="change12mo"]').textContent = fmtPercent(r.change12mo);
-  row.querySelector('[data-col="change3yr"]').textContent = fmtPercent(r.change3yr);
-  row.querySelector('[data-col="change5yr"]').textContent = fmtPercent(r.change5yr);
 }
 
 function buildRows() {
-  const tbody = document.getElementById('stockTableBody');
-  tbody.innerHTML = STOCKS.map((stock) => `
-    <tr id="row-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td data-col="pe">&hellip;</td>
-    </tr>
-  `).join('');
-
-  const indexTbody = document.getElementById('indexTableBody');
-  indexTbody.innerHTML = INDICES.map((index) => `
-    <tr id="idx-${index.symbol}">
-      <td>${index.name} <span class="section-note">(${index.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td>&mdash;</td>
-    </tr>
-  `).join('');
-
-  const indexGbpTbody = document.getElementById('indexGbpTableBody');
-  indexGbpTbody.innerHTML = INDICES_GBP.map((index) => `
+  const tbody = document.getElementById('indexGbpTableBody');
+  tbody.innerHTML = INDICES_GBP.map((index) => `
     <tr id="idxgbp-${index.symbol}">
       <td>${index.name} <span class="section-note">(${index.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td>&mdash;</td>
-    </tr>
-  `).join('');
-
-  const spaceForceTbody = document.getElementById('spaceForceTableBody');
-  spaceForceTbody.innerHTML = SPACE_FORCE.map((stock) => `
-    <tr id="space-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td data-col="pe">&hellip;</td>
-    </tr>
-  `).join('');
-
-  const commodityTbody = document.getElementById('commodityTableBody');
-  commodityTbody.innerHTML = COMMODITIES.map((commodity) => `
-    <tr id="commodity-${commodity.symbol}">
-      <td>${commodity.name}</td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td>&mdash;</td>
-      <td>&mdash;</td>
-    </tr>
-  `).join('');
-
-  buildFtseDividendRows(FTSE_DIVIDENDS);
-  buildReitRows(REITS);
-  buildCoveredCallRows(COVERED_CALL_ETFS);
-  buildUsDividendRows(US_DIVIDEND_FUNDS);
-  buildLifestrategyRows(LIFESTRATEGY_FUNDS);
-}
-
-// Broken out from buildRows so it can be called again after data loads,
-// rebuilding the table in dividend-yield order (highest first) instead of
-// the fixed order used for the initial loading-placeholder state.
-function buildFtseDividendRows(order) {
-  const ftseDividendTbody = document.getElementById('ftseDividendTableBody');
-  ftseDividendTbody.innerHTML = order.map((stock) => `
-    <tr id="ftsediv-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td data-col="pe">&hellip;</td>
-    </tr>
-  `).join('');
-}
-
-// Same pattern as buildFtseDividendRows — rebuilt in dividend-yield order
-// once data loads.
-function buildReitRows(order) {
-  const reitTbody = document.getElementById('reitTableBody');
-  if (!reitTbody) return;
-  reitTbody.innerHTML = order.map((stock) => `
-    <tr id="reit-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td data-col="pe">&hellip;</td>
-    </tr>
-  `).join('');
-}
-
-// Same pattern as buildFtseDividendRows — rebuilt in dividend-yield order
-// once data loads. No pe column (static dash) — these are ETFs, not
-// individual companies, so (like INDICES) there's no per-share earnings to
-// compute a P/E from.
-function buildCoveredCallRows(order) {
-  const tbody = document.getElementById('coveredCallTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = order.map((stock) => `
-    <tr id="coveredcall-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td>&mdash;</td>
-    </tr>
-  `).join('');
-}
-
-// Same pattern as buildCoveredCallRows — plain dividend funds, no
-// covered-call options overlay, but still ETFs (no per-share earnings, so
-// no P/E, same static dash).
-function buildUsDividendRows(order) {
-  const tbody = document.getElementById('usDividendTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = order.map((stock) => `
-    <tr id="usdividend-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.symbol})</span></td>
-      <td data-col="ath">&hellip;</td>
-      <td data-col="price">&hellip;</td>
-      <td data-col="vsAth">&hellip;</td>
-      <td data-col="daysSinceAth">&hellip;</td>
-      <td data-col="change1mo">&hellip;</td>
-      <td data-col="change12mo">&hellip;</td>
-      <td data-col="change3yr">&hellip;</td>
-      <td data-col="change5yr">&hellip;</td>
-      <td data-col="dividendYield">&hellip;</td>
-      <td>&mdash;</td>
-    </tr>
-  `).join('');
-}
-
-// Same pattern as buildUsDividendRows, but the parenthetical shows
-// displaySymbol (the ticker people recognise) rather than the raw
-// Twelve Data fund code used for the row id / data lookup.
-function buildLifestrategyRows(order) {
-  const tbody = document.getElementById('lifestrategyTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = order.map((stock) => `
-    <tr id="lifestrategy-${stock.symbol}">
-      <td>${stock.name} <span class="section-note">(${stock.displaySymbol || stock.symbol})</span></td>
       <td data-col="ath">&hellip;</td>
       <td data-col="price">&hellip;</td>
       <td data-col="vsAth">&hellip;</td>
@@ -464,68 +140,7 @@ async function init() {
     const res = await fetch('https://raw.githubusercontent.com/alanmillbrow/investing-buffalo/main/the-lookout/data.json', { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed to load data (${res.status})`);
     const data = await res.json();
-    STOCKS.forEach((stock) => renderRow(stock, data.stocks?.[stock.symbol]));
-    INDICES.forEach((index) => renderIndexRow(index, data.indices?.[index.symbol]));
-    INDICES_GBP.forEach((index) => renderIndexRow(index, data.indicesGbp?.[index.symbol], { idPrefix: 'idxgbp', fmt: index.quoteInPence ? fmtGbpAsPence : fmtGbp }));
-    SPACE_FORCE.forEach((stock) => renderRow(stock, data.spaceForce?.[stock.symbol], { idPrefix: 'space', fmt: fmtUsd }));
-    COMMODITIES.forEach((commodity) => renderCommodityRow(commodity, data.commodities?.[commodity.symbol]));
-
-    // Highest dividend yield first — missing yields (e.g. a fetch gap) sink
-    // to the bottom rather than being treated as a 0% yield.
-    const byYieldDesc = [...FTSE_DIVIDENDS].sort((a, b) => {
-      const ay = data.ftseDividends?.[a.symbol]?.dividendYield;
-      const by = data.ftseDividends?.[b.symbol]?.dividendYield;
-      if (ay == null && by == null) return 0;
-      if (ay == null) return 1;
-      if (by == null) return -1;
-      return by - ay;
-    });
-    buildFtseDividendRows(byYieldDesc);
-    FTSE_DIVIDENDS.forEach((stock) => renderRow(stock, data.ftseDividends?.[stock.symbol], { idPrefix: 'ftsediv', fmt: fmtGbx }));
-
-    const reitsByYieldDesc = [...REITS].sort((a, b) => {
-      const ay = data.reits?.[a.symbol]?.dividendYield;
-      const by = data.reits?.[b.symbol]?.dividendYield;
-      if (ay == null && by == null) return 0;
-      if (ay == null) return 1;
-      if (by == null) return -1;
-      return by - ay;
-    });
-    buildReitRows(reitsByYieldDesc);
-    REITS.forEach((stock) => renderRow(stock, data.reits?.[stock.symbol], { idPrefix: 'reit', fmt: fmtGbx }));
-
-    const coveredCallByYieldDesc = [...COVERED_CALL_ETFS].sort((a, b) => {
-      const ay = data.coveredCallEtfs?.[a.symbol]?.dividendYield;
-      const by = data.coveredCallEtfs?.[b.symbol]?.dividendYield;
-      if (ay == null && by == null) return 0;
-      if (ay == null) return 1;
-      if (by == null) return -1;
-      return by - ay;
-    });
-    buildCoveredCallRows(coveredCallByYieldDesc);
-    COVERED_CALL_ETFS.forEach((stock) => renderIndexRow(stock, data.coveredCallEtfs?.[stock.symbol], { idPrefix: 'coveredcall', fmt: fmtUsd }));
-
-    const usDividendByYieldDesc = [...US_DIVIDEND_FUNDS].sort((a, b) => {
-      const ay = data.usDividendFunds?.[a.symbol]?.dividendYield;
-      const by = data.usDividendFunds?.[b.symbol]?.dividendYield;
-      if (ay == null && by == null) return 0;
-      if (ay == null) return 1;
-      if (by == null) return -1;
-      return by - ay;
-    });
-    buildUsDividendRows(usDividendByYieldDesc);
-    US_DIVIDEND_FUNDS.forEach((stock) => renderIndexRow(stock, data.usDividendFunds?.[stock.symbol], { idPrefix: 'usdividend', fmt: fmtUsd }));
-
-    const lifestrategyByYieldDesc = [...LIFESTRATEGY_FUNDS].sort((a, b) => {
-      const ay = data.lifestrategyFunds?.[a.symbol]?.dividendYield;
-      const by = data.lifestrategyFunds?.[b.symbol]?.dividendYield;
-      if (ay == null && by == null) return 0;
-      if (ay == null) return 1;
-      if (by == null) return -1;
-      return by - ay;
-    });
-    buildLifestrategyRows(lifestrategyByYieldDesc);
-    LIFESTRATEGY_FUNDS.forEach((stock) => renderIndexRow(stock, data.lifestrategyFunds?.[stock.symbol], { idPrefix: 'lifestrategy', fmt: fmtGbp }));
+    INDICES_GBP.forEach((index) => renderIndexRow(index, data.indicesGbp?.[index.symbol]));
     status.textContent = `Last refreshed ${fmtRefreshedAt(new Date(data.savedAt))}`;
   } catch (err) {
     status.textContent = `Couldn't load stock data: ${err.message}`;

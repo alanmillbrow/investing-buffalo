@@ -64,6 +64,18 @@ const INDICES_GBP = [
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', exchange: 'LSE' },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)', exchange: 'LSE' },
+  // Not an All-World tracker like the four above — this fund tracks the
+  // FTSE Global All Cap index instead (same idea, but ~10,000 holdings
+  // including small caps, vs. ~4,000 for All-World). Same fund as Xetra's
+  // VGLA, just under its LSE ticker (launched 20 Aug 2026) — added here
+  // rather than duplicating both listings of the same holding. Every
+  // public source describes it as a USD Acc share class, unlike every
+  // other entry in this array; loadPrice's currency handling below is
+  // already generic per-symbol (keyed off the live quote's own currency
+  // field, not this array's name), so no code changes were needed to
+  // fetch it correctly either way — but this is unconfirmed against
+  // Twelve Data's actual response until the next live refresh runs.
+  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'VUSA', name: 'S&P 500 Vanguard (Dist)', exchange: 'LSE' },
   { symbol: 'VUAG', name: 'S&P 500 Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'SPXP', name: 'S&P 500 Invesco (Acc)', exchange: 'LSE' },

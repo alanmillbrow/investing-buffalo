@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lookout</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://use.typekit.net">
+<!-- Shackleton (Adobe Fonts / Typekit) -->
+<link rel="stylesheet" href="https://use.typekit.net/zkf6zbb.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-lookout">
+
+<div class="bg-decoration"></div>
+
+<div class="app lookout-app">
+  <header class="app-header">
+    <div class="brand">
+      <a class="brand-mark" href="/" aria-label="Investing Buffalo home">
+        <span class="brand-mark-icon" role="img" aria-label="Investing Buffalo"></span>
+      </a>
+      <div class="header-text">
+        <h1>The Lookout</h1>
+        <p>Navigating the path to financial freedom</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a class="home-toggle" href="/" aria-label="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      </a>
+      <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </header>
+  <div class="page-ornament">
+    <span class="page-ornament-icon" role="img" aria-label="Investing Buffalo"></span>
+  </div>
+
+  <main class="home-layout">
+    <div class="story">
+      <p class="story-p drop-cap">There are thousands of ways you can build your investment engine. The Lookout is a place to spark ideas, but is not investment advice. If you are looking for ideas on where to start, Warren Buffett did say owning a low cost S&amp;P 500 index fund is &ldquo;the best thing&rdquo; for everyday investors, and it certainly has done well over time. Many investors also like to follow an all-world index fund. Popular All World, S&amp;P 500 and FTSE 100 index funds are included in the first table.</p>
+    </div>
+
+    <p class="stock-watch-status" id="stockWatchStatus">Loading&hellip;</p>
+    <section class="card table-card">
+      <div class="table-header table-header-note">
+        <h2>Indices GBP</h2>
+        <span class="section-note">Tracked via GBP denominated ETFs that follow each index</span>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Index</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="indexGbpTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header table-header-note">
+        <h2>Indices USD</h2>
+        <span class="section-note">Tracked via USD denominated ETFs that follow each index</span>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Index</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="indexTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Magnificent Seven</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Space Force</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="spaceForceTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>FTSE 100 Top Dividend Plays</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="ftseDividendTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>UK Real Estate Investment Trusts</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="reitTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>US Covered Call ETFs</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Fund</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="coveredCallTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>US Dividend Funds</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Fund</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="usDividendTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Vanguard LifeStrategy Funds</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Fund</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="lifestrategyTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Bitcoin, Gold &amp; Silver</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>All-Time High</th>
+              <th>Price</th>
+              <th>Drawdown</th>
+              <th>Days Since ATH</th>
+              <th>1-Month Change</th>
+              <th>12-Month Change</th>
+              <th>3-Year Change</th>
+              <th>5-Year Change</th>
+              <th>Dividend Yield</th>
+              <th>P/E Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="commodityTableBody">
+            <!-- rows are populated by script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="page-ornament page-ornament-close">
+      <span class="page-ornament-icon" role="img" aria-label="Investing Buffalo"></span>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
+  </footer>
+</div>
+
+<script src="/theme.js"></script>
+<script src="/scroll-hint.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
