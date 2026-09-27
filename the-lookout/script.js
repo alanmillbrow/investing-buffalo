@@ -11,23 +11,22 @@
 // entries of the full Lookout's INDICES_GBP list (see the comment in
 // .github/scripts/fetch-stock-data.mjs for why these specific symbols),
 // plus VALL (see that same file for what it is and why it's here despite
-// not being an All-World tracker or GBP-quoted like the rest).
+// not being an All-World tracker like the rest). VALL's marketing
+// material describes it as a USD Acc share class, but its LSE-listed
+// quote itself trades in pounds — confirmed live against a real quote
+// (£3.764, matching this page's own fetched price and ATH almost
+// exactly) — so it needs no different formatting from the other four.
 const INDICES_GBP = [
   { symbol: 'VWRL', name: 'FTSE All-World Vanguard (Dist)' },
   { symbol: 'VWRP', name: 'FTSE All-World Vanguard (Acc)' },
   { symbol: 'FWRG', name: 'FTSE All-World Invesco (Acc)', quoteInPence: true },
   { symbol: 'FTAW', name: 'FTSE All-World iShares (Acc)' },
-  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', quoteInUsd: true },
+  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)' },
 ];
 
 function fmtGbp(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   return n.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function fmtUsd(n) {
-  if (n === null || n === undefined || Number.isNaN(n)) return '—';
-  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // A couple of Indices GBP entries (flagged quoteInPence) are commonly
@@ -95,7 +94,7 @@ function renderIndexRow(index, result) {
   const row = document.getElementById(`idxgbp-${index.symbol}`);
   if (!row) return;
   const r = result || {};
-  const fmt = index.quoteInUsd ? fmtUsd : (index.quoteInPence ? fmtGbpAsPence : fmtGbp);
+  const fmt = index.quoteInPence ? fmtGbpAsPence : fmtGbp;
 
   row.querySelector('[data-col="ath"]').textContent = fmt(r.athPrice);
   row.querySelector('[data-col="price"]').textContent = fmt(r.price);

@@ -67,15 +67,20 @@ const INDICES_GBP = [
   // Not an All-World tracker like the four above — this fund tracks the
   // FTSE Global All Cap index instead (same idea, but ~10,000 holdings
   // including small caps, vs. ~4,000 for All-World). Same fund as Xetra's
-  // VGLA, just under its LSE ticker (launched 20 Aug 2026) — added here
-  // rather than duplicating both listings of the same holding. Every
-  // public source describes it as a USD Acc share class, unlike every
-  // other entry in this array; loadPrice's currency handling below is
-  // already generic per-symbol (keyed off the live quote's own currency
-  // field, not this array's name), so no code changes were needed to
-  // fetch it correctly either way — but this is unconfirmed against
-  // Twelve Data's actual response until the next live refresh runs.
-  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', exchange: 'LSE' },
+  // VGLA, just under its LSE ticker — added here rather than duplicating
+  // both listings of the same holding. Every public source describes the
+  // fund itself as a USD Acc share class, but this LSE-listed quote trades
+  // in pounds — confirmed live against a real quote (£3.764, essentially
+  // identical to this entry's own fetched price), so it needs no different
+  // currency handling from any other entry here.
+  // firstTradeDate: this fund only listed on the LSE on 20 Aug 2026, but
+  // its time_series carried a bar dated two days earlier (18 Aug) with
+  // high=5.00 — well above anything it's actually traded at since, and
+  // confirmed live that the fund has never really been £5. Presumably a
+  // seed/reference NAV rather than a genuine trade. Without this, that one
+  // bar was winning the ATH scan in loadPrice outright. See loadPrice's
+  // firstTradeDate comment for how this is excluded.
+  { symbol: 'VALL', name: 'FTSE Global All Cap Vanguard (Acc)', exchange: 'LSE', firstTradeDate: '2026-08-20' },
   { symbol: 'VUSA', name: 'S&P 500 Vanguard (Dist)', exchange: 'LSE' },
   { symbol: 'VUAG', name: 'S&P 500 Vanguard (Acc)', exchange: 'LSE' },
   { symbol: 'SPXP', name: 'S&P 500 Invesco (Acc)', exchange: 'LSE' },
@@ -403,7 +408,7 @@ function logRejections(symbol, labels, results) {
 
 // Cheap half: current price, all-time high, drawdown, and price change over
 // several lookback windows — quote + time_series only (1 credit each).
-async function loadPrice(symbol, exchange, isIndex, historyResetDate, noGbpDivisor) {
+async function loadPrice(symbol, exchange, isIndex, historyResetDate, noGbpDivisor, firstTradeDate) {
   const base = 'https://api.twelvedata.com';
   const exchangeParam = exchange ? `&exchange=${exchange}` : '';
   const [quoteResult, historyResult] = await Promise.allSettled([
@@ -413,7 +418,25 @@ async function loadPrice(symbol, exchange, isIndex, historyResetDate, noGbpDivis
   logRejections(symbol, ['quote', 'time_series'], [quoteResult, historyResult]);
 
   const rawPrice = quoteResult.status === 'fulfilled' ? parseFloat(quoteResult.value.close) : null;
-  const rawBars = historyResult.status === 'fulfilled' ? (historyResult.value.values || []) : [];
+  const fetchedBars = historyResult.status === 'fulfilled' ? (historyResult.value.values || []) : [];
+
+  // For a very recently listed instrument, Twelve Data's time_series can
+  // carry a bar dated before real trading actually began — confirmed on
+  // VALL (LSE-listed 20 Aug 2026): the series included an 18 Aug bar with
+  // high=5.00, two days before listing, which is presumably a seed/
+  // reference NAV rather than a genuine traded price (real LSE prices
+  // since listing have stayed in the £3.60-4.00 range — confirmed against
+  // a live third-party quote). That bogus bar was winning the ATH scan
+  // below outright, since nothing the fund has actually traded at since
+  // comes close to it. firstTradeDate drops any bar before the instrument's
+  // real first trading day, so it can't feed the ATH, drawdown, or
+  // change-over-days figures at all — a stronger fix than historyResetDate
+  // (which only excludes change-over-days windows reaching before a scale/
+  // reissue event partway through an otherwise-real series; this is for
+  // bars that shouldn't be treated as real trading history at all).
+  const rawBars = firstTradeDate
+    ? fetchedBars.filter((bar) => bar.datetime >= firstTradeDate)
+    : fetchedBars;
 
   // Twelve Data's own historical time_series for some instruments switches
   // scale partway through — not a single bad data point, but a genuinely
@@ -651,7 +674,7 @@ async function runPriceRefresh() {
   await Promise.all(ALL_SYMBOLS.map(async (item) => {
     let fields;
     try {
-      fields = await loadPrice(item.symbol, item.exchange, item.isIndex, item.historyResetDate, item.noGbpDivisor);
+      fields = await loadPrice(item.symbol, item.exchange, item.isIndex, item.historyResetDate, item.noGbpDivisor, item.firstTradeDate);
     } catch (err) {
       console.warn(`[WARN] ${item.symbol} price refresh failed entirely: ${err.message}`);
       fields = {};
