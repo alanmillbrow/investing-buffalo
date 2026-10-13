@@ -2497,6 +2497,30 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   .page-engine-fuel .inputs-card {
     max-height: calc(100vh - 48px);
     overflow-y: auto;
+    /* On-brand rather than the browser's default (white/grey) scrollbar:
+       slim, transparent track, brown thumb from the theme's own text
+       tokens so it follows light/dark mode. The standard properties cover
+       Firefox and current Chrome/Safari; the -webkit- rules below are for
+       older WebKit/Blink, and (matching the cards' square corners)
+       there's no rounding. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-tertiary) transparent;
+  }
+  .page-engine-fuel .inputs-card::-webkit-scrollbar {
+    width: 10px;
+  }
+  .page-engine-fuel .inputs-card::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .page-engine-fuel .inputs-card::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  .page-engine-fuel .inputs-card::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 }
 
