@@ -2486,6 +2486,19 @@ main > .newsletter-signup:last-child { margin-bottom: 0; }
   font-family: var(--body-font);
   font-weight: 600; /* Semibold */
 }
+/* This card has more fields than most calculators' (it grew again with the
+   National Insurance toggle) and is position: sticky above 900px, so on a
+   typical laptop screen it's taller than the viewport — its lower fields
+   would sit below the fold while stuck, only reachable by scrolling to the
+   very end of the page. Capping it at the viewport height and scrolling
+   inside it keeps every field reachable. Scoped to when it's actually
+   sticky: at 900px and below it's static and just flows down the page. */
+@media (min-width: 901px) {
+  .page-engine-fuel .inputs-card {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+}
 
 /* Three freedoms */
 .freedoms-title {

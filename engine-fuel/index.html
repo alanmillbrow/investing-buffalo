@@ -48,7 +48,7 @@
 
   <section class="card disclaimer-card">
     <h2>Warning &mdash; this is not financial advice</h2>
-    <p>Tax is a complicated topic and is personal to your own circumstances. This calculator is just an illustration of how you may be able to invest your income, taking into account the general tax rules and investment wrappers available. There are tax nuances not accounted for in this calculator. For example pension unused annual allowance carryover, your personal tax code, student loan repayments or other deductions. For personal tax advice please speak to a qualified financial advisor.</p>
+    <p>Tax is a complicated topic and is personal to your own circumstances. This calculator is just an illustration of how you may be able to invest your income, taking into account the general tax rules and investment wrappers available. There are tax nuances not accounted for in this calculator. For example how much unused pension annual allowance you can actually carry forward, your personal tax code, student loan repayments or other deductions. For personal tax advice please speak to a qualified financial advisor.</p>
   </section>
 
   <section class="card formula-card formula-summary">
@@ -95,12 +95,12 @@
 
       <div class="field">
         <label for="pension">Pension contribution</label>
-        <span class="field-hint">Capped at your income or your Annual Allowance, whichever is lower. £60,000, tapering down to £10,000 once your income passes £260,000</span>
+        <span class="field-hint">The slider goes up to your income or Annual Allowance, whichever is lower: £60,000, tapering to £10,000 once income passes £260,000. To carry forward unused allowance, type a higher amount, up to £180,000 or your income</span>
         <div class="input-prefix">
           <span>£</span>
           <input type="text" inputmode="decimal" id="pension" value="5,000">
         </div>
-        <input type="range" id="pensionRange" min="0" max="50000" step="100" value="5000" class="slider">
+        <input type="range" id="pensionRange" min="0" max="60000" step="100" value="5000" class="slider">
       </div>
 
       <div class="field">
@@ -121,6 +121,15 @@
           <input type="text" inputmode="decimal" id="gia" value="0">
         </div>
         <input type="range" id="giaRange" min="0" max="0" step="100" value="0" class="slider">
+      </div>
+
+      <div class="field ni-mode">
+        <label>Include National Insurance</label>
+        <span class="field-hint">Turn off if you don&rsquo;t pay National Insurance on this income, for example once you&rsquo;re above State Pension age</span>
+        <div class="segmented">
+          <button type="button" class="seg-btn active" data-ni="on">On</button>
+          <button type="button" class="seg-btn" data-ni="off">Off</button>
+        </div>
       </div>
     </section>
 
@@ -307,7 +316,7 @@
   </main>
 
   <footer class="app-footer">
-    <p>This calculator uses 2026/27 UK income tax and National Insurance rates for England, Wales and Northern Ireland (Scotland&rsquo;s income tax bands differ) and a simplified model of pension tax relief. It doesn&rsquo;t account for pension unused annual allowance carryover, your personal tax code, student loan repayments or other deductions.</p>
+    <p>This calculator uses 2026/27 UK income tax and National Insurance rates for England, Wales and Northern Ireland (Scotland&rsquo;s income tax bands differ) and a simplified model of pension tax relief. You can type a pension contribution above your Annual Allowance (up to &pound;180,000) to illustrate carrying forward unused allowance, but it doesn&rsquo;t check how much you actually have available, or account for your personal tax code, student loan repayments or other deductions.</p>
     <p>A &lsquo;Not salary sacrifice&rsquo; pension contribution could be made via Relief at Source. This is simplified in the calculator. Under Relief at Source, only 20% relief is added automatically, with higher and additional rate taxpayers reclaiming the rest through Self Assessment rather than seeing it reflected in take home pay straight away, as they would under a Net Pay Arrangement. This calculator shows the full relief immediately.</p>
     <p>All information is provided for educational purposes only. I am not a financial adviser and this is not financial advice.<br>Investments can fall as well as rise, and you may get back less than you invest.</p>
   </footer>

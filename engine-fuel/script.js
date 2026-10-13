@@ -12,6 +12,7 @@
   const giaInput = $('gia');
   const giaRange = $('giaRange');
   const sacrificeButtons = document.querySelectorAll('.pension-mode .seg-btn');
+  const niButtons = document.querySelectorAll('.ni-mode .seg-btn');
 
   const baseGrossEl = $('baseGross');
   const baseTaxEl = $('baseTax');
@@ -61,6 +62,16 @@
   const shareStatus = $('shareStatus');
 
   let isSacrifice = true;
+  // On = employee National Insurance is calculated as normal; Off = treated
+  // as £0 everywhere (e.g. someone above State Pension age, who doesn't pay
+  // employee NI), leaving income tax untouched.
+  let includeNi = true;
+
+  // The pension slider stops at the Annual Allowance (or income if lower),
+  // but the text box accepts more, up to this ceiling (or income if
+  // lower) — for illustrating carrying forward unused allowance from
+  // earlier years, which this calculator doesn't try to verify.
+  const PENSION_TYPED_MAX = 180000;
 
   // ---------- Formatting helpers ----------
   // GBP only — unlike the other calculators, the thresholds this one is
@@ -130,6 +141,15 @@
       sacrificeButtons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       isSacrifice = btn.dataset.mode === 'sacrifice';
+      render();
+    });
+  });
+
+  niButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      niButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      includeNi = btn.dataset.ni === 'on';
       render();
     });
   });
@@ -204,7 +224,7 @@
     const taxableIncome = Math.max(0, gross - pensionContribution);
     const niableIncome = sacrifice ? taxableIncome : gross;
     const tax = incomeTax(taxableIncome);
-    const ni = nationalInsurance(niableIncome);
+    const ni = includeNi ? nationalInsurance(niableIncome) : 0;
     const takeHome = gross - pensionContribution - tax - ni;
     return { tax, ni, takeHome };
   }
@@ -234,6 +254,12 @@
       sacrificeButtons.forEach((b) => b.classList.toggle('active', b.dataset.mode === modeParam));
     }
 
+    const niParam = params.get('ni');
+    if (niParam === 'on' || niParam === 'off') {
+      includeNi = niParam === 'on';
+      niButtons.forEach((b) => b.classList.toggle('active', b.dataset.ni === niParam));
+    }
+
     // GIA's real ceiling isn't known until render() computes it from the
     // other fields, so just stash the requested value here — render()
     // clamps it against the true max on the next pass, same as pension/ISA
@@ -252,6 +278,7 @@
     params.set('pension', Math.round(parseNumber(pensionInput.value)));
     params.set('isa', Math.round(parseNumber(isaInput.value)));
     params.set('gia', Math.round(parseNumber(giaInput.value)));
+    params.set('ni', includeNi ? 'on' : 'off');
     return params;
   }
 
@@ -386,13 +413,19 @@
   function render() {
     const salary = parseNumber(salaryInput.value);
 
-    const pensionMax = Math.min(salary, annualAllowance(salary));
-    pensionRange.max = pensionMax;
-    let pension = Math.min(parseNumber(pensionInput.value), pensionMax);
+    // Two different ceilings: the slider stops at the Annual Allowance (or
+    // income if lower), while a typed amount is accepted up to
+    // PENSION_TYPED_MAX (or income if lower — you can't put in more than
+    // you earn). Typing above the slider's end leaves the thumb pinned
+    // there while the typed amount drives the calculation.
+    const pensionSliderMax = Math.min(salary, annualAllowance(salary));
+    const pensionTypedMax = Math.min(salary, PENSION_TYPED_MAX);
+    pensionRange.max = pensionSliderMax;
+    let pension = Math.min(parseNumber(pensionInput.value), pensionTypedMax);
     if (pension !== parseNumber(pensionInput.value)) {
       pensionInput.value = fmtNumber(pension);
-      pensionRange.value = pension;
     }
+    pensionRange.value = Math.min(pension, pensionSliderMax);
     updateSliderFill(pensionRange);
 
     const scenario = computeScenario(salary, pension, isSacrifice);
@@ -486,7 +519,9 @@
     const niWithSacrifice = computeScenario(salary, pension, true).ni;
     const niWithoutSacrifice = computeScenario(salary, pension, false).ni;
     const niSaving = Math.max(0, niWithoutSacrifice - niWithSacrifice);
-    niEfficiencyNoteEl.innerHTML = pension > 0
+    niEfficiencyNoteEl.innerHTML = !includeNi
+      ? `National Insurance is switched off, so the pension contribution method makes no difference to it here.`
+      : pension > 0
       ? `Using salary sacrifice for a <strong>${fmtCurrency(pension)}</strong> pension contribution saves you <strong>${fmtCurrency(niSaving)}</strong> a year in National Insurance, compared to Not salary sacrifice for the same amount.`
       : `Add a pension contribution above to see how much National Insurance salary sacrifice would save you.`;
 
