@@ -1,16 +1,16 @@
 {
-  "savedAt": "2026-10-18T07:35:55.086Z",
+  "savedAt": "2026-10-18T08:26:19.180Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
       "price": 343.45999,
-      "pe": 38.60550573394496,
+      "pe": 39.387613532110095,
       "athPrice": 348.14999,
       "athDate": "2026-10-13",
       "daysSinceAth": 5,
       "vsAth": -1.3471205327336064,
       "change12mo": 36.136986647785754,
-      "dividendYield": 0.3148764165020076,
+      "dividendYield": 0.3086240117808191,
       "change1mo": 2.1807009192871836,
       "change3yr": 95.74830184952114,
       "change5yr": 130.88196631365733,
@@ -19,13 +19,13 @@
     "GOOGL": {
       "symbol": "GOOGL",
       "price": 340.59,
-      "pe": 20.457242582897038,
+      "pe": 19.813263525305413,
       "athPrice": 408.60999,
       "athDate": "2026-05-18",
       "daysSinceAth": 153,
       "vsAth": -16.646678168588096,
       "change12mo": 34.46111330438214,
-      "dividendYield": 0.24455439913552862,
+      "dividendYield": 0.25250300948354326,
       "change1mo": -2.5605108840043864,
       "change3yr": 147.25226860254082,
       "change5yr": 137.78074100965532,
@@ -34,13 +34,13 @@
     "NVDA": {
       "symbol": "NVDA",
       "price": 214.13,
-      "pe": 30.24802110817942,
+      "pe": 28.24934036939314,
       "athPrice": 243.37,
       "athDate": "2026-10-06",
       "daysSinceAth": 12,
       "vsAth": -12.014627932777257,
       "change12mo": 16.87042899246807,
-      "dividendYield": 0.22679692951849267,
+      "dividendYield": 0.24284313267641153,
       "change1mo": -3.662212624285785,
       "change3yr": 408.61024678748726,
       "change5yr": 860.6550022431584,
@@ -49,13 +49,13 @@
     "MSFT": {
       "symbol": "MSFT",
       "price": 529.049988,
-      "pe": 30.964699479166672,
+      "pe": 30.616318750000005,
       "athPrice": 555.45001,
       "athDate": "2025-07-31",
       "daysSinceAth": 444,
       "vsAth": -4.752906926763767,
       "change12mo": 3.012182600094138,
-      "dividendYield": 0.6802848136468244,
+      "dividendYield": 0.6880257220608802,
       "change1mo": 7.142854712625059,
       "change3yr": 59.67945552096293,
       "change5yr": 71.64129735453079,
@@ -64,7 +64,7 @@
     "AMZN": {
       "symbol": "AMZN",
       "price": 250,
-      "pe": 29.92360205245154,
+      "pe": 28.506271379703538,
       "athPrice": 287.20001,
       "athDate": "2026-08-03",
       "daysSinceAth": 76,
@@ -79,13 +79,13 @@
     "META": {
       "symbol": "META",
       "price": 709.33002,
-      "pe": 36.77942579324463,
+      "pe": 31.372402476780188,
       "athPrice": 796.25,
       "athDate": "2025-08-15",
       "daysSinceAth": 429,
       "vsAth": -10.916167032967033,
       "change12mo": -1.0586899809934185,
-      "dividendYield": 0.29220644502223403,
+      "dividendYield": 0.29605401446283075,
       "change1mo": 6.5460037551633485,
       "change3yr": 126.76065982545315,
       "change5yr": 108.63261886033764,
@@ -94,7 +94,7 @@
     "TSLA": {
       "symbol": "TSLA",
       "price": 354.72,
-      "pe": 285.5970223880597,
+      "pe": 264.7164179104478,
       "athPrice": 498.82999,
       "athDate": "2025-12-22",
       "daysSinceAth": 300,
@@ -116,7 +116,7 @@
       "daysSinceAth": 12,
       "vsAth": -2.3502469230572407,
       "change12mo": 14.879812837643366,
-      "dividendYield": 0.9739650773345354,
+      "dividendYield": 0.9935145758270554,
       "pe": null,
       "change1mo": 0.204807730178937,
       "change3yr": 78.98600424421369,
@@ -131,7 +131,7 @@
       "daysSinceAth": 12,
       "vsAth": -6.9554047525811455,
       "change12mo": 17.530177628701633,
-      "dividendYield": 0.41154577151900723,
+      "dividendYield": 0.4355903132655722,
       "pe": null,
       "change1mo": -1.6148062704996067,
       "change3yr": 97.18309581353999,
@@ -163,7 +163,7 @@
       "daysSinceAth": 6,
       "vsAth": -2.2159306239828784,
       "change12mo": 17.23999679255874,
-      "dividendYield": 0.8474437353039974,
+      "dividendYield": 0.8627453662540183,
       "pe": null,
       "change1mo": 1.5088788135939015,
       "change3yr": 62.85968885753538,
@@ -208,7 +208,7 @@
       "daysSinceAth": 12,
       "vsAth": -2.5695029486099386,
       "change12mo": 16.07561057209769,
-      "dividendYield": 1.3024734607218682,
+      "dividendYield": 1.3261240812797233,
       "pe": null,
       "change1mo": 0.22387520762620228,
       "change3yr": 57.27561196736175,
@@ -223,7 +223,7 @@
       "daysSinceAth": 233,
       "vsAth": -1.1732662895453492,
       "change12mo": 15.839882121807472,
-      "dividendYield": 3.153030071077091,
+      "dividendYield": 3.0564405342378627,
       "pe": null,
       "change1mo": 2.254498157381312,
       "change3yr": 44.33904528763771,
@@ -382,7 +382,7 @@
     "PL": {
       "symbol": "PL",
       "price": 13.56,
-      "pe": 17.353535353535353,
+      "pe": 13.696969696969697,
       "athPrice": 51.76,
       "athDate": "2026-05-28",
       "daysSinceAth": 143,
@@ -397,13 +397,13 @@
     "LMT": {
       "symbol": "LMT",
       "price": 552.090027,
-      "pe": 32.81326464906632,
+      "pe": 35.54990515132002,
       "athPrice": 692,
       "athDate": "2026-03-02",
       "daysSinceAth": 230,
       "vsAth": -20.21820419075145,
       "change12mo": 11.499553296971683,
-      "dividendYield": 2.7080594203182953,
+      "dividendYield": 2.499592335508716,
       "change1mo": 3.5078231279762964,
       "change3yr": 22.910645908336207,
       "change5yr": 48.7832529132434,
@@ -412,13 +412,13 @@
     "LHX": {
       "symbol": "LHX",
       "price": 248.50999,
-      "pe": 19.584297520661156,
+      "pe": 20.538015702479335,
       "athPrice": 379.23001,
       "athDate": "2026-03-02",
       "daysSinceAth": 230,
       "vsAth": -34.4698511597223,
       "change12mo": -12.456409624123724,
-      "dividendYield": 2.088872009115078,
+      "dividendYield": 1.991871634617184,
       "change1mo": 0.4933479110901331,
       "change3yr": 39.6908397802608,
       "change5yr": 2.719795094440331,
@@ -427,13 +427,13 @@
     "NOC": {
       "symbol": "NOC",
       "price": 519.85999,
-      "pe": 23.18958031837916,
+      "pe": 25.077664737095997,
       "athPrice": 774,
       "athDate": "2026-03-03",
       "daysSinceAth": 229,
       "vsAth": -32.83462661498707,
       "change12mo": -12.555089991589567,
-      "dividendYield": 1.9886836412048594,
+      "dividendYield": 1.8389566775469681,
       "change1mo": -1.4277896541877846,
       "change3yr": 6.106868187941389,
       "change5yr": 30.19283822170896,
@@ -465,7 +465,7 @@
       "daysSinceAth": 41,
       "vsAth": -5.104166666666667,
       "change12mo": null,
-      "dividendYield": 6.611667648791986,
+      "dividendYield": 6.158068057080132,
       "change1mo": -2.200751476113795,
       "change3yr": null,
       "change5yr": null,
@@ -480,7 +480,7 @@
       "daysSinceAth": 2501,
       "vsAth": -7.976599692744093,
       "change12mo": 27.04081207482993,
-      "dividendYield": 7.634146341463414,
+      "dividendYield": 7.332664234694251,
       "change1mo": 1.8057887563884087,
       "change3yr": 41.07648253068931,
       "change5yr": 8.182468928947525,
@@ -495,7 +495,7 @@
       "daysSinceAth": 72,
       "vsAth": -14.43748258138157,
       "change12mo": 23.07994122257054,
-      "dividendYield": 6.769635122235791,
+      "dividendYield": 6.558420357898111,
       "change1mo": -5.420054037336524,
       "change3yr": 58.27664902998237,
       "change5yr": 59.199194120628476,
@@ -524,7 +524,7 @@
       "daysSinceAth": 1748,
       "vsAth": -37.53482459836962,
       "change12mo": -5.02911620058847,
-      "dividendYield": 7.288037166085948,
+      "dividendYield": 6.995541081133839,
       "change1mo": 0.616932136848004,
       "change3yr": 9.926464460784324,
       "change5yr": -30.303031480304256,
@@ -539,7 +539,7 @@
       "daysSinceAth": 7179,
       "vsAth": -16.8997668997669,
       "change12mo": 9.021406727828746,
-      "dividendYield": 5.937961447562777,
+      "dividendYield": 5.6381485273492284,
       "change1mo": 0.08421953722010837,
       "change3yr": 76.09286678421503,
       "change5yr": 36.35632305402362,
@@ -554,7 +554,7 @@
       "daysSinceAth": 3714,
       "vsAth": -30.69330765527203,
       "change12mo": -4.224883566200932,
-      "dividendYield": 6.142749661908339,
+      "dividendYield": 5.6797497742271625,
       "change1mo": 15.529695024077048,
       "change3yr": 67.33507701249637,
       "change5yr": 84.78818998716304,
@@ -569,7 +569,7 @@
       "daysSinceAth": 7180,
       "vsAth": -89.29333993898891,
       "change12mo": 25.093909650867396,
-      "dividendYield": 5.446623263200227,
+      "dividendYield": 5.255255255255255,
       "change1mo": -4.775524598926954,
       "change3yr": 199.46044511962432,
       "change5yr": 185.10272752128736,
@@ -584,7 +584,7 @@
       "daysSinceAth": 3421,
       "vsAth": -21.025587904430008,
       "change12mo": 16.219035202086047,
-      "dividendYield": 5.81402017167382,
+      "dividendYield": 5.470944716176801,
       "change1mo": 6.220209723546234,
       "change3yr": 79.13987138263666,
       "change5yr": 72.75193798449612,
@@ -599,7 +599,7 @@
       "daysSinceAth": 4721,
       "vsAth": -17.663553738317756,
       "change12mo": 4.260352071005918,
-      "dividendYield": 7.359951806914427,
+      "dividendYield": 7.009080505365508,
       "change1mo": 5.225440586008975,
       "change3yr": 38.03368194281237,
       "change5yr": 18.733154269984993,
@@ -657,7 +657,7 @@
       "change3yr": 13.96286114160584,
       "change5yr": -6.885196303612828,
       "pe": null,
-      "dividendYield": 6.821192052980132,
+      "dividendYield": 6.333589546502691,
       "dividendPaid": 41.2
     },
     "BLND": {
@@ -672,7 +672,7 @@
       "change3yr": 41.10885872578969,
       "change5yr": -16.819450315254088,
       "pe": null,
-      "dividendYield": 5.949562379064273,
+      "dividendYield": 5.539051402468888,
       "dividendPaid": 23.12
     },
     "BBOX": {
@@ -687,7 +687,7 @@
       "change3yr": 7.916363548645521,
       "change5yr": -35.2017937219731,
       "pe": null,
-      "dividendYield": 5.848246170365068,
+      "dividendYield": 5.6539791695501735,
       "dividendPaid": 8.1699999
     },
     "SGRO": {
@@ -702,7 +702,7 @@
       "change3yr": 28.98305225988701,
       "change5yr": -29.126890958478853,
       "pe": null,
-      "dividendYield": 3.4312445231587843,
+      "dividendYield": 3.45378883646749,
       "dividendPaid": 31.54
     }
   },
@@ -719,7 +719,7 @@
       "change3yr": 13.390013036982214,
       "change5yr": null,
       "pe": null,
-      "dividendYield": 11.72305416897763,
+      "dividendYield": 11.885660731021556,
       "dividendPaid": 6.310000000000001
     },
     "GPIQ": {
@@ -734,7 +734,7 @@
       "change3yr": null,
       "change5yr": null,
       "pe": null,
-      "dividendYield": 9.908317580340265,
+      "dividendYield": 10.37920792079208,
       "dividendPaid": 5.66091
     },
     "IDVO": {
@@ -749,7 +749,7 @@
       "change3yr": 53.37469541819269,
       "change5yr": null,
       "pe": null,
-      "dividendYield": 5.96921596921597,
+      "dividendYield": 6.047758137237863,
       "dividendPaid": 2.418
     },
     "MLPI": {
@@ -764,7 +764,7 @@
       "change3yr": null,
       "change5yr": null,
       "pe": null,
-      "dividendYield": 12.69393192419616,
+      "dividendYield": 12.55412077478162,
       "dividendPaid": 5.343000000000001
     },
     "SCHD": {
@@ -793,7 +793,7 @@
       "change3yr": 37.148594377510044,
       "change5yr": 30.343511450381687,
       "pe": null,
-      "dividendYield": 6.3596121416526135,
+      "dividendYield": 6.3103953147877005,
       "dividendPaid": 2.985
     },
     "JEPI": {
@@ -808,7 +808,7 @@
       "change3yr": 7.318910630291624,
       "change5yr": -7.161456705729169,
       "pe": null,
-      "dividendYield": 8.037695966179319,
+      "dividendYield": 7.99964922861765,
       "dividendPaid": 4.58
     }
   },
@@ -825,7 +825,7 @@
       "change3yr": 47.256337917070894,
       "change5yr": 33.087950406819076,
       "pe": null,
-      "dividendYield": 3.1930991769643113,
+      "dividendYield": 3.071324599708879,
       "dividendPaid": 1.048
     },
     "NOBL": {
@@ -840,7 +840,7 @@
       "change3yr": 32.66016097213737,
       "change5yr": 23.956186964537473,
       "pe": null,
-      "dividendYield": 3.1959324496095878,
+      "dividendYield": 3.0796150481189852,
       "dividendPaid": 2.0260000000000002
     }
   },
@@ -887,7 +887,7 @@
       "change3yr": 22.012456041424986,
       "change5yr": 5.101092810932711,
       "pe": null,
-      "dividendYield": 2.267704165433601,
+      "dividendYield": 2.259460318591249,
       "dividendPaid": 0.00041226
     },
     "0P0000TKZH": {
@@ -902,7 +902,7 @@
       "change3yr": 11.81648505918577,
       "change5yr": -8.380115879343473,
       "pe": null,
-      "dividendYield": 3.175220279281557,
+      "dividendYield": 3.1560445620051176,
       "dividendPaid": 0.00043956
     },
     "0P0000TKZK": {
@@ -932,7 +932,7 @@
       "change3yr": 33.20072467179066,
       "change5yr": 20.512109229767034,
       "pe": null,
-      "dividendYield": 1.9369412750628952,
+      "dividendYield": 1.9335184377022603,
       "dividendPaid": 0.00045856
     },
     "0P0000TKZM": {
@@ -962,7 +962,7 @@
       "change3yr": 55.04300882888049,
       "change5yr": 54.88749510316009,
       "pe": null,
-      "dividendYield": 1.6680082843412114,
+      "dividendYield": 1.6710353089397203,
       "dividendPaid": 0.00063426
     },
     "0P0000TKZO": {
@@ -992,7 +992,7 @@
       "change3yr": 44.44759026315252,
       "change5yr": 37.356537723242994,
       "pe": null,
-      "dividendYield": 1.6902571881163706,
+      "dividendYield": 1.6901416256931618,
       "dividendPaid": 0.00051231
     }
   }
