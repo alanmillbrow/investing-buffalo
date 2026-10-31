@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-10-31T01:17:22.304Z",
+  "savedAt": "2026-10-31T07:47:24.395Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
@@ -292,15 +292,15 @@
     },
     "S100": {
       "symbol": "S100",
-      "price": 119.44,
+      "price": 119.5,
       "athPrice": 121.94,
       "athDate": "2026-10-19",
       "daysSinceAth": 12,
-      "vsAth": -2.0501886173527963,
-      "change1mo": 2.9300241296104717,
-      "change12mo": 13.62252663622526,
-      "change3yr": 61.04631564754263,
-      "change5yr": 74.16156313794109,
+      "vsAth": -2.0009840905363276,
+      "change1mo": 2.98173043778007,
+      "change12mo": 13.679604261796039,
+      "change3yr": 61.12721634194025,
+      "change5yr": 74.24905220180811,
       "pe": null,
       "dividendYield": null,
       "dividendPaid": null
@@ -336,32 +336,32 @@
   "spaceForce": {
     "SPCX": {
       "symbol": "SPCX",
-      "price": 134.7,
+      "price": 134.72,
       "pe": 175.58334523809523,
       "athPrice": 225.64,
       "athDate": "2026-06-16",
       "daysSinceAth": 137,
-      "vsAth": -40.30313774153519,
+      "vsAth": -40.29427406488211,
       "change12mo": null,
       "dividendYield": null,
-      "change1mo": -9.02951736876734,
+      "change1mo": -9.016010244397439,
       "change3yr": null,
       "change5yr": null,
       "dividendPaid": null
     },
     "RKLB": {
       "symbol": "RKLB",
-      "price": 54.72,
+      "price": 54.73,
       "pe": null,
       "athPrice": 151,
       "athDate": "2026-05-27",
       "daysSinceAth": 157,
-      "vsAth": -63.76158940397351,
-      "change12mo": -13.115274690377895,
+      "vsAth": -63.75496688741723,
+      "change12mo": -13.099396633852017,
       "dividendYield": null,
-      "change1mo": -22.33891569684927,
-      "change3yr": 1190.5660377358488,
-      "change5yr": 283.7307152875175,
+      "change1mo": -22.32472324723247,
+      "change3yr": 1190.8018867924527,
+      "change5yr": 283.80084151472647,
       "dividendPaid": null
     },
     "ASTS": {
@@ -609,39 +609,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 77598,
+      "price": 77340.01,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 390,
-      "vsAth": -38.511705620690016,
-      "change1mo": -8.579224446733953,
-      "change12mo": -29.20407915443406,
-      "change3yr": 119.09191463272495,
-      "change5yr": 27.41746060348767
+      "vsAth": -38.716135697069795,
+      "change1mo": -8.883171016039702,
+      "change12mo": -29.439454288057966,
+      "change3yr": 118.36349994347913,
+      "change5yr": 26.99383588814585
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 3875.34118,
+      "price": 3875.35565,
       "athPrice": 5595.45996,
       "athDate": "2026-01-29",
       "daysSinceAth": 275,
-      "vsAth": -30.74132944023426,
-      "change1mo": -7.263193554425625,
-      "change12mo": -3.1716633780870156,
-      "change3yr": 95.51200165969274,
-      "change5yr": 116.13183633996871
+      "vsAth": -30.741070837722518,
+      "change1mo": -7.26284728772885,
+      "change12mo": -3.1713018341697574,
+      "change3yr": 95.5127316750727,
+      "change5yr": 116.13264334702347
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 49.13107,
+      "price": 49.12983,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 275,
-      "vsAth": -59.58874527061667,
-      "change1mo": -19.443409202664526,
-      "change12mo": 1.2750734346817794,
-      "change3yr": 114.70085432735375,
-      "change5yr": 104.57129651990707
+      "vsAth": -59.58976519458463,
+      "change1mo": -19.4454423391826,
+      "change12mo": 1.2725173924246234,
+      "change3yr": 114.69543557585158,
+      "change5yr": 104.56613342438146
     }
   },
   "reits": {
@@ -816,10 +816,10 @@
     "SCHD": {
       "symbol": "SCHD",
       "price": 35.78,
-      "athPrice": 36.098801,
+      "athPrice": 36.099998,
       "athDate": "2026-10-30",
       "daysSinceAth": 1,
-      "vsAth": -0.883134594968959,
+      "vsAth": -0.8864211017407763,
       "change1mo": 9.552969993876316,
       "change12mo": 33.7570093457944,
       "change3yr": 57.50547945627594,
