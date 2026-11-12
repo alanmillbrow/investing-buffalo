@@ -1,14 +1,14 @@
 {
-  "savedAt": "2026-11-12T01:12:16.663Z",
+  "savedAt": "2026-11-12T09:00:46.933Z",
   "stocks": {
     "AAPL": {
       "symbol": "AAPL",
       "price": 355.63,
       "pe": 38.16833890746935,
-      "athPrice": 355.89999,
+      "athPrice": 355.91,
       "athDate": "2026-11-11",
       "daysSinceAth": 1,
-      "vsAth": -0.07586119909697302,
+      "vsAth": -0.07867157427440351,
       "change12mo": 30.04351482795186,
       "dividendYield": 0.30960656599585246,
       "change1mo": 4.207815049896414,
@@ -48,17 +48,17 @@
     },
     "MSFT": {
       "symbol": "MSFT",
-      "price": 521.125,
+      "price": 521.13,
       "pe": 29.412970620842575,
       "athPrice": 559.15002,
       "athDate": "2026-11-04",
       "daysSinceAth": 8,
-      "vsAth": -6.800504093695649,
-      "change12mo": 1.9534745480010423,
+      "vsAth": -6.799609879295013,
+      "change12mo": 1.954452753561588,
       "dividendYield": 0.6860029152485425,
-      "change1mo": -4.108015381212344,
-      "change3yr": 42.11983588196346,
-      "change5yr": 54.7650867189356,
+      "change1mo": -4.107095333386787,
+      "change3yr": 42.12119946877932,
+      "change5yr": 54.76657163221667,
       "dividendPaid": 3.56
     },
     "AMZN": {
@@ -336,15 +336,15 @@
   "spaceForce": {
     "SPCX": {
       "symbol": "SPCX",
-      "price": 139.83,
+      "price": 139.75,
       "pe": 159.8452380952381,
       "athPrice": 225.64,
       "athDate": "2026-06-16",
       "daysSinceAth": 149,
-      "vsAth": -38.029604680021265,
+      "vsAth": -38.06505938663357,
       "change12mo": null,
       "dividendYield": null,
-      "change1mo": -10.674582258501472,
+      "change1mo": -10.725687410609897,
       "change3yr": null,
       "change5yr": null,
       "dividendPaid": null
@@ -609,39 +609,39 @@
   "commodities": {
     "BTC/USD": {
       "symbol": "BTC/USD",
-      "price": 73818,
+      "price": 73617.01,
       "athPrice": 126199.63,
       "athDate": "2025-10-06",
       "daysSinceAth": 402,
-      "vsAth": -41.506960044177625,
-      "change1mo": -11.243371929444864,
-      "change12mo": -27.38334810397231,
-      "change3yr": 102.38387355463101,
-      "change5yr": 14.631913748498246
+      "vsAth": -41.66622358560006,
+      "change1mo": -11.485036491962155,
+      "change12mo": -27.58106710021419,
+      "change3yr": 101.83282726855245,
+      "change5yr": 14.31979653664868
     },
     "XAU/USD": {
       "symbol": "XAU/USD",
-      "price": 3995.14106,
+      "price": 3930.74879,
       "athPrice": 5595.45996,
       "athDate": "2026-01-29",
       "daysSinceAth": 287,
-      "vsAth": -28.600310098546394,
-      "change1mo": -3.9156106294875848,
-      "change12mo": -4.8488214524335795,
-      "change3yr": 105.3117616858519,
-      "change5yr": 114.32653501747929
+      "vsAth": -29.751105036948562,
+      "change1mo": -5.464264819718142,
+      "change12mo": -6.382434480818887,
+      "change3yr": 102.00261935668193,
+      "change5yr": 110.87209576145712
     },
     "XAG/USD": {
       "symbol": "XAG/USD",
-      "price": 51.65774,
+      "price": 50.76409,
       "athPrice": 121.57769,
       "athDate": "2026-01-29",
       "daysSinceAth": 287,
-      "vsAth": -57.51051035761577,
-      "change1mo": -12.83534591927215,
-      "change12mo": -3.4558378973907136,
-      "change3yr": 131.3067657726235,
-      "change5yr": 104.30111013996384
+      "vsAth": -58.245554755975384,
+      "change1mo": -14.34324566709778,
+      "change12mo": -5.125997886251941,
+      "change3yr": 127.30528813862895,
+      "change5yr": 100.76681523901429
     }
   },
   "reits": {
